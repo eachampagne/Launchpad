@@ -2,10 +2,11 @@
   "name": "launchpad",
   "private": true,
   "version": "0.0.0",
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "build:server": "tsc ./server/index.ts --outDir ./tsout-server/",
+    "build:server": "tsc ./server/index.ts --outDir ./tsout-server/ --module preserve",
     "lint": "eslint .",
     "preview": "vite preview",
     "start": "node tsout-server/index.js"
