@@ -1,6 +1,7 @@
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import express from 'express';
+import {test} from './database/script.js'
 
 // import test from './router.js';
 
@@ -16,3 +17,5 @@ app.use(express.static(join(__dirname, '..', 'dist')));
 app.listen(port, () => {
   console.info(`Listening on http://localhost:${port}`);
 });
+
+console.log(test);

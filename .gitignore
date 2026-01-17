@@ -12,6 +12,7 @@ dist
 dist-ssr
 tsout-server
 *.local
+.env
 
 # Editor directories and files
 .vscode/*
@@ -23,3 +24,5 @@ tsout-server
 *.njsproj
 *.sln
 *.sw?
+
+/generated/prisma

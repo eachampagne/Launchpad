@@ -9,7 +9,7 @@
     "build:server": "tsc -b ./server/",
     "lint": "eslint .",
     "preview": "vite preview",
-    "start": "node tsout-server/index.js"
+    "start": "node tsout-server/server/index.js"
   },
   "dependencies": {
     "express": "^5.2.1",
