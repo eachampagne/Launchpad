@@ -12,17 +12,19 @@ datasource db {
 }
 
 model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
-  posts Post[]
+  id                  Int     @id @default(autoincrement())
+  name                String?
+  dashboards          Dashboard[] @relation("UserDashboards")
+  primaryDash         Dashboard? @relation("PrimaryDash", fields: [primaryDashId], references: [id])
+  primaryDashId       Int? @unique
+  credentialProvider  String
+  credentialSubject   Int
 }
 
-model Post {
-  id        Int     @id @default(autoincrement())
-  title     String
-  content   String?
-  published Boolean @default(false)
-  author    User    @relation(fields: [authorId], references: [id])
-  authorId  Int
+model Dashboard {
+  id         Int     @id @default(autoincrement())
+  name       String
+  owner      User    @relation("UserDashboards", fields: [ownerId], references: [id])
+  ownerId    Int
+  primaryOf  User?  @relation("PrimaryDash")
 }

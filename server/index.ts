@@ -1,9 +1,9 @@
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import express from 'express';
-import {test} from './database/script.js'
 
-// import test from './router.js';
+import router from './routers/router.js';
+import test from './database/script.js';
 
 const app = express();
 /* 
@@ -38,8 +38,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 app.use(express.json());
 app.use(express.static(join(__dirname, '..', 'dist')));
 
+app.use(router);
+
 app.listen(port, host, () => {
   console.info(`Listening on http://localhost:${port}`);
 });
-
-console.log(test);
