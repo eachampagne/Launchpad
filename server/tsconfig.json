@@ -16,5 +16,5 @@
     "noUncheckedSideEffectImports": true,
     // "allowImportingTsExtensions": true
   },
-  "include": ["*.ts"]
+  "include": ["*.ts", "routers/auth.ts"]
 }

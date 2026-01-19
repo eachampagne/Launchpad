@@ -1,13 +1,21 @@
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import express from 'express';
-import session from 'express-session'; //we'll see
-import passport from 'passport';
-import authRouter from './auth.js' //we'll see
-// import something for connection?
 
 import router from './routers/router.js';
 import test from './database/script.js';
+
+// AUTH
+import session from 'express-session'; 
+import passport from 'passport';
+import authRouter from './routers/auth.js' 
+import { PrismaPg } from "@prisma/adapter-pg";  
+import { PrismaClient } from "../generated/prisma/client.ts";
+import { PrismaSessionStore } from '@quixo3/prisma-session-store';
+
+const connectionString = `${process.env.DATABASE_URL}`;
+const adapter = new PrismaPg({ connectionString });
+const prisma = new PrismaClient({ adapter });
 
 const app = express();
 const port = 8000;
@@ -17,13 +25,19 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 app.use(express.json());
 app.use(express.static(join(__dirname, '..', 'dist')));
+
+// AUTH
 app.use('/', authRouter);
 
 app.use(session({
   secret: 'temp test',
   resave: false,
   saveUninitialized: false,
-  // store: new SQLiteStore({ db: 'sessions.db', dir: './var/db' })
+  store: new PrismaSessionStore(prisma, { //WIP
+    checkPeriod: 2 * 60 * 1000, // miliseconds roughly equal to 2 minutes?
+    dbRecordIdIsSessionId: true,
+    dbRecordIdFunction: undefined
+  })
 }));
 app.use(passport.authenticate('session'));
 
