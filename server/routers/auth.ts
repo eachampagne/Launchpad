@@ -1,6 +1,6 @@
 import express from 'express';
 import passport from 'passport';
-import GoogleStrategy from 'passport-google-oidc'; // TODO: Fix this TS error. I have no clue how.
+import GoogleStrategy from 'passport-google-oidc';
 import { User } from '../../generated/prisma/client.js' // * 'User' Type.
 import { prisma } from '../database/prisma.js';
 
@@ -38,7 +38,7 @@ passport.use(new GoogleStrategy({
 
 router.get('/login', function (req, res, next) {
   // res.render('login'); need a login page to make it work
-  // TODO: Get this rout to go somewhere, or just remove it altogether and keep the button on the page.
+  // TODO: Get this route to go somewhere, or just remove it altogether and keep the button on the page.
 });
 
 router.get('/login/federated/google', passport.authenticate('google'));
@@ -57,7 +57,7 @@ router.post('/logout', function(req, res, next) {
 
 passport.serializeUser(function(user : User, cb) { //TODO: Fix this TS error.
   process.nextTick(function() {
-    cb(null, { id: user.id, name: user.name });
+    return cb(null, { id: user.id, name: user.name });
   });
 });
 
