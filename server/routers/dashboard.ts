@@ -43,14 +43,14 @@ router.post('/', async (req, res) => {
   // the user's identity should be pulled from the session info
   // rather than just being the client saying "trust me bro"
 
-  const { userId: userIdString, name } = req.body;
-  const ownerId = parseInt(userIdString);
+  const { userId: ownerId, name, themeId } = req.body;
 
   try {
     await prisma.dashboard.create({
       data: {
         name,
-        ownerId
+        ownerId,
+        themeId
       }
     });
 
