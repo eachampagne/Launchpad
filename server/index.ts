@@ -37,7 +37,7 @@ const host = '0.0.0.0';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 app.use(express.json());
-app.use(express.static(join(__dirname, '..', 'dist')));
+app.use(express.static(join(__dirname, '..', '..', 'dist'))); // evidently this is relative to the compiled index.js file
 
 app.use(router);
 app.use('/theme', theme);
