@@ -7,7 +7,31 @@ import theme from './routers/theme.js'
 import test from './database/script.js';
 
 const app = express();
-const port = 8000;
+/* 
+Helpful Vocabulary:
+
+Cloud Run - a deployment service provided by Google Cloud platform that handles automatic scaling without infrastructure management.
+
+Container - a self-contained, executable package of software that bundles your application code, its dependencies, 
+system tools, libraries, and configuration, allowing it to run consistently and portably in isolated environments.
+_____________________________________________________________________________________________________________________________________
+
+Explaining usage of process.env.PORT:
+
+PORT environment variable allows app to be portable across different hosting environments.
+The environment reads PORT from Cloud Run or defaults to 8000 (in our case, not required to be 8000) for local testing.
+Cloud Run then injects the PORT environment variable into your container instance (the deployed version of the code) 
+Number() converts PORT from a string to number to work with app.listen() port parameter type assertions since app.listen 
+expects only a number value as port, and process.env.PORT is a string.
+*/ 
+const port = Number(process.env.PORT) || 8000;
+/* 
+The ingress container within an instance must listen for requests on 0.0.0.0
+
+Link to documentation referencing this:
+https://docs.cloud.google.com/run/docs/container-contract#:~:text=must%20be%20met:-,Container%20deployed%20to%20services%20must%20listen%20for%20requests%20on%20the,any%20transport%20layer%20security%20directly.
+ */
+const host = '0.0.0.0';
 
 // thanks to the Socket.IO docs for this
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -16,7 +40,12 @@ app.use(express.json());
 app.use(express.static(join(__dirname, '..', 'dist')));
 
 app.use(router);
+<<<<<<< HEAD
 app.use('/theme', theme);
 app.listen(port, () => {
+=======
+
+app.listen(port, host, () => {
+>>>>>>> eab20e149c48a769abf590aa7f925d0a4a269ef9
   console.info(`Listening on http://localhost:${port}`);
 });

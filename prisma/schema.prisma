@@ -28,7 +28,9 @@ model Dashboard {
   ownerId    Int
   theme      Theme @relation(fields: [themeId], references: [id])
   themeId    Int @unique
-  primaryOf  User?  @relation("PrimaryDash")
+  layout     Layout   @relation(fields: [layoutId], references: [id])
+  layoutId   Int
+  primaryOf  User?    @relation("PrimaryDash")
 }
 
 model Theme {
@@ -38,4 +40,29 @@ model Theme {
   navColor  String
   bgColor   String
   font      String
+}
+
+model Layout {
+  id Int  @id @default(autoincrement())
+  public    Boolean
+  
+  gridSize  String
+}
+
+model LayoutElement {
+  id Int  @id @default(autoincrement())
+  layout     Layout   @relation(fields: [layoutId], references: [id])
+  layoutId   Int
+  widget     Widget   @relation(fields: [widgetId], references: [id])
+  widgetId   Int
+  posX       Int
+  posY       Int
+  sizeX      Int
+  sizeY      Int
+}
+
+model Widget {
+  id Int  @id @default(autoincrement())
+  name       String
+
 }
