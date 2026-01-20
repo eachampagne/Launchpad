@@ -3,6 +3,7 @@ import { dirname, join } from 'node:path';
 import express from 'express';
 
 import router from './routers/router.js';
+import theme from './routers/theme.js'
 import test from './database/script.js';
 
 const app = express();
@@ -15,7 +16,7 @@ app.use(express.json());
 app.use(express.static(join(__dirname, '..', 'dist')));
 
 app.use(router);
-
+app.use('/theme', theme);
 app.listen(port, () => {
   console.info(`Listening on http://localhost:${port}`);
 });
