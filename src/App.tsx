@@ -8,6 +8,10 @@ function App() {
 
   return (
     <>
+      {/* TESTING AUTH*/}
+      <h1>Sign in</h1>
+      <a className="button google" href="/login/federated/google">Sign in with Google</a>
+      {/* TESTING AUTH*/}
       <div>
         <a href="https://vite.dev" target="_blank">
           <img src={viteLogo} className="logo" alt="Vite logo" />

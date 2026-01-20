@@ -3,6 +3,8 @@ import passport from 'passport';
 import GoogleStrategy from 'passport-google-oidc';
 import { prisma } from '../database/prisma.js';
 
+const router = express.Router();
+
 passport.use(new GoogleStrategy({
   clientID: process.env['GOOGLE_CLIENT_ID'],
   clientSecret: process.env['GOOGLE_CLIENT_SECRET'],
@@ -45,10 +47,8 @@ passport.use(new GoogleStrategy({
   })
 }));
 
-const router = express.Router();
-
 router.get('/login', function (req, res, next) {
-  res.render('login');
+  // res.render('login'); need a login page to make it work
 });
 
 router.get('/login/federated/google', passport.authenticate('google'));
