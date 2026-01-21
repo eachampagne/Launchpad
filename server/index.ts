@@ -4,6 +4,7 @@ import express from 'express';
 
 import router from './routers/router.js';
 import theme from './routers/theme.js'
+import layout from './routers/layout.js';
 import test from './database/script.js';
 
 const app = express();
@@ -41,6 +42,7 @@ app.use(express.static(join(__dirname, '..', 'dist')));
 
 app.use(router);
 app.use('/theme', theme);
+app.use('/layout', layout);
 app.listen(port, host, () => {
   console.info(`Listening on http://localhost:${port}`);
 });
