@@ -8,10 +8,6 @@ const router = express.Router();
 
 router.use('/dashboard', dashboardRouter);
 
-router.get('/', (req, res) => {
-  res.status(200).send("working!");
-});
-
 router.post('/user', async (req, res) => {
   const { name }: { name: string} = req.body;
 
