@@ -16,6 +16,7 @@ const connectionString = `${process.env.DATABASE_URL}`;
 const adapter = new PrismaPg({ connectionString });
 const prisma = new PrismaClient({ adapter });
 import theme from './routers/theme.js'
+import user from './routers/user.js'
 import test from './database/script.js';
 
 const app = express();
@@ -69,6 +70,8 @@ app.use('/', authRouter);
 
 app.use(router);
 app.use('/theme', theme);
+app.use('/user', user);
+
 app.listen(port, host, () => {
   console.info(`Listening on http://localhost:${port}`);
 });

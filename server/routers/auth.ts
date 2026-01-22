@@ -51,12 +51,14 @@ router.post('/logout', function(req, res, next) {
 });
 
 passport.serializeUser(function(user : any, cb) { //TODO: Replace Any with whatever it should be. (User doesn't work, but is what the function should take in.)
+  console.log("serialize", user);
   process.nextTick(function() {
     return cb(null, { id: user.id, name: user.name });
   });
 });
 
 passport.deserializeUser(function(user : User, cb) {
+  console.log("deserialize", user);
   process.nextTick(function() {
     return cb(null, user);
   });
