@@ -5,8 +5,24 @@ import { prisma } from '../database/prisma.js';
 const theme = express.Router();
 
 // GET
-theme.get('/', (req, res) => {
-  res.status(200).send('GET is working');
+theme.get('/', async (req, res) => {
+  const { ownerId } = req.body;
+  try {
+    const themes = await prisma.theme.findMany({
+      where: {
+        id: ownerId
+      }
+    })
+
+    if(themes){
+      res.status(200).send(themes);
+    } else {
+      res.sendStatus(404);
+    }
+  } catch (error){
+    console.error('You already have this theme', error);
+    res.sendStatus(500);
+  }
 })
 
 
