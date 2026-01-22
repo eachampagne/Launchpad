@@ -92,5 +92,31 @@ router.patch('/:id', async (req, res) => {
   }
 });
 
+// deletes dashboard based on dashboard id
+router.delete('/:id', async (req, res) => {
+
+  const { id: idString } = req.params;
+  const id = parseInt(idString);
+
+  try {
+    await prisma.dashboard.delete({
+      where: {
+        id
+      }
+    });
+
+    res.sendStatus(204);
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === 'P2025') {
+        res.sendStatus(404);
+        return;
+      }
+    }
+    console.error('Failed to DELETE dashboard:', error);
+    res.sendStatus(500);
+  }
+})
+
 
 export default router;
