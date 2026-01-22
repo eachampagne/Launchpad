@@ -1,18 +1,22 @@
 import { useState, useEffect, type ChangeEvent } from 'react';
 import { Link } from "react-router";
 import axios from 'axios';
+import Theme from './Theme';
 
 function DashEditor({dashboardId}: {dashboardId: number}) {
   const [dashboard, setDashboard] = useState({name: "Loading"});
   const [newName, setNewName] = useState('');
   const [renaming, setRenaming] = useState(false);
+  const [dashId, setDashId] = useState(1);
 
   const loadDashboard = async () => {
     try {
       const response = await axios.get(`/dashboard/${dashboardId}`);
+      console.log(response);
       console.log(response.data);
       setDashboard(response.data);
       setNewName(response.data.name);
+      setDashId(response.data.id);
     } catch (error) {
       console.error('Failed to get dashboard:', error);
     }
@@ -67,6 +71,7 @@ function DashEditor({dashboardId}: {dashboardId: number}) {
     <>
       <h2>Editing: {renderName()}</h2>
       <Link to='/'>Done</Link>
+      <Theme dashId={dashId}/>
     </>
   );
 }
