@@ -10,18 +10,43 @@
  */
 
 
-// import { useState, useEffect } from 'react';
+import { useState, useEffect} from 'react';
 // import { Link } from "react-router";
-// import axios from 'axios';
+import axios from 'axios';
 
-function Theme ({dashId}: {dashId: number}) {
+function Theme ({dashboard}: {dashboard: { name: string, ownerId: number}}) {
+  const [themesList, setThemesList] = useState([]);
   // react hook needs to set theme
+  //const [ownerId, setOwnerId] = useState({ownerId: -1});
+  console.log(dashboard, 'THIS IS THE DASH OBJECT')
+  console.log(themesList, 'CAN YOU SEE THISSSSSS')
+  // first lets get all the themes of that user
+  const allThemes = async () => {
+    const ownerId  = dashboard.ownerId;
+    try {
+      const test = await axios.get(`/theme/${ownerId}`);
+      setThemesList(test.data);
 
-
+    } catch (error) {
+      console.error('Failed to get all of your themes', error);
+    }
+  }
   
+  useEffect(() => {
+    // if the owner is provided
+    if(dashboard.ownerId){
+      allThemes();
+    }
+  }, [dashboard.ownerId])
 
   return (
-    <p>{dashId}</p>
+    <>
+    {
+      themesList.map((theme) => {
+        <li>{theme}</li>
+      })
+    }
+    </>
   )
 }
 
