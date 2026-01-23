@@ -15,9 +15,13 @@
   "dependencies": {
     "@prisma/adapter-pg": "^7.2.0",
     "@prisma/client": "^7.2.0",
+    "@quixo3/prisma-session-store": "^3.1.19",
     "axios": "^1.13.2",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
+    "express-session": "^1.18.2",
+    "passport": "^0.7.0",
+    "passport-google-oidc": "^0.1.0",
     "pg": "^8.17.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
@@ -26,7 +30,9 @@
   "devDependencies": {
     "@eslint/js": "^9.39.1",
     "@types/express": "^5.0.6",
+    "@types/express-session": "^1.18.2",
     "@types/node": "^24.10.9",
+    "@types/passport": "^1.0.17",
     "@types/pg": "^8.16.0",
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",

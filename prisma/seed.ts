@@ -11,7 +11,7 @@ async function main() {
     data: {
       name: 'Demo Account',
       credentialProvider: 'None',
-      credentialSubject: 0
+      credentialSubject: 'test'
     }
   });
 

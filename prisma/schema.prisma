@@ -17,7 +17,7 @@ model User {
   primaryDash        Dashboard?  @relation("PrimaryDash", fields: [primaryDashId], references: [id])
   primaryDashId      Int?        @unique
   credentialProvider String
-  credentialSubject  Int
+  credentialSubject  String
   themes             Theme[]
   layouts            Layout[]
 }
@@ -34,13 +34,18 @@ model Dashboard {
   primaryOf User?  @relation("PrimaryDash")
 }
 
+model Session {
+  id        String   @id
+  sid       String   @unique
+  data      String
+  expiresAt   DateTime
+}
+
 model Theme {
   id     Int        @id @default(autoincrement())
   usedBy Dashboard?
-
   owner   User @relation(fields: [ownerId], references: [id])
   ownerId Int
-
   public   Boolean @default(false)
   navColor String
   bgColor  String
@@ -50,12 +55,9 @@ model Theme {
 model Layout {
   id     Int        @id @default(autoincrement())
   usedBy Dashboard?
-
   owner   User @relation(fields: [ownerId], references: [id])
   ownerId Int
-
   public Boolean @default(false)
-
   gridSize       String
   layoutElements LayoutElement[]
 }
