@@ -8,7 +8,6 @@ function Dashboard ({dashboardId}: {dashboardId: number}) {
   const loadDashboard = async () => {
     try {
       const response = await axios.get(`/dashboard/${dashboardId}`);
-      console.log(response.data);
       setDashboard(response.data);
     } catch (error) {
       console.error('Failed to get dashboard:', error);

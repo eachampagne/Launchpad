@@ -94,8 +94,6 @@ router.get('/auth/calendar', (req, res) => {
 // TODO: single redirect for permissions?
 // TODO: fix any
 router.get('/auth/redirect/calendar', async (req: any, res) => {
-  console.log('calendar redirect');
-
   const oauth2Client = new google.auth.OAuth2(
     process.env['GOOGLE_CLIENT_ID'],
     process.env['GOOGLE_CLIENT_SECRET'],
@@ -112,7 +110,6 @@ router.get('/auth/redirect/calendar', async (req: any, res) => {
   } else {
     const { tokens } = await oauth2Client.getToken(query.code as string);
     oauth2Client.setCredentials(tokens);
-    console.log(tokens);
 
     let authCalendar = false;
 

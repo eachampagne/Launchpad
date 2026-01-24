@@ -10,32 +10,32 @@ router.get('/', (req, res) => {
   res.status(200).send("dashboard!");
 });
 
-// router.get('/:id', async (req, res) => {
-//   // there should be some sort of auth here to check if the given dashboard
-//   // either belongs to the user or is public
+router.get('/:id', async (req, res) => {
+  // there should be some sort of auth here to check if the given dashboard
+  // either belongs to the user or is public
 
-//   const { id: idString } = req.params;
-//   const id = parseInt(idString);
+  const { id: idString } = req.params;
+  const id = parseInt(idString);
 
-//   try {
-//     const dashboard = await prisma.dashboard.findUnique({
-//       where: {
-//         id
-//       }
-//     });
+  try {
+    const dashboard = await prisma.dashboard.findUnique({
+      where: {
+        id
+      }
+    });
 
-//     // TODO: check whether the given user should have access to this dashboard
+    // TODO: check whether the given user should have access to this dashboard
 
-//     if (!dashboard) { // dashboard is null if not found
-//       res.sendStatus(404);
-//     } else {
-//       res.status(200).send(dashboard);
-//     }
-//   } catch (error) {
-//     console.error('Failed to find dashboard: ', error);
-//     res.sendStatus(500);
-//   }
-// });
+    if (!dashboard) { // dashboard is null if not found
+      res.sendStatus(404);
+    } else {
+      res.status(200).send(dashboard);
+    }
+  } catch (error) {
+    console.error('Failed to find dashboard: ', error);
+    res.sendStatus(500);
+  }
+});
 
 router.post('/', async (req, res) => {
   // TODO: all sorts of auth
