@@ -11,14 +11,15 @@
 
 
 import { useState, useEffect} from 'react';
-
+// import { ColorPicker } from "@chakra-ui/react"
 import axios from 'axios';
-// import { Button, HStack } from '@chakra-ui/react'
+
 
 
 function Theme ({dashboard, ownerId}: {dashboard: { name: string, ownerId: number}, ownerId: number}) {
   const [themesList, setThemesList] = useState([] as {navColor: string, bgColor: string, font: string}[]);
-  
+  const [currTheme] = useState(themesList[0])
+  console.log(currTheme);
   // first lets get all the themes of that user
   const allThemes = async () => {
     
@@ -60,9 +61,12 @@ function Theme ({dashboard, ownerId}: {dashboard: { name: string, ownerId: numbe
     <>
     {
       themesList.map((theme) => {
-        return <div>{theme.navColor}{theme.bgColor}{theme.font}</div>
+        return <button>{theme.navColor}{theme.bgColor}{theme.font}</button>
       })
     }
+      <form>
+        <input type="text">{currTheme.navColor}</input>
+      </form>
     </>
   )
 }
