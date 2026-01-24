@@ -2,6 +2,7 @@ import { useState, useEffect, type ChangeEvent } from 'react';
 import { Link } from "react-router";
 import axios from 'axios';
 import Theme from './Theme';
+import LayoutGallery from './LayoutGallery';
 
 function DashEditor({dashboardId}: {dashboardId: number}) {
   const [dashboard, setDashboard] = useState({name: "Loading", ownerId: -1});
@@ -70,6 +71,9 @@ function DashEditor({dashboardId}: {dashboardId: number}) {
       <h2>Editing: {renderName()}</h2>
       <Link to='/'>Done</Link>
       <Theme dashboard={dashboard} />
+      <LayoutGallery/>
+      console.log('DashEditor rendered');
+
     </>
   );
 }
