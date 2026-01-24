@@ -52,6 +52,11 @@ app.use(router);
 app.use('/theme', theme);
 app.use('/user', user);
 
+// Catch all for client side routes
+app.get('/*any', (req, res) => {
+  res.sendFile(join(__dirname, '..', '..', 'dist', 'index.html'));
+})
+
 app.listen(port, host, () => {
   console.info(`Listening on http://localhost:${port}`);
 });
