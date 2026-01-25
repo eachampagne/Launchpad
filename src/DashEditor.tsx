@@ -9,8 +9,9 @@ function DashEditor({dashboardId}: {dashboardId: number}) {
   const [dashboard, setDashboard] = useState({name: "Loading", ownerId: -1});
   const [newName, setNewName] = useState('');
   const [renaming, setRenaming] = useState(false);
-  //ts infer selectedLayout as number(-1 = nothing selected)
-  const [selectedLayoutId, setSelectedLayoutId] = useState(-1);
+  const [selectedLayoutId, setSelectedLayoutId] = useState(-1);//(-1 = nothing selected)
+  const [selectedLayout, setSelectedLayout] = useState([])
+
 
   function updateSelected (param: number){
     setSelectedLayoutId(param)
@@ -57,7 +58,15 @@ function DashEditor({dashboardId}: {dashboardId: number}) {
   }, []);
 
   useEffect(() => {
-    console.log('selectedLayoutId:', selectedLayoutId);
+  
+    axios.get(`/layout/${selectedLayoutId}`)
+    .then((res) => {
+      console.log('Here is your Layout Data:', res.data)
+      setSelectedLayout(res.data);
+
+    }).catch((err) => {
+      console.log('Could not find your layout:', err);
+    });
   }, [selectedLayoutId]);
 
   const renderName = () => {
@@ -81,7 +90,7 @@ function DashEditor({dashboardId}: {dashboardId: number}) {
       <h2>Editing: {renderName()}</h2>
       <Link to='/'>Done</Link>
       <Theme dashboard={dashboard} />
-      <LayoutGallery onSelect={updateSelected}/>
+      <LayoutGallery onSelect={updateSelected} />
 
     </>
   );

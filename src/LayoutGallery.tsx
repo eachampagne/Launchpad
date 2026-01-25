@@ -9,7 +9,6 @@ type Layout = {
 };
 
 function LayoutGallery({onSelect}: {onSelect: (layoutId: number) => void}) {
-  //console.log('LayoutGallery rendered');
   const [layout, setLayout] = useState<Layout[]>([]);
   console.log('layouts state:', layout);
 
