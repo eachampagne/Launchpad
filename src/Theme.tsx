@@ -45,20 +45,20 @@ function Theme ({dashboard, ownerId}: {dashboard: { name: string, ownerId: numbe
     
   }
 
-  const createTheme = async () => {
-    try {
-      await axios.post('/theme', {
-        public: false,
-        navColor: navColorPick,
-        bgColor: bgColorPick,
-        font: fontPick,
-        ownerId: ownerId
-      })
-      allThemes();
-    } catch (error) {
-      console.error(error, 'something went wrong')
-    }
-  }
+  // const createTheme = async () => {
+  //   try {
+  //     await axios.post('/theme', {
+  //       public: false,
+  //       navColor: navColorPick,
+  //       bgColor: bgColorPick,
+  //       font: fontPick,
+  //       ownerId: ownerId
+  //     })
+  //     allThemes();
+  //   } catch (error) {
+  //     console.error(error, 'something went wrong')
+  //   }
+  // }
 
 // test
 // const picker = Color();
