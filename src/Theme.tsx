@@ -83,7 +83,7 @@ function Theme ({dashboard, ownerId}: {dashboard: { name: string, ownerId: numbe
         <label>navColor</label>
         <div id='navColor'>
           
-          <Color onValueChange={(color) => colorPicker(color)} />
+          <Color onValueChange={(color) => setNavColorPick(color.toString('hex'))} />
         </div>
         <label>bgColor</label>
         <div id='bgColor'>
