@@ -9,6 +9,7 @@ import DashEditor from './DashEditor';
 import Calendar from './Calendar';
 
 function App() {
+  const [userId, setUserId] = useState(-1);
   const [userDataMessage, setUserDataMessage] = useState(
     "You have not checked User Data.",
   );
@@ -36,47 +37,27 @@ function App() {
   };
 
   const getUserData = () => {
-    axios
-      .get("/user")
-      .then((res) => {
-        setUserDataMessage(res.data);
-      })
-      .catch((err) => {
-        console.error("There was a problem while getting user data", err);
-      });
-  };
+    axios.get('/user').then((res) => {
+      setUserDataMessage(res.data);
+      console.log(res.data.id)
+      setUserId(res.data.id)
+    }).catch((err) => {
+      console.error("There was a problem while getting user data", err);
+    })
+  }
 
   return (
     <>
       <h1>Rendering</h1>
       <h1>Sign in</h1>
-      <a className="button google" href="/login/federated/google">
-        Sign in with Google
-      </a>
-      <button
-        className="logout button google"
-        onClick={() => {
-          handleLogOut();
-        }}
-      >
-        Log Out
-      </button>
-      <button
-        className="testGetUserData"
-        onClick={() => {
-          getUserData();
-        }}
-      >
-        Get User Data
-      </button>
-      <p>{userDataMessage}</p>
+      <a className="button google" href="/login/federated/google">Sign in with Google</a>
+      <button className="logout button google" onClick={() => {handleLogOut()}}>Log Out</button>
+      <button className="testGetUserData" onClick={() => {getUserData()}}>Get User Data</button>
+      <p>{userDataMessage.name}</p>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Dashboard dashboardId={activeDash} />} />
-          <Route
-            path="/edit"
-            element={<DashEditor dashboardId={activeDash} />}
-          />
+          <Route path='/' element={<Dashboard dashboardId={activeDash}/>} />
+          <Route path='/edit' element={<DashEditor dashboardId={activeDash} ownerId={userId} />} />
           <Route path="/hub" element={<Hub />} />
         </Routes>
         </BrowserRouter>

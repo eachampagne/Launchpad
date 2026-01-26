@@ -6,7 +6,6 @@ const theme = express.Router();
 
 // GET
 theme.get('/:ownerId', async (req, res) => {
-  console.log(req.params, 'this is it');
   //const { ownerId } = JSON.parse(req.params);
   try {
     const themes = await prisma.theme.findMany({
@@ -14,9 +13,7 @@ theme.get('/:ownerId', async (req, res) => {
         ownerId: Number(req.params.ownerId)
       }
     })
-    console.log(themes, 'themes?')
     if(themes){
-      console.log(themes, 'from handling')
       res.status(200).send(themes);
     } else {
       res.sendStatus(404);
@@ -34,7 +31,6 @@ theme.post('/', async (req, res) => {
   // need to insert information
   // console.log(req)
   const { public: isPublic, navColor, bgColor, font, ownerId} = req.body as {public: boolean, navColor: string, bgColor: string, font: string, ownerId: number}
-  console.log(ownerId, 'HELLLOOOOOO');
   try {
     await prisma.theme.create({
       data: {
@@ -67,7 +63,6 @@ theme.patch('/', async (req, res) => {
   // console.log(req)
   const { public: isPublic, navColor, bgColor, font, ownerId} = req.body as {public: boolean, navColor: string, bgColor: string, font: string, ownerId: number}
   const {id} = req.body;
-  console.log(ownerId, 'HELLLOOOOOO');
   try {
     await prisma.theme.update({
       where: {

@@ -11,16 +11,24 @@
 
 
 import { useState, useEffect} from 'react';
-
+import Color from './ColorPicker';
 import axios from 'axios';
-import { Button, HStack } from '@chakra-ui/react'
 
-function Theme ({dashboard}: {dashboard: { name: string, ownerId: number}}) {
+
+
+function Theme ({dashboard, ownerId}: {dashboard: { name: string, ownerId: number}, ownerId: number}) {
   const [themesList, setThemesList] = useState([] as {navColor: string, bgColor: string, font: string}[]);
-  
+  const [currTheme, setCurrTheme] = useState(themesList[0]);
+  // const [form, setForm] = useState({navColor: 'white', bgColor: 'white', font: 'ariel'});
+  const [color, setColor] = useState('test')
+  const [navColorPick, setNavColorPick] = useState('#ff0000');
+  const [bgColorPick, setBgColorPick] = useState('#ff0000');
+  const [fontPick, setFontPick] = useState('#ff0000');
   // first lets get all the themes of that user
+  // console.log(test, 'testing')
+  console.log(navColorPick , 'nav', bgColorPick, 'bg', fontPick, 'font')
   const allThemes = async () => {
-    const ownerId  = dashboard.ownerId;
+    
     try {
       const test = await axios.get(`/theme/${ownerId}`);
       setThemesList(test.data);
@@ -30,23 +38,30 @@ function Theme ({dashboard}: {dashboard: { name: string, ownerId: number}}) {
     }
   }
   
+  const colorPicker = (e: any) => {
+    setColor(e.value.toString('hex'));
+    //console.log(e.value.toString('hex'))
+    //setNavColorPick(e.value.toString('hex'))
+    
+  }
 
-  // POST to make a new theme
-  // make sure field is completely filled out
-  // const newTheme = async () => {
-  //   const ownerId = dashboard.ownerId; // need to send this in the request as well
+  // const createTheme = async () => {
   //   try {
-  //     if({isPublic: boolean, navColor: string, bgColor: string, font: string}, ownerId){
-  //       // so if none of those fields are empty
-  //       await axios.post('/theme', {isPublic, navColor, bgColor, font, ownerId})
-  //     }
+  //     await axios.post('/theme', {
+  //       public: false,
+  //       navColor: navColorPick,
+  //       bgColor: bgColorPick,
+  //       font: fontPick,
+  //       ownerId: ownerId
+  //     })
+  //     allThemes();
   //   } catch (error) {
-  //     console.error('Failed to submit theme', error);
+  //     console.error(error, 'something went wrong')
   //   }
   // }
 
 // test
-
+// const picker = Color();
 
   useEffect(() => {
     // if the owner is provided
@@ -56,19 +71,31 @@ function Theme ({dashboard}: {dashboard: { name: string, ownerId: number}}) {
   }, [dashboard.ownerId])
 
   return (
-    <>
+    <div>
     {
       themesList.map((theme) => {
-        console.log(theme)
-        return <div>{theme.navColor}{theme.bgColor}{theme.font}</div>
+        return <ul>
+          <button onClick={() => setCurrTheme(theme)}> navColor: {theme.navColor} bgColor: {theme.bgColor} font: {theme.font}</button>
+        </ul>
       })
     }
-    <HStack>
-      <Button>
-        Click me
-      </Button>
-    </HStack>
-    </>
+      <form>
+        <label>navColor</label>
+        <div id='navColor'>
+          
+          <Color onValueChange={(color) => setNavColorPick(color.toString('hex'))} />
+        </div>
+        <label>bgColor</label>
+        <div id='bgColor'>
+          <Color onValueChange={(color) => setBgColorPick(color.toString('hex'))}/>
+        </div>
+        <label>font</label>
+        <div id='font'>
+          <Color onValueChange={(color) => setFontPick(color.toString('hex'))}/>
+        </div>
+      </form>
+      <button>CREATE</button>
+    </div>
   )
 }
 
