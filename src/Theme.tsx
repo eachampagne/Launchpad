@@ -37,14 +37,16 @@ function Theme ({dashboard, ownerId}: {dashboard: { name: string, ownerId: numbe
       console.error('Failed to get all of your themes', error);
     }
   }
-  
-  const colorPicker = (e: any) => {
-    setColor(e.value.toString('hex'));
+
+  const colorPicker = (setter: (value: string) => void) => {
+    return (e: any) => {
+      setter(e.value.toString('hex'))
+    }
     //console.log(e.value.toString('hex'))
     //setNavColorPick(e.value.toString('hex'))
     
   }
-
+    console.log(color, 'this is color')
   // const createTheme = async () => {
   //   try {
   //     await axios.post('/theme', {
@@ -83,15 +85,15 @@ function Theme ({dashboard, ownerId}: {dashboard: { name: string, ownerId: numbe
         <label>navColor</label>
         <div id='navColor'>
           
-          <Color onValueChange={(color) => setNavColorPick(color.toString('hex'))} />
+          <Color onValueChange={colorPicker(setNavColorPick)} />
         </div>
         <label>bgColor</label>
         <div id='bgColor'>
-          <Color onValueChange={(color) => setBgColorPick(color.toString('hex'))}/>
+          <Color onValueChange={colorPicker(setBgColorPick)}/>
         </div>
         <label>font</label>
         <div id='font'>
-          <Color onValueChange={(color) => setFontPick(color.toString('hex'))}/>
+          <Color onValueChange={colorPicker(setFontPick)}/>
         </div>
       </form>
       <button>CREATE</button>
