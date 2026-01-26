@@ -94,7 +94,7 @@ function Theme ({dashboard, ownerId}: {dashboard: { name: string, ownerId: numbe
           <Color onValueChange={(color) => setFontPick(color.toString('hex'))}/>
         </div>
       </form>
-      <button onClick={createTheme}>CREATE</button>
+      <button>CREATE</button>
     </div>
   )
 }
