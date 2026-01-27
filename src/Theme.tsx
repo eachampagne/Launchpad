@@ -16,7 +16,7 @@ import axios from 'axios';
 
 
 
-function Theme ({dashboard, ownerId}: {dashboard: { name: string, ownerId: number}, ownerId: number}) {
+function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, ownerId: number}, ownerId: number, dashboardId : number}) {
   const [themesList, setThemesList] = useState([] as {navColor: string, bgColor: string, font: string}[]);
   const [currTheme, setCurrTheme] = useState(themesList[0]);
   // const [form, setForm] = useState({navColor: 'white', bgColor: 'white', font: 'ariel'});
@@ -25,7 +25,7 @@ function Theme ({dashboard, ownerId}: {dashboard: { name: string, ownerId: numbe
   const [bgColorPick, setBgColorPick] = useState('#ff0000');
   const [fontPick, setFontPick] = useState('#ff0000');
   // first lets get all the themes of that user
-  console.log(ownerId, 'myOwner id')
+  console.log(dashboardId, 'should be theme')
   console.log(navColorPick , 'nav', bgColorPick, 'bg', fontPick, 'font')
   const allThemes = async () => {
     
@@ -42,9 +42,6 @@ function Theme ({dashboard, ownerId}: {dashboard: { name: string, ownerId: numbe
     return (e: any) => {
       setter(e.value.toString('hex'))
     }
-    //console.log(e.value.toString('hex'))
-    //setNavColorPick(e.value.toString('hex'))
-    
   }
 
   console.log(color, 'this is color')
@@ -63,9 +60,15 @@ function Theme ({dashboard, ownerId}: {dashboard: { name: string, ownerId: numbe
     }
   }
 
-// test
-// const picker = Color();
-
+  const getTheDash = async () => {
+      try {
+        const dashes = await axios.get(`/all/${ownerId}`)
+        console.log(dashes, 'this is a dash')
+      } catch (error) {
+        console.error(error, 'something went wrong is getTheDash')
+      }
+  }
+getTheDash()
   useEffect(() => {
     // if the owner is provided
     if(dashboard.ownerId){
