@@ -14,7 +14,7 @@ async function getDummyData() {
   return JSON.parse(dummyJson);
 }
 
-async function getCalendarClient(userId: number) {
+async function getGoogleOauth(userId: number) {
   const oauth2Client = new google.auth.OAuth2(
     process.env['GOOGLE_CLIENT_ID'],
     process.env['GOOGLE_CLIENT_SECRET'],
@@ -37,7 +37,9 @@ async function getCalendarClient(userId: number) {
 
   // return null;
 
-  return google.calendar({version: 'v3', auth: oauth2Client});
+  return oauth2Client;
+
+  //return google.calendar({version: 'v3', auth: oauth2Client});
 
   // return await calendar.events.list({
   //   calendarId: 'primary',
@@ -56,12 +58,14 @@ router.get('/', async (req: any, res) => {
     // const response = await getDummyData();
     // const response = await getLiveData(userId);
 
-    const calendar = await getCalendarClient(userId);
+    const oauth2Client = await getGoogleOauth(userId);
 
-    if (calendar === null) { // because no token for this user
+    if (oauth2Client === null) { // because no token for this user
       res.sendStatus(401);
       return;
     }
+
+    const calendar = google.calendar({version: 'v3', auth: oauth2Client});
 
     const response = await calendar.events.list({
       calendarId: 'primary',
