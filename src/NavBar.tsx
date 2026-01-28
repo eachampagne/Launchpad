@@ -1,8 +1,8 @@
 // import { useState, useEffect } from 'react';
 // import axios from 'axios';
 
-import { Heading, Text, Flex, Container, Center, AbsoluteCenter, Box } from '@chakra-ui/react'
-import type React from 'react';
+import { Heading, Container, AbsoluteCenter, For } from '@chakra-ui/react';
+import { Link } from "react-router";
 
 interface MyProps {
   pages: Array<string>,
@@ -11,15 +11,18 @@ interface MyProps {
 function NavBar (props: MyProps) {
 
   return (
-    <>
-      <Box as="nav" position="fixed" top="0" left="0" right="0"  w="100%" h="5%" backgroundColor="yellow.fg" z-index={200}>
+    <div style={{position: "sticky", "top": "0"}}>
+      <Container as="div" w="100%" h="35px" backgroundColor="yellow.muted" margin="0" maxWidth="none">
+        <For each={props.pages}>
+          {(page) => (
+            <Link style={{padding: "8px"}} to={`/${page}`}>{page}</Link>
+          )}
+        </For>
         <AbsoluteCenter>
           <Heading>LaunchPad</Heading>
         </AbsoluteCenter>
-      </Box>
-      <Box w="100%" h="5%" top="0" left="0" right="0" paddingBottom="5%"></Box>
-      <p>test2</p>
-    </>
+      </Container>
+    </div>
   );
 }
 
