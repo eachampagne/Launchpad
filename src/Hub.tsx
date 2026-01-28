@@ -1,3 +1,6 @@
+import axios from "axios";
+
+import { useState } from "react";
 
 import {
   Box,
@@ -8,40 +11,48 @@ import {
   Button,
   SimpleGrid,
   Input,
-  useDisclosure,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter
+  Group,
+  Field,
 } from "@chakra-ui/react";
-
-
-import { useState } from "react";
 
 type HubProps = {
   dashboards: any[]; // temporary
+  getDashboardData: () => Promise<void>;
+  ownerId: number;
 };
 
-export default function Hub({ dashboards }: HubProps) {
-  
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const [newDashboardName, setNewDashboardName] = useState("");
-
-  const handleCreateDashboard = () => {
-    console.log("Dashboard name:", newDashboardName);
-    // Here you would trigger your API call
-    setNewDashboardName(""); // reset input
-    onClose(); // close modal
+export default function Hub({
+  dashboards,
+  getDashboardData,
+  ownerId,
+}: HubProps) {
+  const [isVisible, setIsVisible] = useState(false);
+  const [createdDashName, setCreatedDashName] = useState("");
+  console.log(isVisible);
+  const handleInputVisibility = () => {
+    setIsVisible(true);
   };
 
-  console.log(dashboards);
-  if (!dashboards || dashboards.length === 0) {
-    return <p>Loading dashboards...</p>;
-  }
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCreatedDashName(e.target.value);
+  };
+
+  const handleCreate = async () => {
+    // create dashboard with name from user input
+    try {
+      await axios.post("/dashboard", {
+        ownerId,
+        name: createdDashName,
+      });
+    } catch (err) {
+      console.error("Failed to create dashboard", err);
+    }
+    setIsVisible(false); // change input field back to a + button
+    getDashboardData(); // render dashboard data without client refresh
+    setCreatedDashName(""); // clear input field
+  };
+
   return (
-    <>
     <Flex minH="100vh" justify="center">
       <Box w="100%" maxW="1100px" p={6}>
         {/* Profile */}
@@ -177,9 +188,35 @@ export default function Hub({ dashboards }: HubProps) {
                 alignItems="center"
                 justifyContent="center"
                 fontSize="2xl"
-                onClick={onOpen}
+                onClick={handleInputVisibility}
               >
-                +
+                {isVisible ? (
+                  <Field.Root w="full">
+                    <Field.Label>
+                      Dashboard Name <Field.RequiredIndicator />
+                    </Field.Label>
+
+                    <Group attached w="full" maxW="sm">
+                      <Input
+                        flex="1"
+                        placeholder=""
+                        onChange={handleInputChange}
+                        value={createdDashName}
+                      />
+
+                      <Button
+                        variant="outline"
+                        bg="bg.subtle"
+                        minW="fit-content"
+                        onClick={handleCreate}
+                      >
+                        Create
+                      </Button>
+                    </Group>
+                  </Field.Root>
+                ) : (
+                  "+"
+                )}
               </Button>
             </SimpleGrid>
           </Box>
@@ -193,29 +230,5 @@ export default function Hub({ dashboards }: HubProps) {
         </Flex>
       </Box>
     </Flex>
-
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Create New Dashboard</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Input
-              placeholder="Dashboard Name"
-              value={newDashboardName}
-              onChange={(e) => setNewDashboardName(e.target.value)}
-            />
-          </ModalBody>
-          <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={handleCreateDashboard}>
-              Create
-            </Button>
-            <Button variant="ghost" onClick={onClose}>
-              Cancel
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-</>
   );
 }
