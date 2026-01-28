@@ -1,3 +1,4 @@
+
 import {
   Box,
   Flex,
@@ -6,14 +7,43 @@ import {
   Text,
   Button,
   SimpleGrid,
-  Spacer,
+  Input,
+  useDisclosure,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter
 } from "@chakra-ui/react";
 
-export default function Hub() {
+
+import { useState } from "react";
+
+type HubProps = {
+  dashboards: any[]; // temporary
+};
+
+export default function Hub({ dashboards }: HubProps) {
+  
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [newDashboardName, setNewDashboardName] = useState("");
+
+  const handleCreateDashboard = () => {
+    console.log("Dashboard name:", newDashboardName);
+    // Here you would trigger your API call
+    setNewDashboardName(""); // reset input
+    onClose(); // close modal
+  };
+
+  console.log(dashboards);
+  if (!dashboards || dashboards.length === 0) {
+    return <p>Loading dashboards...</p>;
+  }
   return (
+    <>
     <Flex minH="100vh" justify="center">
       <Box w="100%" maxW="1100px" p={6}>
-        
         {/* Profile */}
         <VStack gap={3} mb={6}>
           <Box
@@ -59,7 +89,6 @@ export default function Hub() {
                 Dashboard #1
               </Button>
             </HStack>
-
           </Box>
 
           {/* Connected Accounts */}
@@ -77,7 +106,7 @@ export default function Hub() {
             </Text>
 
             <VStack gap={3}>
-              {[1, 2, 3, 4, 5].map(i => (
+              {[1, 2, 3, 4, 5].map((i) => (
                 <HStack
                   key={i}
                   w="100%"
@@ -123,10 +152,11 @@ export default function Hub() {
 
           <Box maxH="300px" overflowY="auto">
             <SimpleGrid columns={4} gap={4}>
-              {[1, 2].map(i => (
-                <Box
-                  key={i}
+              {dashboards.map((dashboard) => (
+                <Button
+                  key={dashboard.id}
                   h="120px"
+                  variant="ghost"
                   border="1px solid"
                   borderColor="gray.600"
                   borderRadius="md"
@@ -134,11 +164,11 @@ export default function Hub() {
                   alignItems="center"
                   justifyContent="center"
                 >
-                  <Text>Dashboard #{i}</Text>
-                </Box>
+                  <Text>{dashboard.name}</Text>
+                </Button>
               ))}
 
-              <Box
+              <Button
                 h="120px"
                 border="1px solid"
                 borderColor="gray.600"
@@ -147,9 +177,10 @@ export default function Hub() {
                 alignItems="center"
                 justifyContent="center"
                 fontSize="2xl"
+                onClick={onOpen}
               >
                 +
-              </Box>
+              </Button>
             </SimpleGrid>
           </Box>
         </Box>
@@ -160,9 +191,31 @@ export default function Hub() {
             Delete Account
           </Button>
         </Flex>
-
       </Box>
     </Flex>
+
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Create New Dashboard</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Input
+              placeholder="Dashboard Name"
+              value={newDashboardName}
+              onChange={(e) => setNewDashboardName(e.target.value)}
+            />
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="blue" mr={3} onClick={handleCreateDashboard}>
+              Create
+            </Button>
+            <Button variant="ghost" onClick={onClose}>
+              Cancel
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+</>
   );
 }
-

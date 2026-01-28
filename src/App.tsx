@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 // import { useState } from 'react';
 import { BrowserRouter, Routes, Route } from "react-router";
@@ -9,17 +9,11 @@ import DashEditor from './DashEditor';
 import Calendar from './Calendar';
 
 function App() {
-  const [userId, setUserId] = useState(-1);
+  const [userId, setUserId] = useState(2);
   const [userDataMessage, setUserDataMessage] = useState(
     "You have not checked User Data.",
   );
-  const [user, setUser] = useState({
-    id: null,
-    name: "",
-    credentialProvider: "",
-    credentialSubject: null,
-    primaryDashId: null,
-  });
+  const [dashboards, setDashboards] = useState([]);
   const activeDash = 1; // hardcoded for now
   // eventually want something like:
   // const [activeDash, setActiveDash] = useState(null)
@@ -46,6 +40,23 @@ function App() {
     })
   }
 
+
+  useEffect(() => {
+    if (userId === -1) return; // TODO come back to update this once established
+console.log(userId)
+    const getDashboardsData = async () => {
+      try {
+        const res = await axios.get(`/dashboard/all/${userId}`);
+        setDashboards(res.data);
+      } catch (err) {
+        console.error("There was a problem while getting user dashboards", err);
+      }
+    };
+
+    getDashboardsData();
+  }, [userId]);
+
+
   return (
     <>
       <h1>Rendering</h1>
@@ -58,7 +69,7 @@ function App() {
         <Routes>
           <Route path='/' element={<Dashboard dashboardId={activeDash}/>} />
           <Route path='/edit' element={<DashEditor dashboardId={activeDash} ownerId={userId} />} />
-          <Route path="/hub" element={<Hub />} />
+          <Route path="/hub" element={<Hub dashboards={dashboards}/>} />
         </Routes>
         </BrowserRouter>
       <Calendar />
