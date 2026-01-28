@@ -4,7 +4,6 @@ import axios from 'axios';
 
 function Dashboard ({dashboardId}: {dashboardId: number}) {
   const [dashboard, setDashboard] = useState({name: "Loading"});
-  
   const loadDashboard = async () => {
     try {
       const response = await axios.get(`/dashboard/${dashboardId}`);

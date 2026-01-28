@@ -25,8 +25,7 @@ function App() {
     credentialSubject: null,
     primaryDashId: null,
   });
-
-  const activeDash = 1; // hardcoded for now
+  const activeDash = 4; // hardcoded for now
   // eventually want something like:
   // const [activeDash, setActiveDash] = useState(null)
   // ? what happens if the user doesn't have any dashboards?

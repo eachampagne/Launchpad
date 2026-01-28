@@ -82,7 +82,7 @@ function DashEditor({dashboardId, ownerId}: {dashboardId: number, ownerId: numbe
     <>
       <h2>Editing: {renderName()}</h2>
       <Link to='/'>Done</Link>
-      <Theme dashboard={dashboard} ownerId={ownerId} />
+      <Theme dashboard={dashboard} ownerId={ownerId} dashboardId={dashboardId}/>
       <LayoutGallery onSelect={updateSelected}/>
     </>
   );
