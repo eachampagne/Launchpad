@@ -4,18 +4,24 @@ import axios from 'axios';
 import Theme from './Theme';
 import LayoutGallery from './LayoutGallery';
 
+type Layout = {
+  id: number;
+  gridSize: string;
+  layoutElements: [];
+};
+
 
 function DashEditor({dashboardId, ownerId}: {dashboardId: number, ownerId: number}) {
   const [dashboard, setDashboard] = useState({name: "Loading", ownerId: -1});
   const [newName, setNewName] = useState('');
   const [renaming, setRenaming] = useState(false);
   const [selectedLayoutId, setSelectedLayoutId] = useState(-1);//(-1 = nothing selected)
-  const [selectedLayout, setSelectedLayout] = useState([])
+  const [selectedLayout, setSelectedLayout] = useState<Layout | null>(null)
 
 
-  function updateSelected (param: number){
-    setSelectedLayoutId(param)
-  }
+  // function updateSelected (param: number){
+  //   setSelectedLayoutId(param)
+  // }
 
   // const [userId, setUserId] = useState(ownerId);
 
@@ -59,11 +65,10 @@ function DashEditor({dashboardId, ownerId}: {dashboardId: number, ownerId: numbe
     loadDashboard();
   }, []);
 
+  //Will load layout when selectedLayoutId changes
   useEffect(() => {
-  
     axios.get(`/layout/${selectedLayoutId}`)
     .then((res) => {
-      console.log('Here is your Layout Data:', res.data)
       setSelectedLayout(res.data);
 
     }).catch((err) => {
@@ -92,7 +97,15 @@ function DashEditor({dashboardId, ownerId}: {dashboardId: number, ownerId: numbe
       <h2>Editing: {renderName()}</h2>
       <Link to='/'>Done</Link>
       <Theme dashboard={dashboard} ownerId={ownerId} />
-      <LayoutGallery onSelect={updateSelected} />
+      <LayoutGallery onSelect={setSelectedLayoutId}/>
+      {selectedLayout && (
+        <>
+        <h4>LAYOUT PREVIEW</h4>
+        <p>SELECTED LAYOUT {selectedLayoutId}</p>
+        <p>GRID SIZE: {selectedLayout.gridSize}</p>
+        <p>ELEMENTS: {selectedLayout.layoutElements.length}</p>
+        </>
+      )}
     </>
   );
 }
