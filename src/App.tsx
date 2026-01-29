@@ -10,6 +10,7 @@ import DashEditor from './DashEditor';
 import Home from './Home';
 
 import Calendar from './Calendar';
+import Email from './Email';
 
 function App() {
   const [userId, setUserId] = useState(2); // hardcoded user id state for now for testing purposes
@@ -77,7 +78,8 @@ function App() {
           <Route path="/hub" element={<Hub dashboards={dashboards} getDashboardData={getDashboardsData} ownerId={userId}/>} />
         </Routes>
         </BrowserRouter>
-      {/* <Calendar /> */}
+      <Calendar />
+      <Email />
     </>
   );
 }

@@ -3,13 +3,7 @@ import { useState, useEffect, type ChangeEvent } from 'react';
 import axios, { AxiosError } from 'axios';
 
 import type { Event, CalendarObject } from '../types/Calendar.ts';
-
-// TODO: move into /types
-enum AuthStatus {
-  SignedOut = "SIGNED_OUT",
-  Unauthorized = "UNAUTHORIZED",
-  Authorized = "AUTHORIZED"
-}
+import { AuthStatus } from '../types/AuthStatus.ts';
 
 function Calendar() {
   const [authStatus, setAuthStatus] = useState(AuthStatus.SignedOut);
@@ -19,7 +13,7 @@ function Calendar() {
 
   const checkAuth = async () => {
     try {
-      const response = await axios.get('/calendar/checkauth');
+      const response = await axios.get('/checkauth/calendar');
       if (response.data === true) {
         setAuthStatus(AuthStatus.Authorized);
         getEvents();
