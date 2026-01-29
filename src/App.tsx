@@ -13,10 +13,10 @@ import Calendar from './Calendar';
 
 function App() {
   const [userId, setUserId] = useState(-1);
-  
-  const [userDataMessage, setUserDataMessage] = useState({
-    name: "You have not checked User Data.",
-  });
+
+  // const [userDataMessage, setUserDataMessage] = useState({
+  //   name: "You have not checked User Data.",
+  // });
 
   const [user, setUser] = useState({
     id: null,
@@ -45,11 +45,11 @@ function App() {
   const getUserData = () => {
     axios.get('/user').then((res) => {
       if (res.data.id) { // not sure about this
-        setUserDataMessage(res.data);
+        // setUserDataMessage(res.data);
         console.log(res.data.id)
         setUserId(res.data.id)
       } else {
-        setUserDataMessage({name: 'Not logged in.'});
+        // setUserDataMessage({name: 'Not logged in.'});
         setUserId(-1);
       }
     }).catch((err) => {
@@ -61,13 +61,13 @@ function App() {
     <>
       <BrowserRouter>
         <Routes>
-          <Route path='/' element={<Home getUserData={getUserData} handleLogOut={handleLogOut} userDataMessage={userDataMessage}/>} />
+          <Route path='/' element={<Home getUserData={getUserData} handleLogOut={handleLogOut} userId={userId} />} />
           <Route path='/dashboard' element={<Dashboard dashboardId={activeDash}/>} />
           <Route path='/edit' element={<DashEditor dashboardId={activeDash} ownerId={userId} />} />
           <Route path="/hub" element={<Hub />} />
         </Routes>
         </BrowserRouter>
-      <Calendar />
+      {/* <Calendar /> */}
     </>
   );
 }
