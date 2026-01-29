@@ -54,7 +54,7 @@ layout.get('/:layoutId', async (req, res) => {
       }
     });
     //check if layout exist first
-    if(!layoutId){
+    if(!layout){
       return res.status(404).send('Could find layout');
     }
     //return layout

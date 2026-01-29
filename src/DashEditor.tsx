@@ -4,17 +4,25 @@ import axios from 'axios';
 import Theme from './Theme';
 import LayoutGallery from './LayoutGallery';
 
+type Layout = {
+  id: number;
+  gridSize: string;
+  layoutElements: [];
+
+};
+
 
 function DashEditor({dashboardId, ownerId}: {dashboardId: number, ownerId: number}) {
   const [dashboard, setDashboard] = useState({name: "Loading", ownerId: -1});
   const [newName, setNewName] = useState('');
   const [renaming, setRenaming] = useState(false);
-  //ts infer selectedLayout as number(-1 = nothing selected)
-  const [selectedLayoutId, setSelectedLayoutId] = useState(-1);
+  const [selectedLayoutId, setSelectedLayoutId] = useState(-1);//(-1 = nothing selected)
+  const [selectedLayout, setSelectedLayout] = useState<Layout | null>(null)
 
-  function updateSelected (param: number){
-    setSelectedLayoutId(param)
-  }
+
+  // function updateSelected (param: number){
+  //   setSelectedLayoutId(param)
+  // }
 
   // const [userId, setUserId] = useState(ownerId);
 
@@ -58,9 +66,31 @@ function DashEditor({dashboardId, ownerId}: {dashboardId: number, ownerId: numbe
     loadDashboard();
   }, []);
 
+  //Will load layout when selectedLayoutId changes
   useEffect(() => {
-    console.log('selectedLayoutId:', selectedLayoutId);
+    axios.get(`/layout/${selectedLayoutId}`)
+    .then((res) => {
+      setSelectedLayout(res.data);
+
+    }).catch((err) => {
+      console.log('Could not find your layout:', err);
+    });
   }, [selectedLayoutId]);
+
+  //Will create a copy of layout
+  const copyLayout = async (layoutId: number) => {
+      if (!selectedLayout) return;
+    try {
+      const response = await axios.post(`/layout/${layoutId}/copy`)
+      console.log('Layout is copied:', response.data)
+      //copy and preview copied layout
+      setSelectedLayout(response.data);
+      setSelectedLayoutId(response.data.id);
+    } catch (error) {
+      console.error('Failed to copy layout:', error);
+    }
+
+  }
 
   const renderName = () => {
     if (renaming) {
@@ -82,8 +112,17 @@ function DashEditor({dashboardId, ownerId}: {dashboardId: number, ownerId: numbe
     <>
       <h2>Editing: {renderName()}</h2>
       <Link to='/'>Done</Link>
-      <Theme dashboard={dashboard} ownerId={ownerId} dashboardId={dashboardId}/>
-      <LayoutGallery onSelect={updateSelected}/>
+      <Theme dashboardId={dashboardId} dashboard={dashboard} ownerId={ownerId} />
+      <LayoutGallery onSelect={setSelectedLayoutId}/>
+
+      {selectedLayout && (
+        <>
+        <h4>LAYOUT PREVIEW</h4>
+        <p>SELECTED LAYOUT #{selectedLayoutId}</p>
+        <p>GRID SIZE: {selectedLayout.gridSize}</p>
+        <button onClick={() => copyLayout(selectedLayout.id)}> COPY CURRENT LAYOUT </button>
+        </>
+      )}
     </>
   );
 }
