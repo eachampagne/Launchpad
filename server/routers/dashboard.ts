@@ -3,6 +3,7 @@ import passport from 'passport'
 
 //import { Prisma } from '@prisma/client';
 import { Prisma } from '../../generated/prisma/client.js'; // not sure about this, although it matches what was in database/prisma
+import { User } from '../../generated/prisma/client.js'
 import { prisma } from '../database/prisma.js';
 import theme from './theme.js';
 

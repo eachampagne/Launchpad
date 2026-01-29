@@ -13,9 +13,9 @@
 import { useState, useEffect} from 'react';
 import Color from './ColorPicker';
 import axios from 'axios';
-
-
-
+import { ColorSwatch } from "@chakra-ui/react"
+import { Box } from "@chakra-ui/react"
+import { Listbox, createListCollection } from "@chakra-ui/react"
 function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, ownerId: number}, ownerId: number, dashboardId : number}) {
   const [themesList, setThemesList] = useState([] as {id: number, navColor: string, bgColor: string, font: string}[]);
 
@@ -26,7 +26,6 @@ function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, o
   const [fontPick, setFontPick] = useState('#ff0000');
   const [activeDash, setActiveDash] = useState({id: -1, navColor: 'string', bgColor: 'string', font: 'string'});
   const [currTheme, setCurrTheme] = useState(activeDash);
-  console.log(activeDash, 'HHEIEHEIEIHE')
   // first lets get all the themes of that user
   const allThemes = async () => {
 
@@ -84,7 +83,12 @@ function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, o
       }
   }
 
-
+  // for the list box
+  const allThemesList = createListCollection({
+    items: themesList,
+    itemToString: (item) => item.navColor,
+    itemToValue: (item) => item.id.toString()
+  })
 
   useEffect(() => {
     // if the owner is provided
@@ -96,15 +100,25 @@ function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, o
 
   return (
     <div>
+      <Box bg={currTheme.navColor}> Hello
+        <Box bg={currTheme.bgColor}> Hello </Box>
+        <Box bg={currTheme.font}> Hello </Box>
+      </Box>
     {
-      themesList.map((theme) => {
-        return <ul>
-          <button onClick={() => {
-            setCurrTheme(theme);
+      <Listbox.Root collection={allThemesList} width="320px">
+      <Listbox.Label>Select Theme</Listbox.Label>
+      <Listbox.Content>
+        {allThemesList.items.map((theme) => (
+          <Listbox.Item item={theme} key={theme.id} onClick={() => {
+            setCurrTheme(theme)
             updateTheme({themeId: theme.id})
-            }}> navColor: {theme.navColor} bgColor: {theme.bgColor} font: {theme.font}</button>
-        </ul>
-      })
+          }}>
+            <Listbox.ItemText> navColor: <ColorSwatch value={theme.navColor}/> bgColor: <ColorSwatch value={theme.bgColor}/> font: <ColorSwatch value={theme.font}/></Listbox.ItemText>
+            <Listbox.ItemIndicator />
+          </Listbox.Item>
+        ))}
+      </Listbox.Content>
+    </Listbox.Root>
     }
       <form>
         <label>navColor</label>
