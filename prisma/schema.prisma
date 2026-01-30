@@ -21,6 +21,7 @@ model User {
   credentialSubject  String
   themes             Theme[]
   layouts            Layout[]
+  phoneNumber        PhoneNumbers?
 }
 
 model GoogleToken {
@@ -91,4 +92,12 @@ model Widget {
   id             Int             @id @default(autoincrement())
   name           String
   layoutElements LayoutElement[]
+}
+
+model PhoneNumbers {
+  id              Int     @id @default(autoincrement())
+  user            User    @relation(fields: [userId], references: [id])
+  userId          Int     @unique
+  verified        Boolean @default(false)
+  notifications   Boolean @default(false)
 }
