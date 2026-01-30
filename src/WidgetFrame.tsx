@@ -14,15 +14,11 @@ enum Side {
 enum Corner {
   TopLeft = 'TOP_LEFT',
   TopRight = 'TOP_RIGHT',
-  BottomRight = 'BOTTOM_RIGHT',
-  BottomLeft = 'BOTTOM_LEFT'
+  BottomLeft = 'BOTTOM_LEFT',
+  BottomRight = 'BOTTOM_RIGHT'
 }
 
 function SideHandle({side, parentWidth, parentHeight, resize}: {side: Side, parentWidth: number, parentHeight: number, resize: (side: Side, delta: number) => void}) {
-  const [isDragging, setIsDragging] = useState(false);
-  const [mouseX, setMouseX] = useState(0);
-  const [mouseY, setMouseY] = useState(0);
-
   let posX, posY;
   let width, height;
 
@@ -54,26 +50,13 @@ function SideHandle({side, parentWidth, parentHeight, resize}: {side: Side, pare
   }
 
   const handleMouseDown = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    setIsDragging(true);
-
-    setMouseX(event.screenX);
-    setMouseY(event.screenY);
-
     window.addEventListener('mousemove', handleMove);
     window.addEventListener('mouseup', handleMouseUp);
   }
 
   const handleMove = (event: MouseEvent) => {
-    console.log('move');
-    console.log(isDragging);
-    
-    // const deltaX = event.x - mouseX;
-    // const deltaY = event.y - mouseY;
-
     const deltaX = event.movementX;
     const deltaY = event.movementY;
-
-    console.log(`dx: ${deltaX}, dy: ${deltaY}`);
 
     switch (side) {
       case Side.Top:
@@ -85,13 +68,9 @@ function SideHandle({side, parentWidth, parentHeight, resize}: {side: Side, pare
         resize(side, deltaX);
         break;
     }
-
-    setMouseX(event.x);
-    setMouseY(event.y);
   };
 
   const handleMouseUp = () => {
-    setIsDragging(false);
     window.removeEventListener('mousemove', handleMove);
     window.removeEventListener('mouseup', handleMouseUp);
   };
@@ -111,9 +90,75 @@ function SideHandle({side, parentWidth, parentHeight, resize}: {side: Side, pare
   );
 }
 
-function CornerHandle({corner}: {corner: Corner}) {
+function CornerHandle({corner, parentWidth, parentHeight, resize}: {corner: Corner, parentWidth: number, parentHeight: number, resize: (side: Side, delta: number) => void}) {
+  let posX, posY;
+  const width = handleThickness, height = handleThickness;
+
+  switch (corner) {
+    case Corner.TopLeft:
+      posX = 0;
+      posY = 0;
+      break;
+    case Corner.TopRight:
+      posX = parentWidth - handleThickness;
+      posY = 0;
+      break;
+    case Corner.BottomLeft:
+      posX = 0;
+      posY = parentHeight - handleThickness;
+      break;
+    case Corner.BottomRight:
+      posX = parentWidth - handleThickness;
+      posY = parentHeight - handleThickness;
+      break;
+  }
+
+  const handleMouseDown = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    window.addEventListener('mousemove', handleMove);
+    window.addEventListener('mouseup', handleMouseUp);
+  }
+
+  const handleMove = (event: MouseEvent) => {
+    const deltaX = event.movementX;
+    const deltaY = event.movementY;
+
+    switch (corner) {
+      case Corner.TopLeft:
+        resize(Side.Top, deltaY);
+        resize(Side.Left, deltaX);
+        break;
+      case Corner.TopRight:
+        resize(Side.Top, deltaY);
+        resize(Side.Right, deltaX);
+        break;
+      case Corner.BottomLeft:
+        resize(Side.Bottom, deltaY)
+        resize(Side.Left, deltaX);
+        break;
+      case Corner.BottomRight:
+        resize(Side.Bottom, deltaY)
+        resize(Side.Right, deltaX);
+        break;
+    }
+  };
+
+  const handleMouseUp = () => {
+    window.removeEventListener('mousemove', handleMove);
+    window.removeEventListener('mouseup', handleMouseUp);
+  };
+
   return (
-    <p>Corner</p>
+    <Container
+      bg="red"
+      position="absolute"
+      top={`${posY}px`}
+      left={`${posX}px`}
+      width={`${width}px`}
+      height={`${height}px`}
+      padding="0px"
+      onMouseDown={handleMouseDown}
+    >
+    </Container>
   );
 }
 
@@ -124,7 +169,6 @@ function WidgetFrame({x1, y1, x2, y2}: {x1: number, y1: number, x2: number, y2: 
   const [right, setRight] = useState(x2);
 
   const resize = (side: Side, delta: number) => {
-    console.log(side);
     switch (side) {
       case Side.Top:
         setTop((t) => t + delta);
@@ -148,6 +192,11 @@ function WidgetFrame({x1, y1, x2, y2}: {x1: number, y1: number, x2: number, y2: 
         each={Object.values(Side)}
       >
         {(item) => <SideHandle side={item} parentWidth={right-left} parentHeight={bottom-top} resize={resize}/>}
+      </For>
+      <For
+        each={Object.values(Corner)}
+      >
+        {(item) => <CornerHandle corner={item} parentWidth={right-left} parentHeight={bottom-top} resize={resize}/>}
       </For>
     </Container>
   );
