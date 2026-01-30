@@ -114,6 +114,7 @@ function CornerHandle({corner, parentWidth, parentHeight, resize}: {corner: Corn
   }
 
   const handleMouseDown = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    event.stopPropagation(); // keep the 'drag image' thing from happening
     window.addEventListener('mousemove', handleMove);
     window.addEventListener('mouseup', handleMouseUp);
   }
@@ -162,7 +163,7 @@ function CornerHandle({corner, parentWidth, parentHeight, resize}: {corner: Corn
   );
 }
 
-function WidgetFrame({x1, y1, x2, y2}: {x1: number, y1: number, x2: number, y2: number}) {
+function WidgetFrame({x1, y1, x2, y2, children}: {x1: number, y1: number, x2: number, y2: number, children?: React.ReactNode}) {
   const [top, setTop] = useState(y1);
   const [bottom, setBottom] = useState(y2);
   const [left, setLeft] = useState(x1);
@@ -187,7 +188,7 @@ function WidgetFrame({x1, y1, x2, y2}: {x1: number, y1: number, x2: number, y2: 
 
   return (
     <Container padding="5" bg="blue" position="absolute" top={`${top}px`} left={`${left}px`} width={`${right-left}px`} height={`${bottom-top}px`}>
-      <p>Children</p>
+      {children}
       <For
         each={Object.values(Side)}
       >

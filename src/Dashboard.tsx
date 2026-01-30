@@ -31,6 +31,7 @@ function Dashboard ({dashboardId}: {dashboardId: number}) {
         x2={240}
         y2={240}
       >
+        <Calendar />
       </WidgetFrame>
       <WidgetFrame
         x1={280}
@@ -38,6 +39,7 @@ function Dashboard ({dashboardId}: {dashboardId: number}) {
         x2={480}
         y2={240}
       >
+        <Email/>
       </WidgetFrame>
     </>
   );
