@@ -90,7 +90,7 @@ function DashEditor({dashboardId, ownerId}: {dashboardId: number, ownerId: numbe
       console.error('Failed to copy layout:', error);
     }
 
-  // }
+   }
 
   //Should apply selected layout to dashboard
   const applyLayout = async () =>  {
@@ -136,5 +136,6 @@ function DashEditor({dashboardId, ownerId}: {dashboardId: number, ownerId: numbe
     </>
   );
 }
+
 
 export default DashEditor;
