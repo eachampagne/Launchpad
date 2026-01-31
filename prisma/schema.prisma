@@ -11,66 +11,68 @@ datasource db {
 }
 
 model User {
-  id                 Int            @id @default(autoincrement())
+  id                 Int                 @id @default(autoincrement())
   name               String?
-  dashboards         Dashboard[]    @relation("UserDashboards")
+  dashboards         Dashboard[]         @relation("UserDashboards")
   googleTokens       GoogleToken[]
-  primaryDash        Dashboard?     @relation("PrimaryDash", fields: [primaryDashId], references: [id])
-  primaryDashId      Int?           @unique
+  primaryDash        Dashboard?          @relation("PrimaryDash", fields: [primaryDashId], references: [id])
+  primaryDashId      Int?                @unique
   credentialProvider String
   credentialSubject  String
   themes             Theme[]
   layouts            Layout[]
+  dashboardSchedules DashboardSchedule[]
 }
 
 model GoogleToken {
-  id            Int       @id @default(autoincrement())
-  account       User      @relation(fields: [accountId], references: [id])
-  accountId     Int
-  access_token  String
-  id_token      String
-  expiry_date   DateTime
-  authProfile   Boolean   @default(false)
-  authGmail     Boolean   @default(false)
-  authCalendar  Boolean   @default(false)
+  id           Int      @id @default(autoincrement())
+  account      User     @relation(fields: [accountId], references: [id])
+  accountId    Int
+  access_token String
+  id_token     String
+  expiry_date  DateTime
+  authProfile  Boolean  @default(false)
+  authGmail    Boolean  @default(false)
+  authCalendar Boolean  @default(false)
 }
 
 model Dashboard {
-  id        Int    @id @default(autoincrement())
-  name      String
-  owner     User   @relation("UserDashboards", fields: [ownerId], references: [id])
-  ownerId   Int
-  theme     Theme  @relation(fields: [themeId], references: [id])
-  themeId   Int    @unique
-  layout    Layout @relation(fields: [layoutId], references: [id])
-  layoutId  Int    @unique
-  primaryOf User?  @relation("PrimaryDash")
+  id                 Int                 @id @default(autoincrement())
+  name               String
+  owner              User                @relation("UserDashboards", fields: [ownerId], references: [id])
+  ownerId            Int
+  theme              Theme               @relation(fields: [themeId], references: [id])
+  themeId            Int                 @unique
+  layout             Layout              @relation(fields: [layoutId], references: [id])
+  layoutId           Int                 @unique
+  primaryOf          User?               @relation("PrimaryDash")
+  dashboardSchedules DashboardSchedule[]
 }
 
 model Session {
   id        String   @id
   sid       String   @unique
   data      String
-  expiresAt   DateTime
+  expiresAt DateTime
 }
 
 model Theme {
-  id     Int        @id @default(autoincrement())
-  usedBy Dashboard?
-  owner   User @relation(fields: [ownerId], references: [id])
-  ownerId Int
-  public   Boolean @default(false)
+  id       Int        @id @default(autoincrement())
+  usedBy   Dashboard?
+  owner    User       @relation(fields: [ownerId], references: [id])
+  ownerId  Int
+  public   Boolean    @default(false)
   navColor String
   bgColor  String
   font     String
 }
 
 model Layout {
-  id     Int        @id @default(autoincrement())
-  usedBy Dashboard?
-  owner   User @relation(fields: [ownerId], references: [id])
-  ownerId Int
-  public Boolean @default(false)
+  id             Int             @id @default(autoincrement())
+  usedBy         Dashboard?
+  owner          User            @relation(fields: [ownerId], references: [id])
+  ownerId        Int
+  public         Boolean         @default(false)
   gridSize       String
   layoutElements LayoutElement[]
 }
@@ -94,11 +96,11 @@ model Widget {
 }
 
 model DashboardSchedule {
-  id            Int       @id @default(autoincrement())
-  owner         User      @relation(fields: [ownerId], references: [id])
-  ownerId       Int
-  dashboard     Dashboard @relation(fields: [dashboardId], references: [id])
-  dashboardId   Int
-  time          String
-  createdAt     DateTime  @default(now())
+  id          Int       @id @default(autoincrement())
+  owner       User      @relation(fields: [ownerId], references: [id])
+  ownerId     Int
+  dashboard   Dashboard @relation(fields: [dashboardId], references: [id])
+  dashboardId Int
+  time        String
+  createdAt   DateTime  @default(now())
 }
