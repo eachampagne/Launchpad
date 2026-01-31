@@ -2,7 +2,9 @@ import { useState, useEffect, type ChangeEvent } from 'react';
 
 import axios, { AxiosError } from 'axios';
 
-import { Container, Flex, For, ScrollArea, Text, VStack } from '@chakra-ui/react';
+import { Button, Flex, For, Heading, Icon, LinkBox, LinkOverlay, NativeSelect, ScrollArea, Text, VStack } from '@chakra-ui/react';
+import { LuCalendarDays } from "react-icons/lu"
+
 
 import type { Event, CalendarObject } from '../types/Calendar.ts';
 import { AuthStatus } from '../types/AuthStatus.ts';
@@ -68,11 +70,17 @@ function Calendar() {
   const renderCalendarList = () => {
     if (authStatus === AuthStatus.Authorized) {
       return (
-        <select onChange={handleCalendarSelect}>
-          {calendars.map(calendar => {
-            return <option value={calendar.id}>{calendar.summary}</option>;
-          })}
-        </select>
+        <NativeSelect.Root variant={'subtle'} marginBottom="0.5rem">
+          <NativeSelect.Field onChange={handleCalendarSelect}>
+            <For
+              each={calendars}
+              fallback={<Text w="100%">No calendars found.</Text>}
+            >
+              { (calendar) => <option value={calendar.id}>{calendar.summary}</option>}
+            </For>
+          </NativeSelect.Field>
+          <NativeSelect.Indicator />
+        </NativeSelect.Root>
       )
     } else {
       return null;
@@ -85,13 +93,18 @@ function Calendar() {
         return <Text w="100%">Please sign in.</Text>;
         break;
       case AuthStatus.Unauthorized:
+        // LinkBox/LinkOverlay mean the whole button, not just the text, functions as a link
         return (
-          <a href='/auth/calendar'>Authorize Calendar</a>
+          <LinkBox>
+            <Button>
+              <LinkOverlay href='/auth/calendar'>Authorize Calendar</LinkOverlay>
+            </Button>
+          </LinkBox>
         )
         break;
       case AuthStatus.Authorized:
         return (
-          <ScrollArea.Root>
+          <ScrollArea.Root marginTop="0.5rem">
             <ScrollArea.Viewport>
               <ScrollArea.Content>
                 <VStack>
@@ -120,7 +133,14 @@ function Calendar() {
 
   return (
     <Flex direction="column" height="100%">
-      <h6>Calendar</h6>
+      <Flex align="center" marginBottom="0.5rem"> {/* Inner flex box means icon is vertically centered against text */}
+        <Icon size="lg" marginRight="0.5rem">
+          <LuCalendarDays/>
+        </Icon>
+        <Heading>
+          Calendar
+        </Heading>
+      </Flex>
       {renderCalendarList()}
       {renderEvents()}
     </Flex>
