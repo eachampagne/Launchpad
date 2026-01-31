@@ -18,7 +18,7 @@ enum Corner {
   BottomRight = 'BOTTOM_RIGHT'
 }
 
-function SideHandle({side, parentWidth, parentHeight, resize}: {side: Side, parentWidth: number, parentHeight: number, resize: (side: Side, delta: number) => void}) {
+function SideHandle({side, parentWidth, parentHeight, resize, snap}: {side: Side, parentWidth: number, parentHeight: number, resize: (side: Side, delta: number) => void, snap: (side: Side) => void}) {
   let posX, posY;
   let width, height;
 
@@ -73,6 +73,8 @@ function SideHandle({side, parentWidth, parentHeight, resize}: {side: Side, pare
   const handleMouseUp = () => {
     window.removeEventListener('mousemove', handleMove);
     window.removeEventListener('mouseup', handleMouseUp);
+
+    snap(side);
   };
 
   return (
@@ -90,7 +92,7 @@ function SideHandle({side, parentWidth, parentHeight, resize}: {side: Side, pare
   );
 }
 
-function CornerHandle({corner, parentWidth, parentHeight, resize}: {corner: Corner, parentWidth: number, parentHeight: number, resize: (side: Side, delta: number) => void}) {
+function CornerHandle({corner, parentWidth, parentHeight, resize, snap}: {corner: Corner, parentWidth: number, parentHeight: number, resize: (side: Side, delta: number) => void, snap: (side: Side) => void}) {
   let posX, posY;
   const width = handleThickness, height = handleThickness;
 
@@ -146,6 +148,25 @@ function CornerHandle({corner, parentWidth, parentHeight, resize}: {corner: Corn
   const handleMouseUp = () => {
     window.removeEventListener('mousemove', handleMove);
     window.removeEventListener('mouseup', handleMouseUp);
+
+    switch (corner) {
+      case Corner.TopLeft:
+        snap(Side.Top);
+        snap(Side.Left);
+        break;
+      case Corner.TopRight:
+        snap(Side.Top);
+        snap(Side.Right);
+        break;
+      case Corner.BottomLeft:
+        snap(Side.Bottom)
+        snap(Side.Left);
+        break;
+      case Corner.BottomRight:
+        snap(Side.Bottom)
+        snap(Side.Right);
+        break;
+    }
   };
 
   return (
@@ -190,18 +211,66 @@ function WidgetFrame({x1, y1, x2, y2, minWidth, minHeight, snapSize, children}: 
     }
   };
 
+  const snap = (side: Side) => {
+    // You really need the state update functions here
+    // I tried to just set all the state variables directly - it didn't work
+    // It always snapped back to their original positions
+    switch (side) {
+      case Side.Top:
+        setTop(t => {
+          const height = bottom - t;
+          let snappedHeight = Math.round(height / snapSize) * snapSize; // round to nearest increment of snapSize
+          if (snappedHeight < minHeightPx) {
+            snappedHeight = minHeightPx; // minHeightPx = minHeight * snapSize, so this is guaranteed to be a proper increment
+          }
+          return bottom - snappedHeight;
+        });
+        break;
+      case Side.Bottom:
+        setBottom(b => {
+          const height = b - top;
+          let snappedHeight = Math.round(height / snapSize) * snapSize; // round to nearest increment of snapSize
+          if (snappedHeight < minHeightPx) {
+            snappedHeight = minHeightPx; // minHeightPx = minHeight * snapSize, so this is guaranteed to be a proper increment
+          }
+          return top + snappedHeight;
+        });
+        break;
+      case Side.Left:
+        setLeft(l => {
+          const width = right - l;
+          let snappedWidth = Math.round(width / snapSize) * snapSize; // round to nearest increment of snapSize
+          if (snappedWidth < minWidthPx) {
+            snappedWidth = minHeightPx; // minWidthPx = minWidth * snapSize, so this is guaranteed to be a proper increment
+          }
+          return right - snappedWidth;
+        });
+        break;
+      case Side.Right:
+        setRight(r => {
+          const width = r - left;
+          let snappedWidth = Math.round(width / snapSize) * snapSize; // round to nearest increment of snapSize
+          if (snappedWidth < minWidthPx) {
+            snappedWidth = minHeightPx; // minWidthPx = minWidth * snapSize, so this is guaranteed to be a proper increment
+          }
+          return left + snappedWidth;
+        });
+        break;
+    }
+  };
+
   return (
-    <Container padding="5" bg="blue" position="absolute" top={`${top}px`} left={`${left}px`} width={`${right-left}px`} height={`${bottom-top}px`}>
+    <Container padding="5" bg="blue" position="absolute" top={`${top}px`} left={`${left}px`} width={`${right-left}px`} height={`${bottom-top}px`} overflow="clip">
       {children}
       <For
         each={Object.values(Side)}
       >
-        {(item) => <SideHandle side={item} parentWidth={right-left} parentHeight={bottom-top} resize={resize}/>}
+        {(item) => <SideHandle side={item} parentWidth={right-left} parentHeight={bottom-top} resize={resize} snap={snap}/>}
       </For>
       <For
         each={Object.values(Corner)}
       >
-        {(item) => <CornerHandle corner={item} parentWidth={right-left} parentHeight={bottom-top} resize={resize}/>}
+        {(item) => <CornerHandle corner={item} parentWidth={right-left} parentHeight={bottom-top} resize={resize} snap={snap}/>}
       </For>
     </Container>
   );
