@@ -20,6 +20,8 @@ import {
 
 import { IoMdCheckmark } from "react-icons/io";
 
+import NavBar from "./NavBar";
+
 type HubProps = {
   dashboards: any[]; // temporary
   getDashboardData: () => Promise<void>;
@@ -99,6 +101,9 @@ export default function Hub({
   }
 
   return (
+    <>
+    <NavBar pages={["Home"]}/> {/*empty string will take user to Home page*/}
+
     <Flex minH="100vh" justify="center">
       <Box w="100%" maxW="1100px" p={6}>
         {/* Profile */}
@@ -362,5 +367,6 @@ export default function Hub({
         </Flex>
       </Box>
     </Flex>
+    </>
   );
 }
