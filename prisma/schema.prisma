@@ -98,6 +98,7 @@ model PhoneNumbers {
   id              Int     @id @default(autoincrement())
   user            User    @relation(fields: [userId], references: [id])
   userId          Int     @unique
+  number          Int?
   verified        Boolean @default(false)
   notifications   Boolean @default(false)
 }
