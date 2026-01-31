@@ -18,7 +18,7 @@ function NavBar (props: MyProps) {
         {/* TODO: Make this responsive for mobile and turn into a collapsible thing */}
         <For each={props.pages}>
           {(page) => (
-            <Button colorPalette="gray" variant="surface" height="25px" mt="12px" mr="8px" p="1"><Link to={`/${page}`}>{page}</Link></Button>
+            <Button colorPalette="gray" variant="surface" height="25px" mt="12px" mr="8px" p="1"><Link to={`/${page === "Home" ? '' : page}`}>{page}</Link></Button>
           )}
         </For>
         <AbsoluteCenter>
