@@ -163,25 +163,29 @@ function CornerHandle({corner, parentWidth, parentHeight, resize}: {corner: Corn
   );
 }
 
-function WidgetFrame({x1, y1, x2, y2, children}: {x1: number, y1: number, x2: number, y2: number, children?: React.ReactNode}) {
-  const [top, setTop] = useState(y1);
-  const [bottom, setBottom] = useState(y2);
-  const [left, setLeft] = useState(x1);
-  const [right, setRight] = useState(x2);
+function WidgetFrame({x1, y1, x2, y2, minWidth, minHeight, snapSize, children}: {x1: number, y1: number, x2: number, y2: number, minWidth: number, minHeight: number, snapSize: number, children?: React.ReactNode}) {
+  const [top, setTop] = useState(y1 * snapSize);
+  const [bottom, setBottom] = useState(y2 * snapSize);
+  const [left, setLeft] = useState(x1 * snapSize);
+  const [right, setRight] = useState(x2 * snapSize);
 
+  const minHeightPx = minHeight * snapSize;
+  const minWidthPx = minWidth * snapSize;
+
+  // constrain to >= minHeight and minWidth
   const resize = (side: Side, delta: number) => {
     switch (side) {
       case Side.Top:
-        setTop((t) => t + delta);
+        setTop((t) => bottom - (t + delta) < minHeightPx ? bottom - minHeightPx : t + delta);
         break;
       case Side.Bottom:
-        setBottom((b) => b + delta);
+        setBottom((b) => (b + delta) - top < minHeightPx ? top + minHeightPx : b + delta);
         break;
       case Side.Left:
-        setLeft((l) => l + delta);
+        setLeft((l) => right - (l + delta) < minWidthPx ? right - minWidthPx : l + delta);
         break;
       case Side.Right:
-        setRight((r) => r + delta);
+        setRight((r) => (r + delta) - left < minWidthPx ? left + minWidthPx : r + delta);
         break;
     }
   };

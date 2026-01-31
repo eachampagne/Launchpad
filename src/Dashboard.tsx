@@ -26,18 +26,24 @@ function Dashboard ({dashboardId}: {dashboardId: number}) {
       <h2>{dashboard.name}</h2>
       <Link to='/edit'>Edit</Link>
       <WidgetFrame
-        x1={40}
-        y1={40}
-        x2={240}
-        y2={240}
+        x1={1}
+        y1={1}
+        x2={6}
+        y2={6}
+        minWidth={1}
+        minHeight={1}
+        snapSize={100}
       >
         <Calendar />
       </WidgetFrame>
       <WidgetFrame
-        x1={280}
-        y1={40}
-        x2={480}
-        y2={240}
+        x1={7}
+        y1={1}
+        x2={12}
+        y2={6}
+        minWidth={1}
+        minHeight={1}
+        snapSize={100}
       >
         <Email/>
       </WidgetFrame>
