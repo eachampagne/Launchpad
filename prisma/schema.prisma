@@ -92,3 +92,13 @@ model Widget {
   name           String
   layoutElements LayoutElement[]
 }
+
+model DashboardSchedule {
+  id            Int       @id @default(autoincrement())
+  owner         User      @relation(fields: [ownerId], references: [id])
+  ownerId       Int
+  dashboard     Dashboard @relation(fields: [dashboardId], references: [id])
+  dashboardId   Int
+  time          String
+  createdAt     DateTime  @default(now())
+}
