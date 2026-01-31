@@ -21,6 +21,7 @@ import layout from './routers/layout.js';
 import user from './routers/user.js'
 import calendar from './routers/calendar.js';
 import email from './routers/email.js';
+import dashboard from './routers/dashboard.js';
 
 const app = express();
 
@@ -51,6 +52,7 @@ app.use('/', authRouter);
 // * AUTH 
 
 app.use(router);
+app.use('/dashboard', dashboard)
 app.use('/theme', theme);
 app.use('/calendar', calendar);
 app.use('/layout', layout);
