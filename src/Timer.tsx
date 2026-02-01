@@ -10,7 +10,9 @@ function Timer() {
   // should you be able to use the timer just client side if you're logged out?
   const [timerStatus, setTimerStatus] = useState(TimerStatus.SignedOut);
   const [expiration, setExpiration] = useState(null as Date | null);
+  const [timerString, setTimerString] = useState('');
   const [pausedRemaining, setPausedRemaining] = useState(null as number | null);
+  const [tickTimeout, setTickTimeout] = useState(null as null | number);
 
   // check timer, assign states
   const checkServer = async () => {
@@ -25,7 +27,10 @@ function Timer() {
         }
       } else {
         setTimerStatus(TimerStatus.ActiveTimer);
-        setExpiration(response.data);
+
+        const expirationResponse = new Date(response.data);
+
+        setExpiration(expirationResponse);
       }
     } catch (error) {
       if ((error as AxiosError).status === 401) {
@@ -45,6 +50,50 @@ function Timer() {
     }
   };
 
+  const tick = () => {
+    setTimerString(timeToString(expiration as Date));
+    setTickTimeout(setTimeout(tick, 100)); // 10 times a second
+  }
+
+  const stopTicking = () => {
+    if (tickTimeout !== null) {
+      clearTimeout(tickTimeout);
+      setTickTimeout(null);
+    }
+  }
+
+  const startTicking = () => {
+    stopTicking();
+    setTickTimeout(setTimeout(tick, 100));
+  }
+
+  const timeToString = (expires: Date) => {
+    const now = Date.now();
+
+    let remainingMs = expires.getTime() - now;
+    let negative = false;
+
+    if (remainingMs < 0) {
+      negative = true;
+      remainingMs = -remainingMs;
+    }
+
+    const seconds = Math.trunc(remainingMs / 1000) % 60;
+    const minutes = Math.trunc(remainingMs / 1000 / 60) % 60;
+    const hours = Math.trunc(remainingMs / 1000 / 60 / 60);
+
+    const secondsString = seconds === 0 ? '00'
+      : seconds < 10 ? `0${seconds}` : `${seconds}`;
+    const minutesString = minutes === 0 ? '00'
+      : minutes < 10 ? `0${minutes}` : `${minutes}`;
+    const hoursString = hours > 0 ? `${hours}:` : '';
+    const negativeString = negative ? '-' : '';
+
+    const string = `${negativeString}${hoursString}${minutesString}:${secondsString}`;
+
+    return string;
+  };
+
   const handleStartTimerButton = (event: React.MouseEvent<HTMLButtonElement>) => {
     // separate this out instead of going straight to start timer
     // because in the future you may be able to input the duration in a field yourself
@@ -53,6 +102,13 @@ function Timer() {
     startTimer(duration);
   };
 
+  useEffect(() => {
+    stopTicking();
+    if (expiration !== null) {
+      setTimerString(timeToString(expiration));
+      startTicking();
+    }
+  }, [expiration]);
 
   useEffect(() => {
     checkServer();
@@ -96,7 +152,7 @@ function Timer() {
       case TimerStatus.ActiveTimer:
         return (
           <>
-            <Text marginBottom="0.5rem">Remaining time:</Text>
+            <Text marginBottom="0.5rem">Remaining time: {timerString}</Text>
           </>
         );
         break;
