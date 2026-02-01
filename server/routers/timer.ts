@@ -46,7 +46,7 @@ timer.post('/', async (req: any, res) => {
       res.sendStatus(409);
     }
 
-    const duration: number = req.body;
+    const { duration }: { duration: number } = req.body;
     const expirationTime = Date.now() + duration;
 
     await prisma.timer.create({
