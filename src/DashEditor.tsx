@@ -11,6 +11,12 @@ type Layout = {
 
 };
 
+type Dashboard = {
+  id: number;
+  name: string;
+  layoutId: number | null;
+};
+
 
 function DashEditor({dashboardId, ownerId}: {dashboardId: number, ownerId: number}) {
   const [dashboard, setDashboard] = useState({name: "Loading", ownerId: -1});
@@ -18,6 +24,7 @@ function DashEditor({dashboardId, ownerId}: {dashboardId: number, ownerId: numbe
   const [renaming, setRenaming] = useState(false);
   const [selectedLayoutId, setSelectedLayoutId] = useState(-1);//(-1 = nothing selected)
   const [selectedLayout, setSelectedLayout] = useState<Layout | null>(null)
+  const [appliedDash, setAppliedDash] = useState<Dashboard | null>(null)
 
 
   // function updateSelected (param: number){
@@ -31,6 +38,7 @@ function DashEditor({dashboardId, ownerId}: {dashboardId: number, ownerId: numbe
     try {
       const response = await axios.get(`/dashboard/${dashboardId}`);
       setDashboard(response.data);
+      //setAppliedDash(response.data)
       setNewName(response.data.name);
     } catch (error) {
       console.error('Failed to get dashboard:', error);
@@ -68,6 +76,10 @@ function DashEditor({dashboardId, ownerId}: {dashboardId: number, ownerId: numbe
 
   //Will load layout when selectedLayoutId changes
   useEffect(() => {
+    if(selectedLayoutId === -1){
+      return;
+    }
+
     axios.get(`/layout/${selectedLayoutId}`)
     .then((res) => {
       setSelectedLayout(res.data);
@@ -77,20 +89,22 @@ function DashEditor({dashboardId, ownerId}: {dashboardId: number, ownerId: numbe
     });
   }, [selectedLayoutId]);
 
-  //Will create a copy of layout
-  const copyLayout = async (layoutId: number) => {
-      if (!selectedLayout) return;
+  //Will create a clone of applied layout
+  const applyLayout = async (layoutId: number) => {
     try {
-      const response = await axios.post(`/layout/${layoutId}/copy`)
-      console.log('Layout is copied:', response.data)
-      //copy and preview copied layout
-      setSelectedLayout(response.data);
-      setSelectedLayoutId(response.data.id);
+      //Update dashboard
+      const response = await axios.post(`/dashboard/${dashboardId}/layout/${layoutId}`)
+      console.log('Dashboard updated:', response.data)
+      setAppliedDash(response.data)
+      //Reload dash
+      //loadDashboard();
+      setDashboard(response.data)
     } catch (error) {
-      console.error('Failed to copy layout:', error);
+      console.error('Failed to use layout:', error);
     }
 
-  }
+   }
+
 
   const renderName = () => {
     if (renaming) {
@@ -111,6 +125,13 @@ function DashEditor({dashboardId, ownerId}: {dashboardId: number, ownerId: numbe
   return (
     <>
       <h2>Editing: {renderName()}</h2>
+      {appliedDash?.layoutId && (
+        <section>
+          <h3> APPLIED LAYOUT</h3>
+          <p>LAYOUT ID: {appliedDash.layoutId}</p>
+          {/**MVP GRID PLACEHOLDER */}
+        </section>
+      )}
       <Link to='/'>Done</Link>
       <Theme dashboardId={dashboardId} dashboard={dashboard} ownerId={ownerId} />
       <LayoutGallery onSelect={setSelectedLayoutId}/>
@@ -120,11 +141,13 @@ function DashEditor({dashboardId, ownerId}: {dashboardId: number, ownerId: numbe
         <h4>LAYOUT PREVIEW</h4>
         <p>SELECTED LAYOUT #{selectedLayoutId}</p>
         <p>GRID SIZE: {selectedLayout.gridSize}</p>
-        <button onClick={() => copyLayout(selectedLayout.id)}> COPY CURRENT LAYOUT </button>
+        <button onClick={() => applyLayout(selectedLayout.id)}> APPLY CURRENT LAYOUT </button>
         </>
       )}
+
     </>
   );
 }
+
 
 export default DashEditor;
