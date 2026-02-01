@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios, { AxiosError } from 'axios';
 
-import { AuthStatus } from '../types/AuthStatus.ts';
+import { AuthStatus } from '../types/WidgetStatus.ts';
 
 function Email () {
   const [authStatus, setAuthStatus] = useState(AuthStatus.SignedOut);
