@@ -38,7 +38,7 @@ function DashEditor({dashboardId, ownerId}: {dashboardId: number, ownerId: numbe
     try {
       const response = await axios.get(`/dashboard/${dashboardId}`);
       setDashboard(response.data);
-      setAppliedDash(response.data)
+      //setAppliedDash(response.data)
       setNewName(response.data.name);
     } catch (error) {
       console.error('Failed to get dashboard:', error);
