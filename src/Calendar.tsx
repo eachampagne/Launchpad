@@ -2,6 +2,10 @@ import { useState, useEffect, type ChangeEvent } from 'react';
 
 import axios, { AxiosError } from 'axios';
 
+import { Button, Flex, For, Heading, Icon, LinkBox, LinkOverlay, NativeSelect, ScrollArea, Text, VStack } from '@chakra-ui/react';
+import { LuCalendarDays } from 'react-icons/lu';
+
+
 import type { Event, CalendarObject } from '../types/Calendar.ts';
 import { AuthStatus } from '../types/AuthStatus.ts';
 
@@ -66,11 +70,17 @@ function Calendar() {
   const renderCalendarList = () => {
     if (authStatus === AuthStatus.Authorized) {
       return (
-        <select onChange={handleCalendarSelect}>
-          {calendars.map(calendar => {
-            return <option value={calendar.id}>{calendar.summary}</option>;
-          })}
-        </select>
+        <NativeSelect.Root variant={'subtle'}>
+          <NativeSelect.Field onChange={handleCalendarSelect}>
+            <For
+              each={calendars}
+              fallback={<Text w="100%">No calendars found.</Text>}
+            >
+              { (calendar) => <option value={calendar.id}>{calendar.summary}</option>}
+            </For>
+          </NativeSelect.Field>
+          <NativeSelect.Indicator />
+        </NativeSelect.Root>
       )
     } else {
       return null;
@@ -80,36 +90,60 @@ function Calendar() {
   const renderEvents = () => {
     switch (authStatus) {
       case AuthStatus.SignedOut:
-        return <p>Please sign in.</p>;
+        return <Text w="100%">Please sign in.</Text>;
         break;
       case AuthStatus.Unauthorized:
+        // LinkBox/LinkOverlay mean the whole button, not just the text, functions as a link
         return (
-          <a href='/auth/calendar'>Authorize Calendar</a>
+          <LinkBox>
+            <Button>
+              <LinkOverlay href='/auth/calendar'>Authorize Calendar</LinkOverlay>
+            </Button>
+          </LinkBox>
         )
         break;
       case AuthStatus.Authorized:
-        if (events.length > 0) {
-          return events.map((event) => {
-            return (
-              <div>
-                <p>{event.summary}</p>
-              </div>
-            )
-          });
-        } else {
-          return <p>No events found.</p>;
-        }
-        break;
+        return (
+          <ScrollArea.Root marginTop="0.5rem">
+            <ScrollArea.Viewport>
+              <ScrollArea.Content>
+                <VStack>
+                  <For
+                    each={events}
+                    fallback={<Text w="100%">No events found.</Text>}
+                  >
+                    {(event) => (
+                        <Text w="100%">{event.summary}</Text>
+                      )
+                    }
+                  </For>
+                </VStack>
+              </ScrollArea.Content>
+            </ScrollArea.Viewport>
+            <ScrollArea.Scrollbar>
+              <ScrollArea.Thumb />
+            </ScrollArea.Scrollbar>
+            <ScrollArea.Corner />
+          </ScrollArea.Root>
+        );
+      break;
     }
 
   };
 
   return (
-    <div>
-      <h6>Calendar</h6>
+    <Flex direction="column" height="100%">
+      <Flex align="center" marginBottom="0.5rem"> {/* Inner flex box means icon is vertically centered against text */}
+        <Icon size="lg" marginRight="0.5rem">
+          <LuCalendarDays/>
+        </Icon>
+        <Heading>
+          Calendar
+        </Heading>
+      </Flex>
       {renderCalendarList()}
       {renderEvents()}
-    </div>
+    </Flex>
   );
 }
 
