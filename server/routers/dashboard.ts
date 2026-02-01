@@ -37,32 +37,42 @@ router.get('/all/:id', async (req, res) => {
   }
 });
 
-// router.get('/:id', async (req, res) => {
-//   // there should be some sort of auth here to check if the given dashboard
-//   // either belongs to the user or is public
+router.get('/:id', async (req, res) => {
+  // there should be some sort of auth here to check if the given dashboard
+  // either belongs to the user or is public
 
-//   const { id: idString } = req.params;
-//   const id = parseInt(idString);
+  const { id: idString } = req.params;
+  const id = parseInt(idString);
 
-//   try {
-//     const dashboard = await prisma.dashboard.findUnique({
-//       where: {
-//         id
-//       }
-//     });
+  try {
+    const dashboard = await prisma.dashboard.findUnique({
+      where: {
+        id
+      },
+      include : {
+        layout: {
+          include : {
+            layoutElements : {
+              include : { widget: true }
 
-//     // TODO: check whether the given user should have access to this dashboard
+            }
+          }
+        }
+      }
+    });
 
-//     if (!dashboard) { // dashboard is null if not found
-//       res.sendStatus(404);
-//     } else {
-//       res.status(200).send(dashboard);
-//     }
-//   } catch (error) {
-//     console.error('Failed to find dashboard: ', error);
-//     res.sendStatus(500);
-//   }
-// });
+    // TODO: check whether the given user should have access to this dashboard
+
+    if (!dashboard) { // dashboard is null if not found
+      res.sendStatus(404);
+    } else {
+      res.status(200).send(dashboard);
+    }
+  } catch (error) {
+    console.error('Failed to find dashboard: ', error);
+    res.sendStatus(500);
+  }
+});
 
 router.post('/', async (req, res) => {
   // TODO: all sorts of auth
@@ -152,30 +162,64 @@ router.patch('/:id', async (req, res) => {
 });
 
 //This route should update layout used by a dashboard
-router.patch('/:id/layout', async (req, res) => {
-  //Grab the dashboard id
-  const { id: idString } = req.params;
-  const dashboardId = parseInt(idString);
-  //Grab layout to apply
-  const { layoutId } = req.body;
-
-  //If no layoutId to apply
-  if(!layoutId){
-    return res.status(400)
-  }
-
-  try{
-    //Query db and find dashboard where id = dashboardId
-    const dashboard = await prisma.dashboard.update({
-      where:{ id: dashboardId },
-      //Update its layoutId to the new layout
-      data: { layoutId }
+router.post('/:dashboardId/layout/:layoutId', async (req, res) => {
+  const dashboardId = Number(req.params.dashboardId)
+  const layoutId = Number(req.params.layoutId);
+  const userId = 1; //TODO: add auth
+  try {
+    //Fetch public layout
+    const sourceLayout = await prisma.layout.findUnique({
+      where: { id: layoutId },
+      include: {
+        layoutElements: {
+          include: { widget: true }
+        }
+      }
     });
-    //Return updated dashboard
-    res.status(200).send(dashboard);
-  } catch (err) {
-    console.error("Could not apply layout:", err);
-    return res.status(500).send({'Could not apply chosen layout:': err});
+
+    if(!sourceLayout || !sourceLayout.public){
+      console.log(sourceLayout)
+      return res.status(404).send('Layout is not public or does not exist');
+    }
+    //Create private copy of layout
+    const newLayout = await prisma.layout.create({
+      data: {
+        ownerId: userId,
+        public: false,
+        gridSize: sourceLayout.gridSize
+      }
+    });
+    //Duplicate layout elements
+    await prisma.layoutElement.createMany({
+      data: sourceLayout.layoutElements.map(el =>({
+        layoutId: newLayout.id,
+        widgetId: el.widgetId,
+        posX: el.posX,
+        posY: el.posY,
+        sizeX: el.sizeX,
+        sizeY: el.sizeY
+      }))
+    })
+    //Attach to dash
+    const dashboard = await prisma.dashboard.update({
+      where: {id: dashboardId},
+      data: { layoutId: newLayout.id},
+      include : {
+        layout: {
+          include : {
+            layoutElements : {
+              include : { widget: true }
+
+            }
+          }
+        }
+      }
+
+    })
+    //Return updated dash
+    res.status(200).send(dashboard)
+  } catch (error) {
+    res.status(500).send({'Could not apply layout': error})
   }
 })
 
