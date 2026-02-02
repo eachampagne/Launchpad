@@ -18,6 +18,7 @@ import {
 } from "@chakra-ui/react";
 import { IoMdCheckmark } from "react-icons/io";
 import NavBar from "./NavBar";
+import Notifications from "./Notifications";
 
 type HubProps = {
   dashboards: any[]; // temporary
@@ -595,6 +596,7 @@ export default function Hub({
           </Flex>
         </Box>
       </Flex>
+      <Notifications ownerId={ownerId}/>
     </>
   );
 }

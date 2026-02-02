@@ -15,7 +15,7 @@ phoneNumbers.get('/:ownerId', async (req, res) => {
       }
     })
      console.log(Number(req.params.ownerId))
-    res.status(200).send(userNumber)
+    res.status(200).send(userNumber?.contactNumber)
   } catch (error) {
     res.status(500).send({'Could not fetch the phone number': error})
   }
@@ -29,6 +29,7 @@ phoneNumbers.post('/:ownerId', async (req, res) => {
   // if no number is provided
   if(!contactNumber){
     res.status(404).send({error: 'You need to provide a phone number'})
+    return;
   }
   try {
     const existing = await prisma.phoneNumbers.findUnique({
@@ -39,7 +40,9 @@ phoneNumbers.post('/:ownerId', async (req, res) => {
 
     // check if it exist
     if(existing){
+
       res.status(404).send('You already have a phone number')
+      return;
     }
 
       await prisma.phoneNumbers.create({
@@ -74,6 +77,7 @@ phoneNumbers.patch('/:ownerId', async (req, res) => {
     // check if it exist
     if(!existing){
       res.status(404).send('You have nothing to update')
+      return;
     }
 
     const data: {
@@ -85,7 +89,6 @@ phoneNumbers.patch('/:ownerId', async (req, res) => {
     if(contactNumber){
       data.contactNumber = contactNumber
       data.verified = false
-      data.notifications = false
     }
 
     // if something is clicked change the boolean value
@@ -93,11 +96,9 @@ phoneNumbers.patch('/:ownerId', async (req, res) => {
     //   data.verified = verified
     // }
 
-    // if(typeof notifications === 'boolean'){
-    //   data.notifications = notifications
-    // }
-
-    data.notifications = !existing?.notifications
+    if(typeof notifications === 'boolean'){
+      data.notifications = notifications
+    }
 
     const status = await prisma.phoneNumbers.update({
       where: {
@@ -123,6 +124,7 @@ phoneNumbers.patch('/verify/:ownerId', async (req, res) => {
 
     if(existing?.verified === true){
       res.status(404).send('This number is already verified')
+      return;
     }
 
     await prisma.phoneNumbers.update({
