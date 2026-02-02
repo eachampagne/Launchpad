@@ -51,7 +51,7 @@ function Timer() {
   };
 
   const tick = () => {
-    setTimerString(timeToString(expiration as Date));
+    setTimerString(expiresToString(expiration as Date));
     setTickTimeout(setTimeout(tick, 100)); // 10 times a second
   }
 
@@ -67,10 +67,66 @@ function Timer() {
     setTickTimeout(setTimeout(tick, 100));
   }
 
-  const timeToString = (expires: Date) => {
+  const pause = async () => {
+    if (expiration === null) {
+      return;
+    }
+
+    try {
+      await axios.delete('/timer');
+      const remainingMs = expiration.getTime() - Date.now();
+      setPausedRemaining(remainingMs);
+      setTimerString(timeToString(remainingMs));
+      setExpiration(null);
+      await checkServer(); // the pausedRemaining state hasn't always updated so sometime it thinks there is no timer
+      setTimerStatus(TimerStatus.Paused);
+    } catch (error) {
+      console.error('Failed to pause timer:', error);
+    }
+  };
+
+  const resume = async () => {
+    if (pausedRemaining === null) {
+      return;
+    }
+
+    try {
+      await axios.post('/timer', {duration: pausedRemaining});
+      setPausedRemaining(null);
+      checkServer(); // resets expiration, which triggers ticking to star
+    } catch (error) {
+      console.error('Failed to resume timer:', error);
+    }
+  };
+
+  const reset = async () => {
+    if (pausedRemaining !== null) {
+      setPausedRemaining(null);
+    }
+
+    if (expiration === null) {
+      setTimerStatus(TimerStatus.NoTimer);
+      return;
+    }
+
+    try {
+      await axios.delete('/timer');
+      setExpiration(null);
+      checkServer();
+    } catch (error) {
+      console.error('Failed to delete timer:', error);
+    }
+  };
+
+  const expiresToString = (expires: Date) => {
     const now = Date.now();
 
-    let remainingMs = expires.getTime() - now;
+    const remainingMs = expires.getTime() - now;
+
+    return timeToString(remainingMs);
+  };
+
+  const timeToString = (remainingMs: number) => {
     let negative = false;
 
     if (remainingMs < 0) {
@@ -102,10 +158,29 @@ function Timer() {
     startTimer(duration);
   };
 
+  const handleControlButton = (event: React.MouseEvent<HTMLButtonElement>) => {
+    const action = (event.target as HTMLButtonElement).value;
+
+    switch (action) {
+      case 'pause':
+        pause();
+        break;
+      case 'resume':
+        resume();
+        break;
+      case 'reset':
+        reset();
+        break;
+      default:
+        console.error('Unknown action:', action);
+        break;
+    }
+  }
+
   useEffect(() => {
     stopTicking();
     if (expiration !== null) {
-      setTimerString(timeToString(expiration));
+      setTimerString(expiresToString(expiration));
       startTicking();
     }
   }, [expiration]);
@@ -145,7 +220,25 @@ function Timer() {
       case TimerStatus.Paused:
         return (
           <>
-            <Text marginBottom="0.5rem">Resume timer:</Text>
+            <Text marginBottom="0.5rem">Paused timer: {timerString}</Text>
+            <Flex justify="center">
+              <HStack>
+                <For
+                  each={['resume', 'reset']}
+                >
+                  {(action) => {
+                    return (
+                      <Button
+                        value={action}
+                        onClick={handleControlButton}
+                      >
+                        {action[0].toUpperCase() + action.slice(1)}
+                      </Button>
+                    )
+                }}
+                </For>
+              </HStack>
+            </Flex>
           </>
         );
         break;
@@ -153,6 +246,24 @@ function Timer() {
         return (
           <>
             <Text marginBottom="0.5rem">Remaining time: {timerString}</Text>
+            <Flex justify="center">
+              <HStack>
+                <For
+                  each={['pause', 'reset']}
+                >
+                  {(action) => {
+                    return (
+                      <Button
+                        value={action}
+                        onClick={handleControlButton}
+                      >
+                        {action[0].toUpperCase() + action.slice(1)}
+                      </Button>
+                    )
+                }}
+                </For>
+              </HStack>
+            </Flex>
           </>
         );
         break;
