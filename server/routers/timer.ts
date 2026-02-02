@@ -5,7 +5,7 @@ import { prisma } from '../database/prisma.js';
 
 const timer = express.Router();
 
-timer.get('/', async (req: any, res) => {
+timer.get('/', async (req, res) => {
   // check auth
   if (req.user === undefined) {
     res.sendStatus(401);
@@ -28,7 +28,7 @@ timer.get('/', async (req: any, res) => {
   }
 });
 
-timer.post('/', async (req: any, res) => {
+timer.post('/', async (req, res) => {
   // check auth
   if (req.user === undefined) {
     res.sendStatus(401);
@@ -63,7 +63,7 @@ timer.post('/', async (req: any, res) => {
   }
 });
 
-timer.delete('/', async (req: any, res) => {
+timer.delete('/', async (req, res) => {
   // check auth
   if (req.user === undefined) {
     res.sendStatus(401);

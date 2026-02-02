@@ -6,13 +6,14 @@ import { batchFetchImplementation } from '@jrmdayn/googleapis-batcher';
 
 const email = express.Router();
 
-email.get('/', async (req: any, res) => {
-  const userId = req.user?.id;
-
-  if (userId === undefined) {
+email.get('/', async (req, res) => {
+  // check auth
+  if (req.user === undefined) {
     res.sendStatus(401);
     return;
   }
+
+  const userId = req.user.id;
 
   try {
     const oauth2Client = await getGoogleOauth(userId, 'gmail');

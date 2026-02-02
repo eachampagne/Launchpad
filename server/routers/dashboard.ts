@@ -79,6 +79,12 @@ dashboard.post('/', async (req, res) => {
   // the user's identity should be pulled from the session info
   // rather than just being the client saying "trust me bro"
 
+  // check auth
+  if (req.user === undefined) {
+    res.sendStatus(401);
+    return;
+  }
+
   const { ownerId, name } = req.body;
 
   try {
@@ -130,7 +136,11 @@ dashboard.post('/', async (req, res) => {
 });
 
 dashboard.patch('/:id', async (req, res) => {
-  // TODO: auth!!
+  // check auth
+  if (req.user === undefined) {
+    res.sendStatus(401);
+    return;
+  }
 
   const { name, themeId } = req.body;
   const { id: idString } = req.params;

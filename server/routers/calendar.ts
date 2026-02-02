@@ -14,11 +14,16 @@ async function getDummyData() {
   return JSON.parse(dummyJson);
 }
 
-// TODO: figure out the request.User type
-router.get('/', async (req: any, res) => {
-  const calendarId = req.query.calendarId === undefined ? 'primary' : req.query.calendarId;
+router.get('/', async (req, res) => {
+  // check auth
+  if (req.user === undefined) {
+    res.sendStatus(401);
+    return;
+  }
 
-  const userId = req.user?.id;
+  const calendarId = req.query.calendarId === undefined ? 'primary' : req.query.calendarId as string;
+
+  const userId = req.user.id;
 
   try {
     const oauth2Client = await getGoogleOauth(userId, 'calendar');
@@ -66,8 +71,14 @@ router.get('/', async (req: any, res) => {
   }
 });
 
-router.get('/list', async (req: any, res) => {
-  const userId = req.user?.id;
+router.get('/list', async (req, res) => {
+  // check auth
+  if (req.user === undefined) {
+    res.sendStatus(401);
+    return;
+  }
+
+  const userId = req.user.id;
 
   try {
     const oauth2Client = await getGoogleOauth(userId, 'calendar');

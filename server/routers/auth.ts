@@ -53,13 +53,13 @@ router.post('/logout', function(req, res, next) {
   });
 });
 
-passport.serializeUser(function(user : any, cb) { // ? Open Request: Replace 'any' with whatever it should be. (User doesn't work, but is what the function should take in.)
+passport.serializeUser(function(user : Express.User, cb) { // ? Open Request: Replace 'any' with whatever it should be. (User doesn't work, but is what the function should take in.)
   process.nextTick(function() {
     return cb(null, { id: user.id, name: user.name });
   });
 });
 
-passport.deserializeUser(function(user : User, cb) {
+passport.deserializeUser(function(user : Express.User, cb) {
   process.nextTick(function() {
     return cb(null, user);
   });
@@ -71,9 +71,13 @@ const scopes = {
   gmail: 'https://www.googleapis.com/auth/gmail.readonly'
 };
 
-// todo: use path param to check which authentication get
-// todo: authenticate app user!
 router.get('/auth/:widget', (req, res) => {
+  // check auth
+  if (req.user === undefined) {
+    res.sendStatus(401);
+    return;
+  }
+
   let toAuthenticate: 'calendar' | 'gmail';
 
   switch (req.params.widget) {
@@ -109,9 +113,14 @@ router.get('/auth/:widget', (req, res) => {
   res.redirect(authorizationUrl);
 });
 
-// TODO: fix any
 // TODO: delete superseded tokens?
-router.get('/auth/redirect/google', async (req: any, res) => {
+router.get('/auth/redirect/google', async (req, res) => {
+  // check auth
+  if (req.user === undefined) {
+    res.sendStatus(401);
+    return;
+  }
+
   const oauth2Client = new google.auth.OAuth2(
     process.env['GOOGLE_CLIENT_ID'],
     process.env['GOOGLE_CLIENT_SECRET'],
@@ -161,10 +170,13 @@ router.get('/auth/redirect/google', async (req: any, res) => {
 
 });
 
-// todo: fix any
-// todo: use path param to check which authentication to look for
-// https://stackoverflow.com/questions/66312048/cant-override-express-request-user-type-but-i-can-add-new-properties-to-reques
-router.get('/checkauth/:widget', async (req: any, res) => {
+router.get('/checkauth/:widget', async (req, res) => {
+  // check auth
+  if (req.user === undefined) {
+    res.sendStatus(401);
+    return;
+  }
+
   let toCheck: 'authCalendar' | 'authGmail' | 'authProfile';
 
   switch (req.params.widget) {
@@ -182,31 +194,27 @@ router.get('/checkauth/:widget', async (req: any, res) => {
       return;
   }
 
-  if (req.user) {
-    const validTokens = (await prisma.googleToken.findMany({where: {accountId: req.user.id, [toCheck]: true}}));
+  const validTokens = (await prisma.googleToken.findMany({where: {accountId: req.user.id, [toCheck]: true}}));
 
-    let numValidTokens = 0;
-    const now = new Date();
+  let numValidTokens = 0;
+  const now = new Date();
 
-    // delete out of date tokens, count valid ones
-    // there may be a better way to do this concurrently
-    // TODO: refactor to use refresh tokens. Instead of deleting, refresh and replace the token
-    validTokens.forEach(async token => {
-      if (token.expiry_date < now) {
-        await prisma.googleToken.deleteMany({where: {id: token.id}}); // .delete() expects a single unique record to exist, and throws an error if it doesn't
-        // but because many widgets might be checking their auth status simultaneously, there's a possible race condition on deleting expired tokens
-      } else {
-        numValidTokens++;
-      }
-    });
-
-    if (numValidTokens > 0) {
-      res.status(200).send(true);
+  // delete out of date tokens, count valid ones
+  // there may be a better way to do this concurrently
+  // TODO: refactor to use refresh tokens. Instead of deleting, refresh and replace the token
+  validTokens.forEach(async token => {
+    if (token.expiry_date < now) {
+      await prisma.googleToken.deleteMany({where: {id: token.id}}); // .delete() expects a single unique record to exist, and throws an error if it doesn't
+      // but because many widgets might be checking their auth status simultaneously, there's a possible race condition on deleting expired tokens
     } else {
-      res.status(200).send(false);
+      numValidTokens++;
     }
+  });
+
+  if (numValidTokens > 0) {
+    res.status(200).send(true);
   } else {
-    res.sendStatus(401);
+    res.status(200).send(false);
   }
 });
 
