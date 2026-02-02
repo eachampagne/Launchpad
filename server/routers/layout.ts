@@ -4,12 +4,6 @@ import { prisma } from '../database/prisma.js';
 
 const layout = express.Router();
 
-//GET (route mounted)
-// layout.get('/', (req, res) => {
-//   res.status(200).send('LAYOUT GET');
-// });
-
-
 //READ: This should get all public layouts.
 layout.get('/public', async (req, res) => {
   //console.log(' GET /layout/public hit');
@@ -35,6 +29,10 @@ layout.get('/public', async (req, res) => {
 })
 
 //READ: This route will load one layout by id.
+
+// TODO: 
+// If you aren't the user that created it, or if it isn't public, don't load it.
+
 layout.get('/:layoutId', async (req, res) => {
   //grab layout id
   //needed to be converted to number
@@ -109,6 +107,12 @@ layout.post('/:layoutId/copy', async (req, res) => {
 })
 });
 
+// TODO:
+// Layout + Elm
+
+// POST: Allows the user to add a widget.
+// PUT: Allows the user to drag/resize, or change other settings.
+// DELETE: Remove a widget from a layout.
 
 
 export default layout;
