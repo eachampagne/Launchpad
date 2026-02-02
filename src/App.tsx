@@ -13,7 +13,7 @@ import Calendar from './Calendar';
 import Email from './Email';
 
 function App() {
-  const [userId, setUserId] = useState(2); // hardcoded user id state for now for testing purposes
+  const [userId, setUserId] = useState(1); // hardcoded user id state for now for testing purposes
   const [userDataMessage, setUserDataMessage] = useState(
     "You have not checked User Data.",
   );
@@ -75,7 +75,7 @@ function App() {
           <Route path='/' element={<Home getUserData={getUserData} handleLogOut={handleLogOut} userId={userId} />} />
           <Route path='/dashboard' element={<Dashboard dashboardId={activeDash}/>} />
           <Route path='/edit' element={<DashEditor dashboardId={activeDash} ownerId={userId} />} />
-          <Route path="/hub" element={<Hub dashboards={dashboards} getDashboardData={getDashboardsData} ownerId={userId}/>} />
+          <Route path="/hub" element={<Hub dashboards={dashboards} getDashboardData={getDashboardsData} ownerId={userId} activeDash={activeDash}/>} />
         </Routes>
         </BrowserRouter>
     </>

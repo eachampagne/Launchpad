@@ -1,7 +1,5 @@
 import express from 'express';
 
-//import { Prisma } from '../../generated/prisma/client.js'; // not sure about this, although it matches what was in database/prisma
-
 import { prisma } from '../database/prisma.js';
 
 const layout = express.Router();
@@ -14,7 +12,7 @@ const layout = express.Router();
 
 //READ: This should get all public layouts.
 layout.get('/public', async (req, res) => {
-  //console.log(' GET /layout/public hit'); (this is hitting)
+  //console.log(' GET /layout/public hit');
   try {
     const layouts = await prisma.layout.findMany({
       where: {
@@ -28,7 +26,7 @@ layout.get('/public', async (req, res) => {
         }
       }
     })
-    //console.log('layouts from DB:', layout); (works I am getting layouts)
+    //console.log('layouts from DB:', layout);
     res.status(200).send(layouts)
   } catch (error) {
     res.status(500).send({'Could not fetch public layouts:': error})
@@ -63,12 +61,12 @@ layout.get('/:layoutId', async (req, res) => {
     res.status(500).send({'Could not load layout:': error})
   }
 
-//TODO: add auth
+
 //CREATE: This route will copy a public layout
 layout.post('/:layoutId/copy', async (req, res) => {
   //needed to be converted to number
   const layoutId = Number(req.params.layoutId);
-  const userId = 1; //temporary
+  const userId = 1; //TODO: add auth
   try {
     //query db to find one layout w/ layoutId
     const sourceLayout = await prisma.layout.findUnique({

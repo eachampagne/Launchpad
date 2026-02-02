@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { Grid, Box } from "@chakra-ui/react"
+
 import axios from 'axios';
 
 //set types
@@ -27,14 +29,17 @@ function LayoutGallery({onSelect,}: {onSelect: (layoutId: number) => void;}) {
 
   return (
     <>
-      <h3>YOUR LAYOUT GALLERY</h3>
+      <h3>PUBLIC LAYOUTS</h3>
+      <Grid>
        {layout.map((lay) => (
          <div key={lay.id}>
           <p>PREVIEW LAYOUT #{lay.id}</p>
           <button onClick={() => onSelect(lay.id)}> SelectLayout </button>
         </div>
 
+
       ))}
+      </Grid>
 
     </>
   );

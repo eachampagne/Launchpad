@@ -52,11 +52,11 @@ function Dashboard ({dashboardId}: {dashboardId: number}) {
       </WidgetFrame>
       <WidgetFrame
         x1={1}
-        y1={8}
-        x2={3}
-        y2={10}
-        minWidth={1}
-        minHeight={1}
+        y1={7}
+        x2={4}
+        y2={9}
+        minWidth={3}
+        minHeight={2}
         resizeActive={false}
         snapSize={100}
       >

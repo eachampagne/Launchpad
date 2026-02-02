@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import axios, { AxiosError } from 'axios';
 
+import { Button, Flex, For, Heading, Icon, LinkBox, LinkOverlay, ScrollArea, Stack, Text } from '@chakra-ui/react';
+import { LuMail } from 'react-icons/lu';
+
 import { AuthStatus } from '../types/WidgetStatus.ts';
 
 function Email () {
@@ -39,21 +42,38 @@ function Email () {
   const renderEmails = () => {
     switch(authStatus) {
       case AuthStatus.Authorized:
-        if (emails.length === 0) {
-          return <p>No emails to show.</p>;
-        } else {
-          return (
-            emails.map(email => {
-              return <p>{email.snippet}</p>;
-            })
-          );
-        }
+        return (
+          <ScrollArea.Root>
+            <ScrollArea.Viewport>
+              <ScrollArea.Content>
+                <Stack>
+                  <For
+                    each={emails}
+                    fallback={<Text>No emails to show.</Text>}
+                  >
+                    {(email) => <Text>{email.snippet}</Text>}
+                  </For>
+                </Stack>
+              </ScrollArea.Content>
+            </ScrollArea.Viewport>
+            <ScrollArea.Scrollbar>
+              <ScrollArea.Thumb />
+            </ScrollArea.Scrollbar>
+            <ScrollArea.Corner />
+          </ScrollArea.Root>
+        );
         break;
       case AuthStatus.Unauthorized:
-        return <a href='/auth/gmail'>Authorize Gmail</a>
+        return (
+          <LinkBox>
+            <Button>
+              <LinkOverlay href='/auth/gmail'>Authorize Gmail</LinkOverlay>
+            </Button>
+          </LinkBox>
+        );
         break;
       case AuthStatus.SignedOut:
-        return <p>Please sign in.</p>;
+        return <Text>Please sign in.</Text>;
         break;
     }
   };
@@ -63,10 +83,17 @@ function Email () {
   }, []);
 
   return (
-    <div>
-      <h6>Email</h6>
+    <Flex direction="column" height="100%">
+      <Flex align="center" marginBottom="0.5rem"> {/* Inner flex box means icon is vertically centered against text */}
+        <Icon size="lg" marginRight="0.5rem">
+          <LuMail/>
+        </Icon>
+        <Heading>
+          Email
+        </Heading>
+      </Flex>
       {renderEmails()}
-    </div>
+    </Flex>
   );
 }
 

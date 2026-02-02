@@ -2,6 +2,8 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import express from 'express';
 
+import { loadDashboardSchedules } from './cron/dashboard-scheduler.js';
+
 import router from './routers/router.js';
 
 // * AUTH
@@ -16,12 +18,6 @@ import { PrismaSessionStore } from '@quixo3/prisma-session-store';
 const connectionString = `${process.env.DATABASE_URL}`;
 const adapter = new PrismaPg({ connectionString });
 const prisma = new PrismaClient({ adapter });
-import theme from './routers/theme.js'
-import layout from './routers/layout.js';
-import user from './routers/user.js'
-import calendar from './routers/calendar.js';
-import email from './routers/email.js';
-import timer from './routers/timer.js';
 
 const app = express();
 
@@ -52,18 +48,20 @@ app.use('/', authRouter);
 // * AUTH 
 
 app.use(router);
-app.use('/theme', theme);
-app.use('/calendar', calendar);
-app.use('/layout', layout);
-app.use('/user', user);
-app.use('/email', email);
-app.use('/timer', timer);
 
 // Catch all for client side routes
 app.get('/*any', (req, res) => {
   res.sendFile(join(__dirname, '..', '..', 'dist', 'index.html'));
 })
 
-app.listen(port, host, () => {
-  console.info(`Listening on http://localhost:${port}`);
-});
+// wait for dashboard scheduler before starting server
+async function startServer() {
+  await loadDashboardSchedules();
+
+  app.listen(port, host, () => {
+    console.info(`Listening on http://localhost:${port}`);
+  });
+}
+
+
+startServer();
