@@ -198,11 +198,11 @@ function CornerHandle({corner, parentWidth, parentHeight, resize, snap}: {corner
   );
 }
 
-function WidgetFrame({x1, y1, x2, y2, minWidth, minHeight, snapSize, resizeActive, handleResize, children}: {x1: number, y1: number, x2: number, y2: number, minWidth: number, minHeight: number, snapSize: number, resizeActive: boolean, handleResize?: (x1: number, y1: number, width: number, height: number) => void, children?: React.ReactNode}) {
-  const [top, setTop] = useState(y1 * snapSize);
-  const [bottom, setBottom] = useState(y2 * snapSize);
-  const [left, setLeft] = useState(x1 * snapSize);
-  const [right, setRight] = useState(x2 * snapSize);
+function WidgetFrame({posX, posY, sizeX, sizeY, minWidth, minHeight, snapSize, resizeActive, handleResize, children}: {posX: number, posY: number, sizeX: number, sizeY: number, minWidth: number, minHeight: number, snapSize: number, resizeActive: boolean, handleResize?: (posX: number, posY: number, width: number, height: number) => void, children?: React.ReactNode}) {
+  const [top, setTop] = useState(posY * snapSize);
+  const [bottom, setBottom] = useState((posY + sizeY) * snapSize);
+  const [left, setLeft] = useState(posX * snapSize);
+  const [right, setRight] = useState((posX + sizeX) * snapSize);
 
   const [hasSnapped, setHasSnapped] = useState(false);
 
