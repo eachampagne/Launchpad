@@ -27,22 +27,23 @@ function Dashboard ({dashboardId}: {dashboardId: number}) {
       <h2>{dashboard.name}</h2>
       <Link to='/edit'>Edit</Link>
       <WidgetFrame
-        x1={1}
-        y1={1}
-        x2={6}
-        y2={6}
+        posX={1}
+        posY={1}
+        sizeX={5}
+        sizeY={5}
         minWidth={2}
         minHeight={3}
         resizeActive={true}
+        handleResize={(posX, posY, width, height) => console.log(`Now ${width}x${height} with top left corner at (${posX}, ${posY})`)}
         snapSize={100}
       >
         <Calendar />
       </WidgetFrame>
       <WidgetFrame
-        x1={7}
-        y1={1}
-        x2={12}
-        y2={6}
+        posX={7}
+        posY={1}
+        sizeX={5}
+        sizeY={5}
         minWidth={1}
         minHeight={1}
         resizeActive={true}
@@ -51,10 +52,10 @@ function Dashboard ({dashboardId}: {dashboardId: number}) {
         <Email/>
       </WidgetFrame>
       <WidgetFrame
-        x1={1}
-        y1={7}
-        x2={4}
-        y2={9}
+        posX={1}
+        posY={7}
+        sizeX={3}
+        sizeY={2}
         minWidth={3}
         minHeight={2}
         resizeActive={false}
