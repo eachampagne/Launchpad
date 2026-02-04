@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useState, useEffect, version} from 'react';
+import { useState, useEffect} from 'react';
 import { Button, Switch, For } from "@chakra-ui/react"
 import { PinInput } from "@chakra-ui/react"
 
@@ -10,6 +10,7 @@ const [isAdding, setIsAdding] = useState(false)
 const [step, setStep] = useState('phone') // will tell what component to render
 const [code, setCode] = useState('')
 const [checked, setChecked] = useState(false)
+const [verificationStatus, setVerificationStatus] = useState(false)
 console.log(ownerId, 'here')
 console.log(phoneNumber)
 // so i need to get the number
@@ -51,7 +52,8 @@ const addNumber = async () => {
 const sendVerification = async () => {
   const contactNumber = phoneNumber
   try {
-    await axios.post(`/notifications/verify/send/${ownerId}`, {contactNumber})
+    const verification = await axios.post(`/notifications/verify/send/${ownerId}`, {contactNumber})
+    setVerificationStatus(verification.data)
   } catch (error) {
     console.error('something went wrong making the post', error)
   }
@@ -61,8 +63,9 @@ const sendVerification = async () => {
 const checkVerification = async () => {
   try {
     const verification = await axios.post(`/notifications/verify/check/${ownerId}`, {code})
-
-    return verification.data
+    console.log(verification, 'coming from inside checkVerification')
+    setVerificationStatus(verification.data)
+    return {verified : true}
   } catch (error) {
     console.error('something went wrong making the verification', error)
     return {verified : false}
@@ -168,8 +171,8 @@ const deleteNumber = async () => {
           </For>
           <Button onClick={async () => {
             const verified = await checkVerification()
-            await axios.patch(`/notifications/verify/${ownerId}`, {verified: true})
-            if(verified.verified === true){
+            console.log(verified, 'this is verified on click')
+            if(verified?.verified === true){
               // may or may not need this
               setHasNumber(true)
               setIsAdding(false)
@@ -184,7 +187,7 @@ const deleteNumber = async () => {
         </div>
       )}
 
-      {hasNumber && (
+      {hasNumber && verificationStatus === true && (
         <div>
         <p> Notifications </p>
         <Switch.Root checked={checked} onCheckedChange={updateNotifications}>
@@ -226,5 +229,6 @@ const deleteNumber = async () => {
 
   )
 }
+
 
 export default Notifications;
