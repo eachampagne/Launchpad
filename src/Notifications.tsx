@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useState, useEffect} from 'react';
+import { useState, useEffect, version} from 'react';
 import { Button, Switch, For } from "@chakra-ui/react"
 import { PinInput } from "@chakra-ui/react"
 
@@ -7,6 +7,8 @@ function Notifications ({ownerId} : {ownerId: number}) {
 const [phoneNumber, setPhoneNumber] = useState('');
 const [hasNumber, setHasNumber] = useState(false)
 const [isAdding, setIsAdding] = useState(false)
+const [step, setStep] = useState('phone') // will tell what component to render
+const [code, setCode] = useState('')
 const [checked, setChecked] = useState(false)
 console.log(ownerId, 'here')
 console.log(phoneNumber)
@@ -38,7 +40,7 @@ getNumber()
 
 // then allow them to add a number if they dont have one
 const addNumber = async () => {
-  const contactNumber = phoneNumber
+  const contactNumber = '+1' + phoneNumber
   try {
     await axios.post(`/notifications/${ownerId}`, {contactNumber})
   } catch (error) {
@@ -46,7 +48,26 @@ const addNumber = async () => {
   }
 }
 
+const sendVerification = async () => {
+  const contactNumber = phoneNumber
+  try {
+    await axios.post(`/notifications/verify/send/${ownerId}`, {contactNumber})
+  } catch (error) {
+    console.error('something went wrong making the post', error)
+  }
+}
 
+// send the verification for checking
+const checkVerification = async () => {
+  try {
+    const verification = await axios.post(`/notifications/verify/check/${ownerId}`, {code})
+
+    return verification.data
+  } catch (error) {
+    console.error('something went wrong making the verification', error)
+    return {verified : false}
+  }
+}
 // update the number
 const updateNumber = async (notifications?: any) => {
 
@@ -61,6 +82,17 @@ const updateNumber = async (notifications?: any) => {
   }
 }
 
+// change the notifications only
+const updateNotifications = async () => {
+
+  try {
+    await axios.patch(`/notifications/notifications/${ownerId}`)
+
+    console.log('success')
+  } catch (error) {
+    console.error('something went wrong updated the phone number', error)
+  }
+}
 
 // delete button for the number
 const deleteNumber = async () => {
@@ -81,7 +113,7 @@ const deleteNumber = async () => {
         </div>
       )}
 
-      {!hasNumber && isAdding && (
+      {!hasNumber && isAdding && step === 'phone' && (
         <div>
           <p>Enter A Phone Number</p>
           <For each={['sm']}>
@@ -102,8 +134,66 @@ const deleteNumber = async () => {
               </PinInput.Control>
             </PinInput.Root>
             )}
-
           </For>
+          <Button onClick={async () => {
+            if(!phoneNumber || phoneNumber.length !== 10){
+              // if no phone number was added, return them to the place to enter a phone number
+              return;
+            }
+            // add the phone number
+            await addNumber();
+            await sendVerification();
+            setStep('verify')
+          }}>Send Verification Code</Button>
+
+        </div>
+      )}
+      {step === 'verify' && (
+        <div>
+          <p>Enter Verification Code</p>
+          <For each={['sm']}>
+            {(size) => (
+            <PinInput.Root key={size} size={size} onValueChange={(e) => setCode(e.valueAsString)}>
+              <PinInput.HiddenInput />
+              <PinInput.Control>
+                <PinInput.Input index={0} />
+                <PinInput.Input index={1} />
+                <PinInput.Input index={2} />
+                <PinInput.Input index={3} />
+                <PinInput.Input index={4} />
+                <PinInput.Input index={5} />
+              </PinInput.Control>
+            </PinInput.Root>
+            )}
+          </For>
+          <Button onClick={async () => {
+            const verified = await checkVerification()
+            await axios.patch(`/notifications/verify/${ownerId}`, {verified: true})
+            if(verified.verified === true){
+              // may or may not need this
+              setHasNumber(true)
+              setIsAdding(false)
+              // step it back to the phone part
+              setStep('phone')
+              setCode('')
+            } else {
+              // code do a pop out error, or make it read border flash
+              console.log('Wrong Code')
+            }
+          }}>Verify Code</Button>
+        </div>
+      )}
+
+      {hasNumber && (
+        <div>
+        <p> Notifications </p>
+        <Switch.Root checked={checked} onCheckedChange={updateNotifications}>
+          <Switch.HiddenInput />
+          <Switch.Control>
+            <Switch.Thumb />
+          </Switch.Control>
+          <Switch.Label />
+        </Switch.Root>
         </div>
       )}
       {/* <p>{phoneNumber}</p>
@@ -130,6 +220,8 @@ const deleteNumber = async () => {
           <Switch.Label />
         </Switch.Root>
       <button onClick={() => deleteNumber()}>Delete Phone Number</button> */}
+      <button onClick={() => deleteNumber()}>Delete Phone Number</button>
+      
     </div>
 
   )

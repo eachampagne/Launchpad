@@ -1,8 +1,6 @@
 import express from 'express';
 
 import { prisma } from '../database/prisma.js';
-import { stat } from 'node:fs';
-import { Client } from 'pg';
 import "dotenv/config";
 import twilio from 'twilio'
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
@@ -78,20 +76,18 @@ phoneNumbers.post('/verify/send/:ownerId', async (req, res) => {
       }
     })
 
-    if(!existing){
+    if(!existing || !existing.contactNumber){
       res.status(404).send('Could not find your account')
     }
 
-    if(!existing?.contactNumber){
-      res.status(404).send('Phone Number would not be found')
-    }
-    const phone = existing?.contactNumber as string
+    const phone = existing?.contactNumber.startsWith('+')
+    ? existing?.contactNumber : '+1' + existing?.contactNumber
 
-    
+    console.log(phone, 'sent code')
     const verification = await client.verify.v2.services("VA7937e5f669dd205b29a3a78482ad9b64")
     .verifications
     .create({to: phone, channel: 'sms'})
-    .then(verification => console.log(verification.sid))
+
 
     res.status(201).send(verification)
   } catch (error) {
@@ -106,7 +102,7 @@ phoneNumbers.post('/verify/check/:ownerId', async (req, res) => {
     const { code } = req.body
 
     if(!code){
-      res.status(404).send('Please enter the Verification code')
+      return res.status(404).send('Please enter the Verification code')
     }
 
     const existing = await prisma.phoneNumbers.findUnique({
@@ -115,18 +111,30 @@ phoneNumbers.post('/verify/check/:ownerId', async (req, res) => {
       }
     })
 
-    if(!existing?.contactNumber){
-      res.status(404).send('Could not find your account')
+    if(!existing || !existing?.contactNumber){
+      return res.status(404).send('Could not find your account')
     }
 
-    const phone = existing?.contactNumber as string
+    const phone = existing?.contactNumber.startsWith('+')
+    ? existing?.contactNumber : '+1' + existing?.contactNumber
+
+    console.log(phone, 'code from food')
+
     const verificationCheck = await client.verify.v2.services("VA7937e5f669dd205b29a3a78482ad9b64")
     .verificationChecks.create({
       to: phone,
-      code
+      code: String(code)
     })
 
     if(verificationCheck.status === 'approved'){
+      await prisma.phoneNumbers.update({
+        where: {
+          userId: Number(req.params.ownerId)
+        },
+        data: {
+          verified: true
+        }
+      })
       res.status(201).send({verified: true})
     } else {
       res.status(404).send({verified: false})
@@ -218,6 +226,35 @@ phoneNumbers.patch('/verify/:ownerId', async (req, res) => {
       res.status(500).send({'Could not verify': error})
     }
   })
+
+// for changing notification boolean only
+phoneNumbers.patch('/notifications/:ownerId', async (req, res) => {
+  try {
+    const existing = await prisma.phoneNumbers.findUnique({
+      where: {
+        userId: Number(req.params.ownerId)
+      }
+    })
+
+    if(!existing){
+      res.status(404).send('Could not find the number')
+      //return;
+    }
+
+    await prisma.phoneNumbers.update({
+      where: {
+        userId: Number(req.params.ownerId)
+      },
+      data: {
+        notifications : !existing?.notifications
+      }
+    })
+    res.status(201).send('Success')
+  } catch (error) {
+      res.status(500).send({'Could not verify': error})
+    }
+})
+
 
 phoneNumbers.delete('/:ownerId', async (req, res) => {
   try {
