@@ -12,7 +12,7 @@ const [code, setCode] = useState('')
 const [checked, setChecked] = useState(false)
 const [verificationStatus, setVerificationStatus] = useState(false)
 console.log(ownerId, 'here')
-console.log(phoneNumber)
+console.log(checked)
 // so i need to get the number
 
 useEffect(() => {
@@ -24,14 +24,20 @@ useEffect(() => {
     if(!number.data){
       setHasNumber(false)
       setPhoneNumber('')
-    } else {
-      setHasNumber(true)
-      setPhoneNumber(number.data.contactNumber)
+      setChecked(false)
+      return;
+      
     }
+
+    setHasNumber(true)
+    setPhoneNumber(number.data.contactNumber)
+    setChecked(number.data.notifications)
+    
 
   } catch (error) {
     console.error('something went wrong with the number', error)
     setHasNumber(false)
+    setChecked(false)
   }
 
 }
@@ -86,10 +92,10 @@ const updateNumber = async (notifications?: any) => {
 }
 
 // change the notifications only
-const updateNotifications = async () => {
-
+const updateNotifications = async (checked: boolean) => {
+  setChecked(checked)
   try {
-    await axios.patch(`/notifications/notifications/${ownerId}`)
+    await axios.patch(`/notifications/notifications/${ownerId}`, {notifications: checked})
 
     console.log('success')
   } catch (error) {
@@ -190,7 +196,7 @@ const deleteNumber = async () => {
       {hasNumber && (
         <div>
         <p> Notifications </p>
-        <Switch.Root checked={checked} onCheckedChange={updateNotifications}>
+        <Switch.Root checked={checked}  onCheckedChange={(e) => updateNotifications(e.checked)}>
           <Switch.HiddenInput />
           <Switch.Control>
             <Switch.Thumb />
