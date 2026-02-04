@@ -6,6 +6,14 @@ const timerLookup: {[key: string]: NodeJS.Timeout} = {};
 
 const timer = express.Router();
 
+const timerCallback = async (userId: number) => {
+  console.info(`User ${userId}'s timer is up.`);
+
+  await prisma.timer.deleteMany({where: {
+    ownerId: userId
+  }});
+};
+
 timer.get('/', async (req, res) => {
   // check auth
   if (req.user === undefined) {
@@ -50,9 +58,13 @@ timer.post('/', async (req, res) => {
       return;
     }
 
-    const { duration }: { duration: number } = req.body;
+    let { duration }: { duration: number } = req.body;
+    if (duration < 0) {
+      duration = 0;
+    };
+
     const timeout = setTimeout(() => {
-      console.info(`User ${id}'s timer is up.`);
+      timerCallback(id);
     }, duration); // apparently NodeJS's setTimeout is different from the window one
     timerLookup[id] = timeout;
     const expirationTime = Date.now() + duration;
@@ -130,7 +142,7 @@ timer.patch('/resume', async (req, res) => {
       const remainingMs = timer.remainingMs as number;
 
       const timeout = setTimeout(() => {
-        console.info(`User ${id}'s timer is up.`);
+        timerCallback(id);
       }, remainingMs); // apparently NodeJS's setTimeout is different from the window one
       timerLookup[id] = timeout;
       const expiresAt = new Date((remainingMs) + Date.now());
@@ -178,8 +190,29 @@ timer.delete('/', async (req, res) => {
 });
 
 // initialize timeouts for any running timers
-(function () {
-  console.log('initializing timers');
+(async function () {
+  console.info('Initializing timers:');
+  let timerCount = 0;
+
+  const timers = await prisma.timer.findMany({where: {paused: false}});
+
+  timers.forEach((timer) => {
+    const userId = timer.ownerId;
+
+    let remainingMs = (timer.expiresAt as Date).getTime() - Date.now();
+    if (remainingMs < 0) {
+      remainingMs = 0; // stop the negative timeout warning
+    }
+
+    const timeout = setTimeout(() => {
+      timerCallback(userId);
+    }, remainingMs); // apparently NodeJS's setTimeout is different from the window one
+    timerLookup[userId] = timeout;
+
+    timerCount++;
+  });
+
+  console.info(`Successfully initialized ${timerCount} timers.`);
 })();
 
 export default timer;
