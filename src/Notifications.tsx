@@ -21,12 +21,12 @@ useEffect(() => {
   try {
     const number = await axios.get(`/notifications/${ownerId}`)
 
-    if(!number.data?.contactNumber){
+    if(!number.data){
       setHasNumber(false)
       setPhoneNumber('')
     } else {
-      setPhoneNumber(number.data.contactNumber)
       setHasNumber(true)
+      setPhoneNumber(number.data.contactNumber)
     }
 
   } catch (error) {
@@ -187,7 +187,7 @@ const deleteNumber = async () => {
         </div>
       )}
 
-      {hasNumber && verificationStatus === true && (
+      {hasNumber && (
         <div>
         <p> Notifications </p>
         <Switch.Root checked={checked} onCheckedChange={updateNotifications}>
