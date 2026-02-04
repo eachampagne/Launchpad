@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useEffectEvent } from 'react';
 import axios, { AxiosError } from 'axios';
 
 import { Button, For, Flex, Heading, HStack, Icon, Text } from '@chakra-ui/react';
@@ -20,17 +20,20 @@ function Timer() {
       const response = await axios.get('/timer');
       if (!response.data) { // even though it's sending null on the server side, it comes through as an empty string
         // I assume because null isn't serializable
-        if (pausedRemaining === null) {
-          setTimerStatus(TimerStatus.NoTimer);
-        } else {
-          setTimerStatus(TimerStatus.Paused);
-        }
+        setTimerStatus(TimerStatus.NoTimer);
       } else {
-        setTimerStatus(TimerStatus.ActiveTimer);
+        const { paused, expiresAt, remainingMs }: { paused: boolean, expiresAt: number | null, remainingMs: number | null } = response.data;
 
-        const expirationResponse = new Date(response.data);
-
-        setExpiration(expirationResponse);
+        if (paused) {
+          setTimerStatus(TimerStatus.Paused);
+          setPausedRemaining(remainingMs);
+          setExpiration(null);
+        } else {
+          setTimerStatus(TimerStatus.ActiveTimer);
+          const expirationResponse = new Date(expiresAt as number);
+          setExpiration(expirationResponse);
+          setPausedRemaining(null);
+        }
       }
     } catch (error) {
       if ((error as AxiosError).status === 401) {
@@ -73,13 +76,8 @@ function Timer() {
     }
 
     try {
-      await axios.delete('/timer');
-      const remainingMs = expiration.getTime() - Date.now();
-      setPausedRemaining(remainingMs);
-      setTimerString(timeToString(remainingMs));
-      setExpiration(null);
-      await checkServer(); // the pausedRemaining state hasn't always updated so sometime it thinks there is no timer
-      setTimerStatus(TimerStatus.Paused);
+      await axios.patch('/timer/pause');
+      checkServer();
     } catch (error) {
       console.error('Failed to pause timer:', error);
     }
@@ -91,27 +89,16 @@ function Timer() {
     }
 
     try {
-      await axios.post('/timer', {duration: pausedRemaining});
-      setPausedRemaining(null);
-      checkServer(); // resets expiration, which triggers ticking to star
+      await axios.patch('/timer/resume');
+      checkServer(); // resets expiration, which triggers ticking to start
     } catch (error) {
       console.error('Failed to resume timer:', error);
     }
   };
 
   const reset = async () => {
-    if (pausedRemaining !== null) {
-      setPausedRemaining(null);
-    }
-
-    if (expiration === null) {
-      setTimerStatus(TimerStatus.NoTimer);
-      return;
-    }
-
     try {
       await axios.delete('/timer');
-      setExpiration(null);
       checkServer();
     } catch (error) {
       console.error('Failed to delete timer:', error);
@@ -177,13 +164,19 @@ function Timer() {
     }
   }
 
-  useEffect(() => {
+  const resetClockDisplay = useEffectEvent(() => {
     stopTicking();
     if (expiration !== null) {
       setTimerString(expiresToString(expiration));
       startTicking();
+    } else if (pausedRemaining !== null) {
+      setTimerString(timeToString(pausedRemaining))
     }
-  }, [expiration]);
+  });
+
+  useEffect(() => {
+    resetClockDisplay();
+  }, [expiration, pausedRemaining]);
 
   useEffect(() => {
     checkServer();
