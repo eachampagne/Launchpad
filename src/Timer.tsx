@@ -2,9 +2,13 @@ import { useState, useEffect, useEffectEvent } from 'react';
 import axios, { AxiosError } from 'axios';
 
 import { Button, For, Flex, Heading, HStack, Icon, Text } from '@chakra-ui/react';
-import { LuTimer } from 'react-icons/lu';
+import { LuTimer, LuVolume2, LuVolumeOff } from 'react-icons/lu';
 
 import { TimerStatus } from '../types/WidgetStatus';
+
+import soundUrl from './assets/triangle.mp3';
+const audioElement = new Audio(soundUrl); // defined here so it doesn't keep getting recreated every rerender
+// constantly recreating it is bad performance wise, but also means its muted/unmuted status doesn't persist
 
 function Timer() {
   // should you be able to use the timer just client side if you're logged out?
@@ -12,8 +16,10 @@ function Timer() {
   const [expiration, setExpiration] = useState(null as Date | null);
   const [timerString, setTimerString] = useState('');
   const [pausedRemaining, setPausedRemaining] = useState(null as number | null);
-  const [tickTimeout, setTickTimeout] = useState(null as null | number);
+  const [tickInterval, setTickInterval] = useState(null as null | number);
   const [timerTimeout, setTimerTimeout] = useState(null as null | number);
+  const [muted, setMuted] = useState(false);
+
 
   // check timer, assign states
   const checkServer = async () => {
@@ -22,6 +28,8 @@ function Timer() {
       if (!response.data) { // even though it's sending null on the server side, it comes through as an empty string
         // I assume because null isn't serializable
         setTimerStatus(TimerStatus.NoTimer);
+        setPausedRemaining(null);
+        setExpiration(null);
       } else {
         const { paused, expiresAt, remainingMs }: { paused: boolean, expiresAt: number | null, remainingMs: number | null } = response.data;
 
@@ -39,6 +47,8 @@ function Timer() {
     } catch (error) {
       if ((error as AxiosError).status === 401) {
         setTimerStatus(TimerStatus.SignedOut);
+        setPausedRemaining(null);
+        setExpiration(null);
       } else {
         console.error('Failed to check timer status:', error);
       }
@@ -56,19 +66,18 @@ function Timer() {
 
   const tick = () => {
     setTimerString(expiresToString(expiration as Date));
-    setTickTimeout(setTimeout(tick, 100)); // 10 times a second
   }
 
   const stopTicking = () => {
-    if (tickTimeout !== null) {
-      clearTimeout(tickTimeout);
-      setTickTimeout(null);
+    if (tickInterval !== null) {
+      clearInterval(tickInterval);
+      setTickInterval(null);
     }
   }
 
   const startTicking = () => {
     stopTicking();
-    setTickTimeout(setTimeout(tick, 100));
+    setTickInterval(setInterval(tick, 100));
   }
 
   const pause = async () => {
@@ -166,8 +175,13 @@ function Timer() {
   };
 
   const handleTimeUp = () => {
-    console.log('Timer is up!');
+    audioElement.play();
     checkServer();
+  }
+
+  const toggleMute = () => {
+    audioElement.muted = !muted; // do this before setting the state instead of waiting for the state to update asynchronously
+    setMuted(m => !m);
   }
 
   const resetClockDisplay = useEffectEvent(() => {
@@ -195,6 +209,14 @@ function Timer() {
   useEffect(() => {
     checkServer();
   }, []);
+
+  const renderVolumeControl = () => {
+      return (
+        <Icon size="lg" marginLeft="0.5rem" onClick={toggleMute}>
+          {muted ? <LuVolumeOff/> : <LuVolume2/>}
+        </Icon>
+      );
+  }
 
   const renderTimer = () => {
     switch (timerStatus) {
@@ -286,6 +308,7 @@ function Timer() {
         <Heading>
           Pomodoro Timer
         </Heading>
+        {renderVolumeControl()}
       </Flex>
       {renderTimer()}
     </Flex>
