@@ -176,7 +176,7 @@ function OpenEditDash(dashboardId: number) {
     <>
       <NavBar pages={["Home"]} /> {/*empty string will take user to Home page*/}
       <Flex minH="100vh" justify="center">
-        <Box w="100%" maxW="1100px" p={6}>
+        <Box w="100%" maxW="1400px" p={6}>
           {/* Profile */}
           <VStack gap={3} mb={6}>
             <Box
