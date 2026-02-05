@@ -1,10 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useEffectEvent } from 'react';
 import axios, { AxiosError } from 'axios';
 
 import { Button, For, Flex, Heading, HStack, Icon, Text } from '@chakra-ui/react';
-import { LuTimer } from 'react-icons/lu';
+import { LuTimer, LuVolume2, LuVolumeOff } from 'react-icons/lu';
 
 import { TimerStatus } from '../types/WidgetStatus';
+
+import soundUrl from './assets/triangle.mp3';
+const audioElement = new Audio(soundUrl); // defined here so it doesn't keep getting recreated every rerender
+// constantly recreating it is bad performance wise, but also means its muted/unmuted status doesn't persist
 
 function Timer() {
   // should you be able to use the timer just client side if you're logged out?
@@ -12,7 +16,10 @@ function Timer() {
   const [expiration, setExpiration] = useState(null as Date | null);
   const [timerString, setTimerString] = useState('');
   const [pausedRemaining, setPausedRemaining] = useState(null as number | null);
-  const [tickTimeout, setTickTimeout] = useState(null as null | number);
+  const [tickInterval, setTickInterval] = useState(null as null | number);
+  const [timerTimeout, setTimerTimeout] = useState(null as null | number);
+  const [muted, setMuted] = useState(false);
+
 
   // check timer, assign states
   const checkServer = async () => {
@@ -20,21 +27,28 @@ function Timer() {
       const response = await axios.get('/timer');
       if (!response.data) { // even though it's sending null on the server side, it comes through as an empty string
         // I assume because null isn't serializable
-        if (pausedRemaining === null) {
-          setTimerStatus(TimerStatus.NoTimer);
-        } else {
-          setTimerStatus(TimerStatus.Paused);
-        }
+        setTimerStatus(TimerStatus.NoTimer);
+        setPausedRemaining(null);
+        setExpiration(null);
       } else {
-        setTimerStatus(TimerStatus.ActiveTimer);
+        const { paused, expiresAt, remainingMs }: { paused: boolean, expiresAt: number | null, remainingMs: number | null } = response.data;
 
-        const expirationResponse = new Date(response.data);
-
-        setExpiration(expirationResponse);
+        if (paused) {
+          setTimerStatus(TimerStatus.Paused);
+          setPausedRemaining(remainingMs);
+          setExpiration(null);
+        } else {
+          setTimerStatus(TimerStatus.ActiveTimer);
+          const expirationResponse = new Date(expiresAt as number);
+          setExpiration(expirationResponse);
+          setPausedRemaining(null);
+        }
       }
     } catch (error) {
       if ((error as AxiosError).status === 401) {
         setTimerStatus(TimerStatus.SignedOut);
+        setPausedRemaining(null);
+        setExpiration(null);
       } else {
         console.error('Failed to check timer status:', error);
       }
@@ -52,19 +66,18 @@ function Timer() {
 
   const tick = () => {
     setTimerString(expiresToString(expiration as Date));
-    setTickTimeout(setTimeout(tick, 100)); // 10 times a second
   }
 
   const stopTicking = () => {
-    if (tickTimeout !== null) {
-      clearTimeout(tickTimeout);
-      setTickTimeout(null);
+    if (tickInterval !== null) {
+      clearInterval(tickInterval);
+      setTickInterval(null);
     }
   }
 
   const startTicking = () => {
     stopTicking();
-    setTickTimeout(setTimeout(tick, 100));
+    setTickInterval(setInterval(tick, 100));
   }
 
   const pause = async () => {
@@ -73,13 +86,8 @@ function Timer() {
     }
 
     try {
-      await axios.delete('/timer');
-      const remainingMs = expiration.getTime() - Date.now();
-      setPausedRemaining(remainingMs);
-      setTimerString(timeToString(remainingMs));
-      setExpiration(null);
-      await checkServer(); // the pausedRemaining state hasn't always updated so sometime it thinks there is no timer
-      setTimerStatus(TimerStatus.Paused);
+      await axios.patch('/timer/pause');
+      checkServer();
     } catch (error) {
       console.error('Failed to pause timer:', error);
     }
@@ -91,27 +99,16 @@ function Timer() {
     }
 
     try {
-      await axios.post('/timer', {duration: pausedRemaining});
-      setPausedRemaining(null);
-      checkServer(); // resets expiration, which triggers ticking to star
+      await axios.patch('/timer/resume');
+      checkServer(); // resets expiration, which triggers ticking to start
     } catch (error) {
       console.error('Failed to resume timer:', error);
     }
   };
 
   const reset = async () => {
-    if (pausedRemaining !== null) {
-      setPausedRemaining(null);
-    }
-
-    if (expiration === null) {
-      setTimerStatus(TimerStatus.NoTimer);
-      return;
-    }
-
     try {
       await axios.delete('/timer');
-      setExpiration(null);
       checkServer();
     } catch (error) {
       console.error('Failed to delete timer:', error);
@@ -175,19 +172,51 @@ function Timer() {
         console.error('Unknown action:', action);
         break;
     }
+  };
+
+  const handleTimeUp = () => {
+    audioElement.play();
+    checkServer();
   }
 
-  useEffect(() => {
+  const toggleMute = () => {
+    audioElement.muted = !muted; // do this before setting the state instead of waiting for the state to update asynchronously
+    setMuted(m => !m);
+  }
+
+  const resetClockDisplay = useEffectEvent(() => {
     stopTicking();
+
+    if (timerTimeout !== null) {
+      clearTimeout(timerTimeout);
+    }
+
     if (expiration !== null) {
+      const remainingMs = expiration.getTime() - Date.now();
+      setTimerTimeout(setTimeout(handleTimeUp, remainingMs));
       setTimerString(expiresToString(expiration));
       startTicking();
+    } else if (pausedRemaining !== null) {
+      setTimerString(timeToString(pausedRemaining));
+      setTimerTimeout(null);
     }
-  }, [expiration]);
+  });
+
+  useEffect(() => {
+    resetClockDisplay();
+  }, [expiration, pausedRemaining]);
 
   useEffect(() => {
     checkServer();
   }, []);
+
+  const renderVolumeControl = () => {
+      return (
+        <Icon size="lg" marginLeft="0.5rem" onClick={toggleMute}>
+          {muted ? <LuVolumeOff/> : <LuVolume2/>}
+        </Icon>
+      );
+  }
 
   const renderTimer = () => {
     switch (timerStatus) {
@@ -200,7 +229,7 @@ function Timer() {
             <Text marginBottom="0.5rem">Start a timer:</Text>
             <Flex justify="center" gap="0.5rem">
               <For
-                each={[5, 25, 45]}
+                each={[1, 5, 25, 45]}
               >
                 {(time) => {
                   return (
@@ -279,6 +308,7 @@ function Timer() {
         <Heading>
           Pomodoro Timer
         </Heading>
+        {renderVolumeControl()}
       </Flex>
       {renderTimer()}
     </Flex>

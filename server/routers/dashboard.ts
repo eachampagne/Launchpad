@@ -8,11 +8,52 @@ import theme from './theme.js';
 
 const dashboard = express.Router();
 
-// used to grab all of a specific user's dashboards
-dashboard.get('/all/:id', async (req, res) => {
-// TODO AUTH
+
+/**
+ * Used to retrieve a user's Primary Dashboard ID
+ */
+dashboard.get('/primary/:id', async (req, res) => {
+
   const { id: idString } = req.params;
   const id = parseInt(idString);
+
+      // check auth
+  if (req.user === undefined) {
+    res.sendStatus(401);
+    return;
+  }
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        id
+      }
+    })
+
+        if (user === null) {
+          res.sendStatus(404);
+          return;
+        }
+
+    const primaryDashId = user.primaryDashId
+    res.status(200).send(primaryDashId)
+  } catch (error) {
+    console.error("Failed to GET Primary Dashboard ID", error);
+    res.sendStatus(500);
+  }
+});
+
+// used to grab all of a specific user's dashboards
+dashboard.get('/all/:id', async (req, res) => {
+
+  const { id: idString } = req.params;
+  const id = parseInt(idString);
+
+    // check auth
+  if (req.user === undefined) {
+    res.sendStatus(401);
+    return;
+  }
   
   try {
     const user = await prisma.user.findUnique({
@@ -32,7 +73,8 @@ dashboard.get('/all/:id', async (req, res) => {
     const dashboards = user.dashboards
     res.status(200).send(dashboards)
   } catch (error) {
-    console.error(error)
+    console.error("Failed to GET User's dashboards", error)
+    res.sendStatus(500);
   }
 });
 
@@ -42,6 +84,12 @@ dashboard.get('/:id', async (req, res) => {
 
   const { id: idString } = req.params;
   const id = parseInt(idString);
+
+    // check auth
+  if (req.user === undefined) {
+    res.sendStatus(401);
+    return;
+  }
 
   try {
     const dashboard = await prisma.dashboard.findUnique({
@@ -135,6 +183,38 @@ dashboard.post('/', async (req, res) => {
   }
 });
 
+/**
+ * Used to update a User's primary dashboard
+ */
+dashboard.patch('/primary/:id', async (req, res) => {
+
+  // check auth
+    if (req.user === undefined) {
+    res.sendStatus(401);
+    return;
+  }
+
+  const { id: idString } = req.params;
+  const id = parseInt(idString);
+  const { primaryDashId } = req.body;
+
+  try {
+
+    const user = await prisma.user.update({
+      where: {
+        id
+      },
+      data: {
+        primaryDashId
+      }
+    })
+    res.sendStatus(204)
+  } catch (error) {
+    console.error("Failed to update user's primary dashboard", error);
+    res.sendStatus(500)
+  }
+})
+
 dashboard.patch('/:id', async (req, res) => {
   // check auth
   if (req.user === undefined) {
@@ -157,7 +237,7 @@ dashboard.patch('/:id', async (req, res) => {
       }
     });
 
-    res.sendStatus(200);
+    res.sendStatus(204);
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === 'P2025') {

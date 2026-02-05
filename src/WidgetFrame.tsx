@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffectEvent, useEffect } from 'react';
 
 import { Container, For } from "@chakra-ui/react";
 
@@ -93,6 +93,7 @@ function SideHandle({side, parentWidth, parentHeight, resize, snap}: {side: Side
       padding="0px"
       onMouseDown={handleMouseDown}
       cursor={cursor}
+      userSelect="none"
     >
     </Container>
   );
@@ -191,16 +192,19 @@ function CornerHandle({corner, parentWidth, parentHeight, resize, snap}: {corner
       padding="0px"
       onMouseDown={handleMouseDown}
       cursor={cursor}
+      userSelect="none"
     >
     </Container>
   );
 }
 
-function WidgetFrame({x1, y1, x2, y2, minWidth, minHeight, snapSize, resizeActive, children}: {x1: number, y1: number, x2: number, y2: number, minWidth: number, minHeight: number, snapSize: number, resizeActive: boolean, children?: React.ReactNode}) {
-  const [top, setTop] = useState(y1 * snapSize);
-  const [bottom, setBottom] = useState(y2 * snapSize);
-  const [left, setLeft] = useState(x1 * snapSize);
-  const [right, setRight] = useState(x2 * snapSize);
+function WidgetFrame({posX, posY, sizeX, sizeY, minWidth, minHeight, snapSize, resizeActive, handleResize, children}: {posX: number, posY: number, sizeX: number, sizeY: number, minWidth: number, minHeight: number, snapSize: number, resizeActive: boolean, handleResize?: (posX: number, posY: number, width: number, height: number) => void, children?: React.ReactNode}) {
+  const [top, setTop] = useState(posY * snapSize);
+  const [bottom, setBottom] = useState((posY + sizeY) * snapSize);
+  const [left, setLeft] = useState(posX * snapSize);
+  const [right, setRight] = useState((posX + sizeX) * snapSize);
+
+  const [hasSnapped, setHasSnapped] = useState(false);
 
   const minHeightPx = minHeight * snapSize;
   const minWidthPx = minWidth * snapSize;
@@ -224,6 +228,8 @@ function WidgetFrame({x1, y1, x2, y2, minWidth, minHeight, snapSize, resizeActiv
   };
 
   const snap = (side: Side) => {
+    setHasSnapped(true); // make sure the effect event to pass the new size and location to the parent fires
+
     // You really need the state update functions here
     // I tried to just set all the state variables directly - it didn't work
     // It always snapped back to their original positions
@@ -271,6 +277,30 @@ function WidgetFrame({x1, y1, x2, y2, minWidth, minHeight, snapSize, resizeActiv
     }
   };
 
+  const onSnap = useEffectEvent(() => {
+    if (!hasSnapped) {
+      return;
+    } else {
+      const newTopCoor = top / snapSize;
+      const newBottomCoor = bottom / snapSize;
+      const newLeftCoor = left / snapSize;
+      const newRightCoor = right / snapSize;
+
+      const newWidth = newRightCoor - newLeftCoor;
+      const newHeight = newBottomCoor - newTopCoor;
+
+      if (handleResize) {
+        handleResize(newLeftCoor, newTopCoor, newWidth, newHeight);
+      }
+
+      setHasSnapped(false); // this will trigger a second render but hopefully *only* one
+    }
+  });
+
+  useEffect(() => {
+    onSnap();
+  }, [hasSnapped]);
+
   const renderResizeHandles = () => {
     if (resizeActive) {
       return (
@@ -293,7 +323,7 @@ function WidgetFrame({x1, y1, x2, y2, minWidth, minHeight, snapSize, resizeActiv
   };
 
   return (
-    <Container padding="5" bg="blue" position="absolute" top={`${top}px`} left={`${left}px`} width={`${right-left}px`} height={`${bottom-top}px`} overflow="clip">
+    <Container padding="5" bg="blue" position="absolute" top={`${top}px`} left={`${left}px`} width={`${right-left}px`} height={`${bottom-top}px`} overflow="clip" userSelect={resizeActive ? "none" : "text"}>
       {children}
       {renderResizeHandles()}
     </Container>

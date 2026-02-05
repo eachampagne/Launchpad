@@ -56,6 +56,26 @@ export function unscheduleDashboardJob(scheduleId: number) {
 }
 
 /**
+ * Remove all cron jobs (used when a user selects one always active Primary Dashboard)
+ *
+ */
+export function unscheduleAllDashboardJobs(scheduleIds: number[]) {
+    console.log(cronJobs)
+  // an array of the task values based on input schedule ids
+  const tasks = scheduleIds.map((scheduleId) => cronJobs.get(scheduleId));
+
+  // delete all tasks
+  for (const task of tasks) {
+    if (!task) continue;
+
+    task.stop();
+  }
+  scheduleIds.forEach((scheduleId) => {
+    cronJobs.delete(scheduleId);
+  });
+  console.log(cronJobs)
+}
+/**
  * Load all schedules from Database (called on server startup)
  */
 export async function loadDashboardSchedules() {
