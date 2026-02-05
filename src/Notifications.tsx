@@ -47,6 +47,7 @@ getNumber()
 // then allow them to add a number if they dont have one
 const addNumber = async () => {
   const contactNumber = '+1' + phoneNumber
+  console.log(contactNumber)
   try {
     await axios.post(`/notifications/${ownerId}`, {contactNumber})
   } catch (error) {
