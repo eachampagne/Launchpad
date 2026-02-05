@@ -98,10 +98,12 @@ model Widget {
 }
 
 model Timer {
-  id        Int       @id @default(autoincrement())
-  owner     User      @relation(fields: [ownerId], references: [id])
-  ownerId   Int       @unique
-  expiresAt DateTime
+  id            Int       @id @default(autoincrement())
+  owner         User      @relation(fields: [ownerId], references: [id])
+  ownerId       Int       @unique
+  paused        Boolean
+  expiresAt     DateTime?
+  remainingMs   Int?
 }
 
 model PhoneNumbers {
