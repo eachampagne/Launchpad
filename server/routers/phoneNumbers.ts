@@ -1,7 +1,11 @@
 import express from 'express';
 
 import { prisma } from '../database/prisma.js';
-import { stat } from 'node:fs';
+import "dotenv/config";
+import twilio from 'twilio'
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const client = twilio(accountSid, authToken);
 
 const phoneNumbers = express.Router();
 
@@ -28,8 +32,8 @@ phoneNumbers.post('/:ownerId', async (req, res) => {
 
   // if no number is provided
   if(!contactNumber){
-    res.status(404).send({error: 'You need to provide a phone number'})
-    return;
+    return res.status(404).send({error: 'You need to provide a phone number'})
+    //return;
   }
   try {
     const existing = await prisma.phoneNumbers.findUnique({
@@ -41,8 +45,8 @@ phoneNumbers.post('/:ownerId', async (req, res) => {
     // check if it exist
     if(existing){
 
-      res.status(404).send('You already have a phone number')
-      return;
+      return res.status(404).send('You already have a phone number')
+      //return;
     }
 
       await prisma.phoneNumbers.create({
@@ -53,15 +57,125 @@ phoneNumbers.post('/:ownerId', async (req, res) => {
           contactNumber
         }
       })
-      res.status(201).send('Successful')
+      return res.status(201).send('Successful')
     
     
 
   } catch (error) {
-    res.status(500).send({'Could not add the phone number': error})
+    return res.status(500).send({'Could not add the phone number': error})
   }
 
 })
+
+// send the verification code
+phoneNumbers.post('/verify/send/:ownerId', async (req, res) => {
+  try {
+    const existing = await prisma.phoneNumbers.findUnique({
+      where: {
+        userId: Number(req.params.ownerId)
+      }
+    })
+
+    if(!existing || !existing.contactNumber){
+      return res.status(404).send('Could not find your account')
+    }
+
+    const phone = existing?.contactNumber.startsWith('+')
+    ? existing?.contactNumber : '+1' + existing?.contactNumber
+
+    console.log(phone, 'sent code')
+    const verification = await client.verify.v2.services("VA7937e5f669dd205b29a3a78482ad9b64")
+    .verifications
+    .create({to: phone, channel: 'sms'})
+console.log(verification, 'verify')
+
+    return res.status(201).send(verification)
+  } catch (error) {
+    return res.status(500).send({'something went wrong with sending the verification code' : error})
+  }
+})
+
+// verify the verification code
+phoneNumbers.post('/verify/check/:ownerId', async (req, res) => {
+  // gets the verification code they put in the field
+  try {
+    const { code } = req.body
+
+    if(!code){
+      return res.status(404).send('Please enter the Verification code')
+    }
+
+    const existing = await prisma.phoneNumbers.findUnique({
+      where: {
+        userId: Number(req.params.ownerId)
+      }
+    })
+
+    if(!existing || !existing?.contactNumber){
+      return res.status(404).send('Could not find your account')
+    }
+
+    const phone = existing?.contactNumber.startsWith('+')
+    ? existing?.contactNumber : '+1' + existing?.contactNumber
+
+    console.log(code, 'code from food')
+
+    const verificationCheck = await client.verify.v2.services("VA7937e5f669dd205b29a3a78482ad9b64")
+    .verificationChecks.create({
+      to: phone,
+      code: code
+    })
+    console.log(verificationCheck, 'check')
+    if(verificationCheck.status === 'approved'){
+      await prisma.phoneNumbers.update({
+        where: {
+          userId: Number(req.params.ownerId)
+        },
+        data: {
+          verified: true
+        }
+      })
+      return res.status(201).send({verified: true})
+    } else {
+      return res.status(404).send({verified: false})
+    }
+  } catch (error) {
+    return res.status(500).send({'something went wrong with verifying the verification code' : error})
+
+  }
+})
+
+
+
+phoneNumbers.patch('/verify/:ownerId', async (req, res) => {
+  //const { verified } = req.body;
+  
+  try {
+    const existing = await prisma.phoneNumbers.findUnique({
+      where: {
+        userId: Number(req.params.ownerId)
+      }
+    })
+
+    if(existing?.verified === true){
+      return res.status(404).send('This number is already verified')
+      //return;
+    }
+
+    await prisma.phoneNumbers.update({
+      where: {
+        userId: Number(req.params.ownerId)
+      },
+      data: {
+        verified : true
+      }
+    })
+    return res.status(201).send('Success')
+  } catch (error) {
+    return res.status(500).send({'Could not verify': error})
+    }
+  })
+
 
 // PATCH - need to make it to where if they want to change the number, they can
 // but also if they click a button or verify those fields are changed too
@@ -76,8 +190,8 @@ phoneNumbers.patch('/:ownerId', async (req, res) => {
 
     // check if it exist
     if(!existing){
-      res.status(404).send('You have nothing to update')
-      return;
+      return res.status(404).send('You have nothing to update')
+      //return;
     }
 
     const data: {
@@ -106,15 +220,15 @@ phoneNumbers.patch('/:ownerId', async (req, res) => {
       },
       data
     })
-    res.status(201).send({'Successful': status})
+    return res.status(201).send({'Successful': status})
   } catch (error) {
-    res.status(500).send({'You have no number to update': error})
+    return res.status(500).send({'You have no number to update': error})
   }
 })
 
-phoneNumbers.patch('/verify/:ownerId', async (req, res) => {
-  //const { verified } = req.body;
-  
+
+// for changing notification boolean only
+phoneNumbers.patch('/notifications/:ownerId', async (req, res) => {
   try {
     const existing = await prisma.phoneNumbers.findUnique({
       where: {
@@ -122,9 +236,9 @@ phoneNumbers.patch('/verify/:ownerId', async (req, res) => {
       }
     })
 
-    if(existing?.verified === true){
-      res.status(404).send('This number is already verified')
-      return;
+    if(!existing){
+      return res.status(404).send('Could not find the number')
+      //return;
     }
 
     await prisma.phoneNumbers.update({
@@ -132,14 +246,15 @@ phoneNumbers.patch('/verify/:ownerId', async (req, res) => {
         userId: Number(req.params.ownerId)
       },
       data: {
-        verified : true
+        notifications : !existing?.notifications
       }
     })
-    res.status(201).send('Success')
+    return res.status(201).send('Success')
   } catch (error) {
-      res.status(500).send({'Could not verify': error})
+    return res.status(500).send({'Could not verify': error})
     }
-  })
+})
+
 
 phoneNumbers.delete('/:ownerId', async (req, res) => {
   try {
@@ -148,9 +263,11 @@ phoneNumbers.delete('/:ownerId', async (req, res) => {
         userId: Number(req.params.ownerId)
       }
     })
-    res.status(200).send('Successful')
+    return res.status(200).send('Successful')
   } catch (error) {
-      res.status(500).send({'Could not delete': error})
+    return res.status(500).send({'Could not delete': error})
     }
 })
+
+
 export default phoneNumbers;
