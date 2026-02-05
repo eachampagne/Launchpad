@@ -202,8 +202,7 @@ const deleteNumber = async () => {
           </Switch.Control>
           <Switch.Label />
         </Switch.Root>
-        <p>Phone Number: *** - *** - {String(phoneNumber)}</p>
-
+        <p>Phone Number: *** - *** - {phoneNumber.slice(8)}</p>
 
         <button onClick={() => deleteNumber()}>Delete Phone Number</button>
         </div>
