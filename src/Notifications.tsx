@@ -24,6 +24,7 @@ useEffect(() => {
     if(!number.data){
       setHasNumber(false)
       setChecked(false)
+      setPhoneNumber('')
       return;
       
     }
@@ -37,6 +38,7 @@ useEffect(() => {
     console.error('something went wrong with the number', error)
     setHasNumber(false)
     setChecked(false)
+    setPhoneNumber('')
   }
 
 }
@@ -107,6 +109,12 @@ const updateNotifications = async (checked: boolean) => {
 const deleteNumber = async () => {
   try {
     axios.delete(`/notifications/${ownerId}`)
+    setHasNumber(false)
+    setIsAdding(false)
+    setPhoneNumber('')
+    setChecked(false)
+    setStep('phone')
+    
   } catch (error) {
     console.error('sorry couldnt delete something thats not there', error)
   }
@@ -122,7 +130,7 @@ const deleteNumber = async () => {
         </div>
       )}
 
-      {(!hasNumber && isAdding && step === 'phone') || (hasNumber && isAdding && step === 'phone') && (
+      {(isAdding && step === 'phone') && (
         <div>
           <p>Enter A Phone Number</p>
           <For each={['sm']}>
