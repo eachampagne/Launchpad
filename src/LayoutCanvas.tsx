@@ -1,5 +1,9 @@
 import { Box } from "@chakra-ui/react";
 import WidgetFrame from "./WidgetFrame"
+import Calendar from './Calendar';
+import Email from './Email';
+import Timer from './Timer';
+
 
 type Layout = {
   id: number;
@@ -14,7 +18,16 @@ type LayoutElement = {
   posY: number,
   sizeX: number,
   sizeY: number
+  widget: {
+  name: string
+  };
 }
+
+const widgetMap: Record<string, React.FC>= {
+  Calendar,
+  Email,
+  Timer
+};
 
 const gridCols = 19;
 const gridRows = 12;
@@ -22,22 +35,31 @@ const gridRows = 12;
 const snapSize = 200;
 
 
-const LayoutCanvas = function({ layout, children }: { layout: Layout,  children: React.ReactNode }){
+const LayoutCanvas = function({layout}: { layout: Layout  }){
   return (
     <Box
+    //Anchors absolute widgets
     position="relative"
+    //Defines grid bounds
     width={`${gridCols * snapSize}px`}
     height={`${gridRows * snapSize}px`}
     border="2px solid rgb(400, 255, 255)"
     backgroundColor="white"
-
+    //Snaps grid to units
     backgroundSize={`${snapSize}px ${snapSize}px`}
+    //Actual grid lines
     backgroundImage={`
         linear-gradient(to right, #e5e7eb 1px, transparent 2px),
         linear-gradient(to bottom, #e5e7eb 2px, transparent 2px)
       `}
     >
-      {layout.layoutElements.map((element) => (
+      {layout.layoutElements.map((element) => {
+      const WidgetComp = widgetMap[element.widget.name];
+      if(!WidgetComp){
+        return null
+      }
+
+      return (
         <WidgetFrame
         key={element.id}
         posX ={element.posX}
@@ -47,15 +69,12 @@ const LayoutCanvas = function({ layout, children }: { layout: Layout,  children:
         minWidth={1}
         minHeight={1}
         snapSize={snapSize}
-        resizeActive={false}
+        resizeActive={true}
         >
-          <Box bg='blue.300' height='500%' width='500%'>
-            Widget{element.id}
-          </Box>
-
-          {children}
+        <WidgetComp />
         </WidgetFrame>
-      ))}
+        )
+      })}
 
     </Box>
   )
