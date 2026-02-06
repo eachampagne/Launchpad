@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useState } from "react";
+import { useNavigate } from "react-router";
 import {
   Box,
   Flex,
@@ -16,14 +17,18 @@ import {
   Portal,
   NativeSelect,
 } from "@chakra-ui/react";
-import { IoMdCheckmark } from "react-icons/io";
 import NavBar from "./NavBar";
 import Notifications from "./Notifications";
 
 type HubProps = {
-  dashboards: any[]; // temporary
+  dashboards: any[];
+  schedules: any[];
+  handlePrimaryChange: (dashboardId: number) => void;
+  handleDashboardSelection: (dashboardId: number) => void;
+  refreshPrimaryDash: () => Promise<void>
   getDashboardData: () => Promise<void>;
   ownerId: number;
+  primaryDashId: number;
   activeDash: number | null;
 };
 
@@ -48,16 +53,21 @@ const createDraft = (): ScheduleDraft => ({
 
 export default function Hub({
   dashboards,
+  schedules,
+  handlePrimaryChange,
+  handleDashboardSelection,
+  refreshPrimaryDash,
   getDashboardData,
   ownerId,
+  primaryDashId,
   activeDash, // TODO will be changed when App component is completed
 }: HubProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [createdDashName, setCreatedDashName] = useState("");
-  const [isDefault, setIsDefault] = useState(false);
   const [mode, setMode] = useState<"ALWAYS" | "CUSTOM">("ALWAYS");
-  const [schedules, setSchedules] = useState<ScheduleDraft[]>([]);
+  const [scheduleDraft, setScheduleDraft] = useState<ScheduleDraft[]>([]);
   const [editingAlways, setEditingAlways] = useState(false);
+  const navigate = useNavigate();
 
   const handleInputVisibility = () => {
     setIsVisible(true);
@@ -81,20 +91,40 @@ export default function Hub({
     setCreatedDashName("");
   };
 
+  /**
+   * 
+   * @param dashboardId 
+   * Handles deleting a dashboard
+   */
   const handleDelete = async (dashboardId: number) => {
+
     try {
       await axios.delete(`/dashboard/${dashboardId}`);
+      // refresh primary dashboard data if user deletes their active primary dash
+      if (primaryDashId === dashboardId) {
+        refreshPrimaryDash();
+      }
     } catch (err) {
       console.error("Failed to delete dashboard", err);
     }
     getDashboardData();
   };
 
+  /**
+   * 
+   * @param dashboardId 
+   * Handles changing primary dashboard for user in database.
+   * Triggered by Save button in "Always" mode for Defaults section
+   */
   const handleSetDefault = async (dashboardId: number) => {
     try {
-      await axios.patch("", { ownerId, dashboardId });
-      await axios.delete("", { data: { ownerId } });
+      // change primary dashboard for user in 
+      await axios.patch(`/dashboard/primary/${ownerId}`, { primaryDashId: dashboardId });
+      // delete any existing scheduled dashboard changes
+      await axios.delete(`/schedule/all/${ownerId}`);
+      // refresh dashboard data
       getDashboardData();
+      // reset edit status
       setEditingAlways(false);
     } catch (err) {
       console.error(err);
@@ -112,20 +142,13 @@ export default function Hub({
         dashboardId: s.dashboardId,
         time,
       });
-      setSchedules((prev) =>
+      setScheduleDraft((prev) =>
         prev.map((x) => (x.id === s.id ? { ...x, saved: true } : x)),
       );
     } catch (err) {
       console.error(err);
     }
   };
-
-  // Loader function to fetch schedules from backend
-
-
-  // used to send user to edit page for selected dashboard
-  // TODO coordinate with dashboard editor team to finish this function
-  const handleEdit = async (dashboardId: number) => {};
 
   // used to set a dashboard's layout as public
   // TODO coordinate with layout team to finish function
@@ -137,7 +160,17 @@ export default function Hub({
 
   // used to navigate to dashboard after click
   // TODO coordinate with team to give button navigation functionality
-  const openDashboard = (dashboardId: number) => {};
+ function OpenDashboard(dashboardId: number) {
+    
+    handleDashboardSelection(dashboardId)
+    navigate("/dashboard", { replace: true })
+  };
+
+// used to open dashboard editor for selected dashboard
+function OpenEditDash(dashboardId: number) {
+  handleDashboardSelection(dashboardId);
+  navigate("/edit", { replace: true })
+}
 
   return (
     <>
@@ -186,12 +219,12 @@ export default function Hub({
                 {mode === "CUSTOM" && (
                   <Button
                     size="xs"
-                    onClick={() => setSchedules((s) => [createDraft(), ...s])}
+                    onClick={() => setScheduleDraft((s) => [createDraft(), ...s])}
                   >
                     +
                   </Button>
                 )}
-                {mode === "ALWAYS" && activeDash !== null && !editingAlways && (
+                {mode === "ALWAYS" && primaryDashId !== null && !editingAlways && (
                   <Button
                     size="xs"
                     variant="ghost"
@@ -215,12 +248,12 @@ export default function Hub({
                     const value = e.target.value as "ALWAYS" | "CUSTOM";
                     setMode(value);
 
-                    if (value === "CUSTOM" && schedules.length === 0) {
-                      setSchedules([createDraft()]);
+                    if (value === "CUSTOM" && scheduleDraft.length === 0) {
+                      setScheduleDraft([createDraft()]);
                     }
 
                     if (value === "ALWAYS") {
-                      setSchedules([]);
+                      setScheduleDraft([]);
                     }
                   }}
                 >
@@ -232,15 +265,18 @@ export default function Hub({
 
               {/* ALWAYS MODE */}
               {mode === "ALWAYS" && (
+                
                 <HStack gap={3} mb={4} align="center">
                   <NativeSelect.Root>
                     <NativeSelect.Field
-                      value={activeDash ?? ""}
-                      onChange={(e) => {}} // preventing react warning
+                      value={primaryDashId ?? ""}
+                      onChange={(e) => { 
+                        const value = Number(e.target.value)
+                        handlePrimaryChange(value)}} 
                       style={{ minWidth: "200px" }}
-                      aria-disabled={activeDash !== null && !editingAlways}
+                      aria-disabled={primaryDashId !== null && !editingAlways}
                       pointerEvents={
-                        activeDash !== null && !editingAlways ? "none" : "auto"
+                        primaryDashId !== null && !editingAlways ? "none" : "auto"
                       }
                     >
                       <option value="" disabled>
@@ -256,23 +292,24 @@ export default function Hub({
                   </NativeSelect.Root>
 
                   {mode === "ALWAYS" &&
-                    (activeDash === null || editingAlways) && (
+                    (primaryDashId === null || editingAlways) && (
                       <Button
                         size="sm"
                         onClick={() =>
-                          activeDash && handleSetDefault(activeDash)
+                          primaryDashId && handleSetDefault(primaryDashId)
                         }
                       >
                         Save
                       </Button>
                     )}
                 </HStack>
+                  
               )}
 
               {/* CUSTOM MODE */}
               {mode === "CUSTOM" && (
                 <VStack gap={3} align="stretch">
-                  {schedules.map((s) => (
+                  {scheduleDraft.map((s) => (
                     <HStack key={s.id} gap={3} align="center">
                       {s.saved ? (
                         <>
@@ -296,7 +333,7 @@ export default function Hub({
                               w="60px"
                               value={s.hour}
                               onChange={(e) =>
-                                setSchedules((prev) =>
+                                setScheduleDraft((prev) =>
                                   prev.map((x) =>
                                     x.id === s.id
                                       ? { ...x, hour: e.target.value }
@@ -312,7 +349,7 @@ export default function Hub({
                               w="60px"
                               value={s.minute}
                               onChange={(e) =>
-                                setSchedules((prev) =>
+                                setScheduleDraft((prev) =>
                                   prev.map((x) =>
                                     x.id === s.id
                                       ? { ...x, minute: e.target.value }
@@ -326,7 +363,7 @@ export default function Hub({
                               <NativeSelect.Field
                                 value={s.period}
                                 onChange={(e) =>
-                                  setSchedules((prev) =>
+                                  setScheduleDraft((prev) =>
                                     prev.map((x) =>
                                       x.id === s.id
                                         ? {
@@ -352,7 +389,7 @@ export default function Hub({
                               value={s.dashboardId ?? ""}
                               onChange={(e) => {
                                 const value = Number(e.target.value) || null;
-                                setSchedules((prev) =>
+                                setScheduleDraft((prev) =>
                                   prev.map((x) =>
                                     x.id === s.id
                                       ? { ...x, dashboardId: value }
@@ -428,7 +465,6 @@ export default function Hub({
                     />
                   </HStack>
                 ))}
-                <Button size="sm">+</Button>
               </VStack>
             </Box>
           </HStack>
@@ -463,7 +499,7 @@ export default function Hub({
                     justifyContent="center"
                     p={2}
                     _hover={{ borderColor: "blue.500" }}
-                    onClick={() => openDashboard(dashboard.id)}
+                    onClick={() => { OpenDashboard(dashboard.id) }}
                   >
                     <Text pointerEvents="none">{dashboard.name}</Text>
 
@@ -490,27 +526,10 @@ export default function Hub({
                                   size="sm"
                                   variant="ghost"
                                   justifyContent="flex-start"
-                                  onClick={() => handleEdit(dashboard.id)}
+                                  onClick={() => OpenEditDash(dashboard.id)}
                                 >
                                   Edit
                                 </Button>
-
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  justifyContent="flex-start"
-                                  onClick={() => handleSetDefault(dashboard.id)}
-                                >
-                                  {isDefault && (
-                                    <Icon
-                                      as={IoMdCheckmark}
-                                      boxSize={4}
-                                      mr={2}
-                                    />
-                                  )}
-                                  Set as Default
-                                </Button>
-
                                 <Button
                                   size="sm"
                                   variant="ghost"
