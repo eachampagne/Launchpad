@@ -1,4 +1,4 @@
-import { useState, useEffect, type ChangeEvent } from 'react';
+import { useState, useEffect, useContext, type ChangeEvent } from 'react';
 
 import axios, { AxiosError } from 'axios';
 
@@ -8,14 +8,23 @@ import { LuCalendarDays } from 'react-icons/lu';
 
 import type { Event, CalendarObject } from '../types/Calendar.ts';
 import { AuthStatus } from '../types/WidgetStatus.ts';
+import { UserContext } from './UserContext';
 
 function Calendar() {
+  const { user } = useContext(UserContext);
+
   const [authStatus, setAuthStatus] = useState(AuthStatus.SignedOut);
   const [events, setEvents] = useState([] as Event[]);
   const [calendars, setCalendars] = useState([] as CalendarObject[]);
   const [activeCalendarId, setActiveCalendarId] = useState('');
 
   const checkAuth = async () => {
+    // if not signed in, don't even send the request
+    if (user.id === -1) {
+      setAuthStatus(AuthStatus.SignedOut);
+      return;
+    }
+
     try {
       const response = await axios.get('/checkauth/calendar');
       if (response.data === true) {
@@ -65,7 +74,7 @@ function Calendar() {
   useEffect(() => {
     // TODO: if Calendar inherits a user through props, it may be possible to skip checking auth if we know the user is signed out
     checkAuth();
-  }, []);
+  }, [user]);
 
   const renderCalendarList = () => {
     if (authStatus === AuthStatus.Authorized) {

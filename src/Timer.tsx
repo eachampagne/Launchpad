@@ -1,16 +1,19 @@
-import { useState, useEffect, useEffectEvent } from 'react';
+import { useState, useEffect, useEffectEvent, useContext } from 'react';
 import axios, { AxiosError } from 'axios';
 
 import { Button, For, Flex, Heading, HStack, Icon, Text } from '@chakra-ui/react';
 import { LuTimer, LuVolume2, LuVolumeOff } from 'react-icons/lu';
 
 import { TimerStatus } from '../types/WidgetStatus';
+import { UserContext } from './UserContext';
 
 import soundUrl from './assets/triangle.mp3';
 const audioElement = new Audio(soundUrl); // defined here so it doesn't keep getting recreated every rerender
 // constantly recreating it is bad performance wise, but also means its muted/unmuted status doesn't persist
 
 function Timer() {
+  const { user } = useContext(UserContext);
+
   // should you be able to use the timer just client side if you're logged out?
   const [timerStatus, setTimerStatus] = useState(TimerStatus.SignedOut);
   const [expiration, setExpiration] = useState(null as Date | null);
@@ -23,6 +26,12 @@ function Timer() {
 
   // check timer, assign states
   const checkServer = async () => {
+    // if no user, don't bother sending a request
+    if (user.id === -1) {
+      setTimerStatus(TimerStatus.SignedOut);
+      return;
+    }
+
     try {
       const response = await axios.get('/timer');
       if (!response.data) { // even though it's sending null on the server side, it comes through as an empty string
@@ -208,7 +217,7 @@ function Timer() {
 
   useEffect(() => {
     checkServer();
-  }, []);
+  }, [user]);
 
   const renderVolumeControl = () => {
       return (

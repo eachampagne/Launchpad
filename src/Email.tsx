@@ -1,16 +1,25 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import axios, { AxiosError } from 'axios';
 
 import { Button, Flex, For, Heading, Icon, LinkBox, LinkOverlay, ScrollArea, Stack, Text } from '@chakra-ui/react';
 import { LuMail } from 'react-icons/lu';
 
 import { AuthStatus } from '../types/WidgetStatus.ts';
+import { UserContext } from './UserContext';
 
 function Email () {
+  const { user } = useContext(UserContext);
+
   const [authStatus, setAuthStatus] = useState(AuthStatus.SignedOut);
   const [emails, setEmails] = useState([] as {id: string, snippet: string}[]);
 
   const checkAuth = async () => {
+    // if not signed in, don't even send the request
+    if (user.id === -1) {
+      setAuthStatus(AuthStatus.SignedOut);
+      return;
+    }
+
     try {
       const response = await axios.get('/checkauth/gmail');
       if (response.data === true) {
@@ -80,7 +89,7 @@ function Email () {
 
   useEffect(() => {
     checkAuth();
-  }, []);
+  }, [user]);
 
   return (
     <Flex direction="column" height="100%">

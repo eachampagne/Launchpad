@@ -4,13 +4,12 @@ import axios from "axios";
 // import axios from 'axios';
 import { BrowserRouter, Routes, Route } from "react-router";
 
+import UserProvider from './UserContext';
+
 import Hub from "./Hub";
 import Dashboard from './Dashboard';
 import DashEditor from './DashEditor';
 import Home from './Home';
-
-import Calendar from './Calendar';
-import Email from './Email';
 
 function App() {
   const [userId, setUserId] = useState(1); // hardcoded user id state for now for testing purposes
@@ -120,7 +119,7 @@ function App() {
 
 
   return (
-    <>
+    <UserProvider>
       <BrowserRouter>
         <Routes>
           <Route path='/' element={<Home getUserData={getUserData} handleLogOut={handleLogOut} userId={userId} />} />
@@ -128,8 +127,8 @@ function App() {
           <Route path='/edit' element={<DashEditor dashboardId={activeDash} ownerId={userId} />} />
           <Route path="/hub" element={<Hub dashboards={dashboards} schedules={schedules} getDashboardData={getDashboardsData} refreshPrimaryDash={getPrimaryDash} handlePrimaryChange={handlePrimaryChange} handleDashboardSelection={handleDashboardSelection} ownerId={userId} primaryDashId={primaryDashId} activeDash={activeDash}/>} />
         </Routes>
-        </BrowserRouter>
-    </>
+      </BrowserRouter>
+    </UserProvider>
   );
 }
 
