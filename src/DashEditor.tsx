@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import axios from 'axios';
 
 import { UserContext } from './UserContext';
+import NavBar from "./NavBar";
 import Theme from './Theme';
 import LayoutGallery from './LayoutGallery';
 
@@ -128,6 +129,7 @@ function DashEditor() {
 
   return (
     <>
+      <NavBar pages={["Home", "Hub"]} />
       <h2>Editing: {renderName()}</h2>
       {appliedDash?.layoutId && (
         <section>

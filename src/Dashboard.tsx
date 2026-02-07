@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import axios from 'axios';
 
 import { UserContext } from './UserContext';
+import NavBar from "./NavBar";
 
 import WidgetFrame from './WidgetFrame';
 import Calendar from './Calendar';
@@ -28,6 +29,7 @@ function Dashboard () {
 
   return (
     <>
+      <NavBar pages={["Home", "Hub"]} />
       <h2>{dashboard.name}</h2>
       <Link to='/edit'>Edit</Link>
       <WidgetFrame

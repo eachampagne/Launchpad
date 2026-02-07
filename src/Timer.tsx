@@ -40,7 +40,7 @@ function Timer() {
         setPausedRemaining(null);
         setExpiration(null);
       } else {
-        const { paused, expiresAt, remainingMs }: { paused: boolean, expiresAt: number | null, remainingMs: number | null } = response.data;
+        const { paused, remainingMs }: { paused: boolean, remainingMs: number } = response.data;
 
         if (paused) {
           setTimerStatus(TimerStatus.Paused);
@@ -48,7 +48,7 @@ function Timer() {
           setExpiration(null);
         } else {
           setTimerStatus(TimerStatus.ActiveTimer);
-          const expirationResponse = new Date(expiresAt as number);
+          const expirationResponse = new Date(Date.now() + remainingMs);
           setExpiration(expirationResponse);
           setPausedRemaining(null);
         }
