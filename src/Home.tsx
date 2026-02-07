@@ -29,7 +29,7 @@ function Home () {
           <Box background="gray.950" p="3" margin="2" width="-moz-fit-content" textAlign="center" w="250px">
             <Heading color="gray.focusRing" > Join Us! </Heading>
             <div>
-              <Button className="button google" colorPalette="gray" variant="outline" margin="1"> <Link href="/login/federated/google">Sign in with Google</Link></Button>
+              <Button className="button google" colorPalette="gray" variant="outline" margin="1" asChild><Link href="/login/federated/google">Sign in with Google</Link></Button>
             </div>
             {/* TODO: Move logout button to somewhere that makes more sense */}
             <div><Button className="logout button google" margin="1" onClick={() => {handleLogout()}} colorPalette="gray" variant="outline">Log Out</Button></div>
