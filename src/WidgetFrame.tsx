@@ -198,7 +198,7 @@ function CornerHandle({corner, parentWidth, parentHeight, resize, snap}: {corner
   );
 }
 
-function WidgetFrame({posX, posY, sizeX, sizeY, minWidth, minHeight, snapSize, resizeActive, handleResize, children}: {posX: number, posY: number, sizeX: number, sizeY: number, minWidth: number, minHeight: number, snapSize: number, resizeActive: boolean, handleResize?: (posX: number, posY: number, width: number, height: number) => void, children?: React.ReactNode}) {
+function WidgetFrame({posX, posY, sizeX, sizeY, minWidth, minHeight, snapSize, resizeActive, handleResize, children, color}: {posX: number, posY: number, sizeX: number, sizeY: number, minWidth: number, minHeight: number, snapSize: number, resizeActive: boolean, handleResize?: (posX: number, posY: number, width: number, height: number) => void, children?: React.ReactNode, color: string}) {
   const [top, setTop] = useState(posY * snapSize);
   const [bottom, setBottom] = useState((posY + sizeY) * snapSize);
   const [left, setLeft] = useState(posX * snapSize);
@@ -323,7 +323,7 @@ function WidgetFrame({posX, posY, sizeX, sizeY, minWidth, minHeight, snapSize, r
   };
 
   return (
-    <Container padding="5" bg="blue" position="absolute" top={`${top}px`} left={`${left}px`} width={`${right-left}px`} height={`${bottom-top}px`} overflow="clip" userSelect={resizeActive ? "none" : "text"}>
+    <Container padding="5" bg="blue" position="absolute" top={`${top}px`} left={`${left}px`} width={`${right-left}px`} height={`${bottom-top}px`} overflow="clip" userSelect={resizeActive ? "none" : "text"} bgColor={color}>
       {children}
       {renderResizeHandles()}
     </Container>

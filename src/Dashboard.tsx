@@ -8,11 +8,12 @@ import WidgetFrame from './WidgetFrame';
 import Calendar from './Calendar';
 import Email from './Email';
 import Timer from './Timer';
+import type { ThemeObject } from '../types/Calendar';
 
 function Dashboard ({dashboardId}: {dashboardId: number}) {
   const [dashboard, setDashboard] = useState({name: "Loading"});
   const [themeId, setThemeId] = useState(-1)
-  const [themeObject, setThemeObject] = useState({})
+  const [themeObject, setThemeObject] = useState({} as ThemeObject)
   console.log(dashboard, 'dashboard')
   console.log(themeObject, 'should be the whole theme object')
   const loadDashboard = async () => {
@@ -63,6 +64,7 @@ function Dashboard ({dashboardId}: {dashboardId: number}) {
         resizeActive={true}
         handleResize={(posX, posY, width, height) => console.log(`Now ${width}x${height} with top left corner at (${posX}, ${posY})`)}
         snapSize={100}
+        color={themeObject.font}
       >
         <Calendar />
       </WidgetFrame>
@@ -75,6 +77,7 @@ function Dashboard ({dashboardId}: {dashboardId: number}) {
         minHeight={1}
         resizeActive={true}
         snapSize={100}
+        color={themeObject.font}
       >
         <Email/>
       </WidgetFrame>
@@ -87,6 +90,7 @@ function Dashboard ({dashboardId}: {dashboardId: number}) {
         minHeight={2}
         resizeActive={false}
         snapSize={100}
+        color={themeObject.font}
       >
         <Timer/>
       </WidgetFrame>
