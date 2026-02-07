@@ -11,27 +11,34 @@ const [step, setStep] = useState('phone') // will tell what component to render
 const [code, setCode] = useState('')
 const [checked, setChecked] = useState(false)
 const [verificationStatus, setVerificationStatus] = useState(false)
-console.log(ownerId, 'here')
-console.log(phoneNumber)
-// so i need to get the number
+
+
+console.log(isAdding, step, hasNumber, 'ehehehehe')
 
 useEffect(() => {
   const getNumber = async () => {
 
   try {
     const number = await axios.get(`/notifications/${ownerId}`)
-
-    if(!number.data?.contactNumber){
+    console.log(number, 'this is number')
+    if(!number.data){
       setHasNumber(false)
+      setChecked(false)
       setPhoneNumber('')
-    } else {
-      setPhoneNumber(number.data.contactNumber)
-      setHasNumber(true)
+      return;
+      
     }
+    console.log(number, 'this time its number')
+    setHasNumber(true)
+    setPhoneNumber(number.data.data.contact)
+    setChecked(number.data.data.noti)
+    
 
   } catch (error) {
     console.error('something went wrong with the number', error)
     setHasNumber(false)
+    setChecked(false)
+    setPhoneNumber('')
   }
 
 }
@@ -42,6 +49,7 @@ getNumber()
 // then allow them to add a number if they dont have one
 const addNumber = async () => {
   const contactNumber = '+1' + phoneNumber
+  console.log(contactNumber)
   try {
     await axios.post(`/notifications/${ownerId}`, {contactNumber})
   } catch (error) {
@@ -72,12 +80,12 @@ const checkVerification = async () => {
   }
 }
 // update the number
-const updateNumber = async (notifications?: any) => {
+const updateNumber = async () => {
 
-  setChecked(notifications)
+
   try {
-    await axios.patch(`/notifications/${ownerId}`, {contactNumber: phoneNumber, notifications: notifications})
-    setChecked(!notifications)
+    await axios.patch(`/notifications/${ownerId}`, {contactNumber: phoneNumber})
+
 
     console.log('success')
   } catch (error) {
@@ -86,10 +94,10 @@ const updateNumber = async (notifications?: any) => {
 }
 
 // change the notifications only
-const updateNotifications = async () => {
-
+const updateNotifications = async (checked: boolean) => {
+  setChecked(checked)
   try {
-    await axios.patch(`/notifications/notifications/${ownerId}`)
+    await axios.patch(`/notifications/notifications/${ownerId}`, {notifications: checked})
 
     console.log('success')
   } catch (error) {
@@ -101,6 +109,12 @@ const updateNotifications = async () => {
 const deleteNumber = async () => {
   try {
     axios.delete(`/notifications/${ownerId}`)
+    setHasNumber(false)
+    setIsAdding(false)
+    setPhoneNumber('')
+    setChecked(false)
+    setStep('phone')
+    
   } catch (error) {
     console.error('sorry couldnt delete something thats not there', error)
   }
@@ -116,7 +130,7 @@ const deleteNumber = async () => {
         </div>
       )}
 
-      {!hasNumber && isAdding && step === 'phone' && (
+      {(isAdding && step === 'phone') && (
         <div>
           <p>Enter A Phone Number</p>
           <For each={['sm']}>
@@ -143,8 +157,13 @@ const deleteNumber = async () => {
               // if no phone number was added, return them to the place to enter a phone number
               return;
             }
-            // add the phone number
-            await addNumber();
+
+            if(hasNumber){
+              await updateNumber()
+            } else {
+              // add the phone number
+              await addNumber();
+            }
             await sendVerification();
             setStep('verify')
           }}>Send Verification Code</Button>
@@ -187,44 +206,25 @@ const deleteNumber = async () => {
         </div>
       )}
 
-      {hasNumber && verificationStatus === true && (
+      {hasNumber && (
         <div>
         <p> Notifications </p>
-        <Switch.Root checked={checked} onCheckedChange={updateNotifications}>
+        <Switch.Root checked={checked}  onCheckedChange={(e) => updateNotifications(e.checked)}>
           <Switch.HiddenInput />
           <Switch.Control>
             <Switch.Thumb />
           </Switch.Control>
           <Switch.Label />
         </Switch.Root>
+        <p>Phone Number: *** - *** - {phoneNumber.slice(8)}</p>
+        <Button onClick={async () => {
+          setIsAdding(true)
+          setCode('')
+          setStep('phone')
+        }}>Update Phone Number</Button>
+        <Button onClick={() => deleteNumber()}>Delete Phone Number</Button>
         </div>
       )}
-      {/* <p>{phoneNumber}</p>
-      <input type='tel' value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
-      <button onClick={() => {
-        if(phoneNumber.length > 0){
-         addNumber()
-        }
-        
-      }}>Save Phone Number</button>
-      <p>Update Phone Number</p>
-      <input type='tel' value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
-      <button onClick={() => {
-        if(phoneNumber.length > 0){
-         updateNumber()
-        }
-      }}>Save Phone Number</button>
-      <p> Notifications </p>
-        <Switch.Root checked={checked} onCheckedChange={updateNumber}>
-          <Switch.HiddenInput />
-          <Switch.Control>
-            <Switch.Thumb />
-          </Switch.Control>
-          <Switch.Label />
-        </Switch.Root>
-      <button onClick={() => deleteNumber()}>Delete Phone Number</button> */}
-      <button onClick={() => deleteNumber()}>Delete Phone Number</button>
-      
     </div>
 
   )

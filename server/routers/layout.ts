@@ -4,12 +4,6 @@ import { prisma } from '../database/prisma.js';
 
 const layout = express.Router();
 
-//GET (route mounted)
-// layout.get('/', (req, res) => {
-//   res.status(200).send('LAYOUT GET');
-// });
-
-
 //READ: This should get all public layouts.
 layout.get('/public', async (req, res) => {
   //console.log(' GET /layout/public hit');
@@ -35,6 +29,10 @@ layout.get('/public', async (req, res) => {
 })
 
 //READ: This route will load one layout by id.
+
+// TODO: 
+// If you aren't the user that created it, or if it isn't public, don't load it.
+
 layout.get('/:layoutId', async (req, res) => {
   //grab layout id
   //needed to be converted to number
@@ -109,6 +107,68 @@ layout.post('/:layoutId/copy', async (req, res) => {
 })
 });
 
+// TODO:
+// Layout + Elm
 
+// POST: Allows the user to add a widget.
+  // we need... the id of the current layout.
+  // the id the the widget they want to add.
+  // to create a new layoutElement.
+  // we don't need to do this, this is done automatically: // // to add that layout element to the current layout. (push it to the scalar list.)
+    
+
+  // we expect the id of the layout to be the parameter, and the widget-id to be in the body. widget settings should be an object with the settings of the widgets position and size.
+layout.post('/:layoutId/element', async (req, res) => {
+  const layoutId = Number(req.params.layoutId);
+  const widgetId = req.body.widgetId;
+  const {posX, posY, sizeX, sizeY} = req.body.widgetSettings
+
+    try {
+    const layoutElement = await prisma.layoutElement.create({
+      data: { layoutId, widgetId, posX, posY, sizeX, sizeY },
+    })
+
+    res.status(201).send(layoutElement);
+  } catch (error) {
+    res.status(500).send({'There was a problem during the creation of a layout element:': error})
+  }
+
+});
+
+// PATCH: Allows the user to drag/resize, or change other settings.
+
+layout.patch('/:elementId', async (req, res) => {
+  const elementId = Number(req.params.elementId);
+  const {posX, posY, sizeX, sizeY} = req.body.widgetSettings
+
+    try {
+    const layoutElement = await prisma.layoutElement.update({
+      where: {id: elementId},
+      data: { posX, posY, sizeX, sizeY },
+    })
+
+    res.status(200).send(layoutElement);
+  } catch (error) {
+    res.status(500).send({'There was a problem during changing the settings of a layout element:': error})
+  }
+
+});
+
+// DELETE: Remove an element from a layout.
+
+layout.delete('/:elementId', async (req, res) => {
+  const elementId = Number(req.params.elementId);
+
+    try {
+      await prisma.layoutElement.delete({
+        where: {id: elementId}
+      })
+
+      res.sendStatus(201);
+  } catch (error) {
+      res.status(500).send({'There was a problem during the deletion of a layout element:': error})
+  }
+
+});
 
 export default layout;
