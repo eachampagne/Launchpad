@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { Link } from "react-router";
 import axios from 'axios';
 
+import { UserContext } from './UserContext';
 import NavBar from "./NavBar";
 
 import WidgetFrame from './WidgetFrame';
@@ -11,7 +12,9 @@ import Timer from './Timer';
 import type { ThemeObject } from '../types/Calendar';
 import { Box } from '@chakra-ui/react';
 
-function Dashboard ({dashboardId}: {dashboardId: number}) {
+function Dashboard () {
+  const { activeDash: dashboardId } = useContext(UserContext);
+
   const [dashboard, setDashboard] = useState({name: "Loading"});
   const [themeId, setThemeId] = useState(-1)
   const [themeObject, setThemeObject] = useState({} as ThemeObject)
@@ -47,8 +50,7 @@ function Dashboard ({dashboardId}: {dashboardId: number}) {
 
   useEffect(() => {
     loadDashboard();
-
-  }, []);
+  }, [dashboardId]);
 
   return (
     <Box bg={themeObject.bgColor} minH='100vh' w='100%'>

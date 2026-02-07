@@ -2,20 +2,15 @@
 
 import { Heading, Text, Button, Link, Box, Container, Flex, Icon } from '@chakra-ui/react'
 import NavBar from './NavBar';
+import { UserContext } from './UserContext';
 import ImageCarousel from './home/ImageCarousel';
 import ChangelogScroll from './home/ChangelogScroll';
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useContext } from 'react'
 
 import { LuRocket } from "react-icons/lu"
 
-// ! TODO: FIX 'any', I just don't want to learn typescript function operations right now.
-interface MyProps {
-  getUserData: any,
-  handleLogOut: any,
-  userId: any
-}
-
-function Home (props: MyProps) {
+function Home () {
+  const { handleLogout } = useContext(UserContext)
 
   return (
     <>
@@ -37,7 +32,7 @@ function Home (props: MyProps) {
               <Button className="button google" colorPalette="gray" variant="outline" margin="1"> <Link href="/login/federated/google">Sign in with Google</Link></Button>
             </div>
             {/* TODO: Move logout button to somewhere that makes more sense */}
-            <div><Button className="logout button google" margin="1" onClick={() => {props.handleLogOut()}} colorPalette="gray" variant="outline">Log Out</Button></div>
+            <div><Button className="logout button google" margin="1" onClick={() => {handleLogout()}} colorPalette="gray" variant="outline">Log Out</Button></div>
           </Box>
         </Flex>
       </Container>

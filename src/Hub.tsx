@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useState } from "react";
+import { useState, useEffect, useContext, useCallback } from "react";
 import { useNavigate } from "react-router";
 import {
   Box,
@@ -17,20 +17,9 @@ import {
   Portal,
   NativeSelect,
 } from "@chakra-ui/react";
+import { UserContext } from "./UserContext";
 import NavBar from "./NavBar";
 import Notifications from "./Notifications";
-
-type HubProps = {
-  dashboards: any[];
-  schedules: any[];
-  handlePrimaryChange: (dashboardId: number) => void;
-  handleDashboardSelection: (dashboardId: number) => void;
-  refreshPrimaryDash: () => Promise<void>
-  getDashboardData: () => Promise<void>;
-  ownerId: number;
-  primaryDashId: number;
-  activeDash: number | null;
-};
 
 type ScheduleDraft = {
   id: string; // backend schedule.id once saved, temporary UUID before saving
@@ -51,23 +40,65 @@ const createDraft = (): ScheduleDraft => ({
   saved: false,
 });
 
-export default function Hub({
-  dashboards,
-  schedules,
-  handlePrimaryChange,
-  handleDashboardSelection,
-  refreshPrimaryDash,
-  getDashboardData,
-  ownerId,
-  primaryDashId,
-  activeDash, // TODO will be changed when App component is completed
-}: HubProps) {
+export default function Hub(
+ // TODO will be changed when App component is completed
+) {
   const [isVisible, setIsVisible] = useState(false);
   const [createdDashName, setCreatedDashName] = useState("");
   const [mode, setMode] = useState<"ALWAYS" | "CUSTOM">("ALWAYS");
   const [scheduleDraft, setScheduleDraft] = useState<ScheduleDraft[]>([]);
   const [editingAlways, setEditingAlways] = useState(false);
+  const [dashboards, setDashboards] = useState([] as any[]);
+  const [schedules, setSchedules] = useState([] as any[]);
+
+  const { user: {id: ownerId, primaryDashId: primaryDashIdContext}, activeDash, setActiveDash: handleDashboardSelection, getPrimaryDash: refreshPrimaryDash } = useContext(UserContext);
+
+  const [primaryDashId, setPrimaryDashId] = useState(primaryDashIdContext); // the context value is the 'real' value. PrimaryDashId is a local value used to track which value is selected in the scheduler
+
+  useEffect(() => {
+    setPrimaryDashId(primaryDashIdContext); // if the value in the context changes (such as by triggering a refresh, update the local value to match)
+  }, [primaryDashIdContext]);
+
   const navigate = useNavigate();
+
+    /**
+   * Used to get current dashboard data from database
+   */
+  const getDashboardData = useCallback(async () => {
+    
+    try {
+      const res = await axios.get(`/dashboard/all/${ownerId}`);
+      setDashboards(res.data);
+    } catch (error) {
+      console.error("There was a problem getting user's dashboards", error);
+    }
+  }, [ownerId]);
+
+  // get dashboard data on initial render
+  useEffect(() => {
+    if (ownerId === -1) return; // TODO come back to update this once established
+
+    (async () => {
+      getDashboardData();
+    })();
+  }, [ownerId, getDashboardData]);
+
+  const getScheduledDashboardsData = useCallback(async () => {
+
+    try {
+      const res = await axios.get(`/schedule/${ownerId}`)
+      setSchedules(res.data)
+    } catch (error) {
+      console.error("There was a problem getting user's scheduled dashboards", error);
+    }
+  }, [ownerId])
+
+  // retrieve scheduled dashboards on initial render
+  useEffect(() => {
+    (async () => {
+      getScheduledDashboardsData();
+    })();
+  }, [getScheduledDashboardsData]);
 
   const handleInputVisibility = () => {
     setIsVisible(true);
@@ -272,7 +303,7 @@ function OpenEditDash(dashboardId: number) {
                       value={primaryDashId ?? ""}
                       onChange={(e) => { 
                         const value = Number(e.target.value)
-                        handlePrimaryChange(value)}} 
+                        setPrimaryDashId(value)}} 
                       style={{ minWidth: "200px" }}
                       aria-disabled={primaryDashId !== null && !editingAlways}
                       pointerEvents={

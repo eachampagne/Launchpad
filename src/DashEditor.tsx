@@ -1,6 +1,8 @@
-import { useState, useEffect, type ChangeEvent } from 'react';
+import { useState, useEffect, useContext, type ChangeEvent } from 'react';
 import { Link } from "react-router";
 import axios from 'axios';
+
+import { UserContext } from './UserContext';
 import NavBar from "./NavBar";
 import Theme from './Theme';
 import LayoutGallery from './LayoutGallery';
@@ -19,7 +21,9 @@ type Dashboard = {
 };
 
 
-function DashEditor({dashboardId, ownerId}: {dashboardId: number, ownerId: number}) {
+function DashEditor() {
+  const { activeDash: dashboardId, user: { id: ownerId } } = useContext(UserContext);
+  
   const [dashboard, setDashboard] = useState({name: "Loading", ownerId: -1});
   const [newName, setNewName] = useState('');
   const [renaming, setRenaming] = useState(false);
@@ -73,7 +77,7 @@ function DashEditor({dashboardId, ownerId}: {dashboardId: number, ownerId: numbe
 
   useEffect(() => {
     loadDashboard();
-  }, []);
+  }, [dashboardId]);
 
   //Will load layout when selectedLayoutId changes
   useEffect(() => {
@@ -104,7 +108,7 @@ function DashEditor({dashboardId, ownerId}: {dashboardId: number, ownerId: numbe
       console.error('Failed to use layout:', error);
     }
 
-   }
+  }
 
 
   const renderName = () => {
