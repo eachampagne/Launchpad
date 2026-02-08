@@ -34,3 +34,10 @@ export type CalendarObject = {
   summary: string,
   description: string
 }
+
+export type ThemeObject = {
+  id: number,
+  navColor: string,
+  bgColor: string,
+  font: string
+}

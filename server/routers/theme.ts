@@ -4,6 +4,26 @@ import { prisma } from '../database/prisma.js';
 
 const theme = express.Router();
 
+// find one theme
+theme.get('/theme/:themeId', async (req, res) => {
+  try {
+    const currentTheme = await prisma.theme.findUnique({
+      where: {
+        id: Number(req.params.themeId)
+      }
+    })
+
+    if(!currentTheme){
+      return res.status(404).send('No theme was found')
+    }
+
+    res.status(200).send(currentTheme)
+  } catch (error) {
+    console.error('You have no theme selected', error);
+    res.sendStatus(500);
+  }
+})
+
 // GET
 theme.get('/:ownerId', async (req, res) => {
   //const { ownerId } = JSON.parse(req.params);
@@ -23,7 +43,6 @@ theme.get('/:ownerId', async (req, res) => {
     res.sendStatus(500);
   }
 })
-
 
 // POST - This is for the user clicking something like 'Create a new theme'
 // change the dashboard color
@@ -84,6 +103,24 @@ theme.patch('/', async (req, res) => {
 
 })
 
+// delete
+theme.delete('/delete/:ownerId', async (req, res) => {
+  const { themeId } = req.body
+  try {
+    await prisma.theme.delete({
+      where: {
+        ownerId: Number(req.params.ownerId),
+        id: themeId
+      }
+    })
+      res.sendStatus(200);
+
+    
+  } catch (error){
+    console.error('You already have this theme', error);
+    res.sendStatus(500);
+  }
+})
 
 
 export default theme;

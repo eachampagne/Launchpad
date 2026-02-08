@@ -472,7 +472,7 @@ function OpenEditDash(dashboardId: number) {
                     borderRadius="md"
                   >
                   {/* do stuff here azaria*/}
-                  <Text>Put Your Component Here</Text>
+                  <Notifications ownerId={ownerId}/>
                   </HStack>
               </VStack>
             </Box>
@@ -665,7 +665,6 @@ function OpenEditDash(dashboardId: number) {
           </Flex>
         </Box>
       </Flex>
-      <Notifications ownerId={ownerId}/>
     </>
   );
 }

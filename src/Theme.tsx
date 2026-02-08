@@ -10,11 +10,11 @@
  */
 
 
-import { useState, useEffect} from 'react';
+import { useState, useEffect, use} from 'react';
 import Color from './ColorPicker';
 import axios from 'axios';
 import { ColorSwatch } from "@chakra-ui/react"
-import { Box } from "@chakra-ui/react"
+import { Box, Button} from "@chakra-ui/react"
 import { Listbox, createListCollection } from "@chakra-ui/react"
 function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, ownerId: number}, ownerId: number, dashboardId : number}) {
   const [themesList, setThemesList] = useState([] as {id: number, navColor: string, bgColor: string, font: string}[]);
@@ -27,6 +27,7 @@ function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, o
   const [activeDash, setActiveDash] = useState({id: -1, navColor: 'string', bgColor: 'string', font: 'string'});
   const [currTheme, setCurrTheme] = useState(activeDash);
   // first lets get all the themes of that user
+  console.log(currTheme, 'CURRENTTT')
   const allThemes = async () => {
 
     try {
@@ -90,6 +91,17 @@ function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, o
     itemToValue: (item) => item.id.toString()
   })
 
+ // deleting the theme
+  const deleteTheme = async (data: any) => {
+    try {
+      const {themeId} = data
+      await axios.delete(`/theme/delete/${ownerId}`, {data: {themeId}})
+      allThemes()
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   useEffect(() => {
     // if the owner is provided
     if(dashboard.ownerId){
@@ -98,17 +110,15 @@ function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, o
     }
   }, [dashboard.ownerId])
 
+
   return (
-    <div>
-      <Box bg={currTheme.navColor}> Hello
-        <Box bg={currTheme.bgColor}> Hello </Box>
-        <Box bg={currTheme.font}> Hello </Box>
-      </Box>
+    <Box>
     {
       <Listbox.Root collection={allThemesList} width="320px">
       <Listbox.Label>Select Theme</Listbox.Label>
       <Listbox.Content>
         {allThemesList.items.map((theme) => (
+          <Box>
           <Listbox.Item item={theme} key={theme.id} onClick={() => {
             setCurrTheme(theme)
             updateTheme({themeId: theme.id})
@@ -116,26 +126,30 @@ function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, o
             <Listbox.ItemText> navColor: <ColorSwatch value={theme.navColor}/> bgColor: <ColorSwatch value={theme.bgColor}/> font: <ColorSwatch value={theme.font}/></Listbox.ItemText>
             <Listbox.ItemIndicator />
           </Listbox.Item>
+          <Button onClick={() => {
+            deleteTheme({themeId: theme.id})
+            }}> Delete </Button>
+          </Box>
         ))}
       </Listbox.Content>
     </Listbox.Root>
     }
       <form>
         <label>navColor</label>
-        <div id='navColor'>
+        <Box id='navColor'>
           <Color onValueChange={colorPicker(setNavColorPick)} />
-        </div>
+        </Box>
         <label>bgColor</label>
-        <div id='bgColor'>
+        <Box id='bgColor'>
           <Color onValueChange={colorPicker(setBgColorPick)}/>
-        </div>
+        </Box>
         <label>font</label>
-        <div id='font'>
+        <Box id='font'>
           <Color onValueChange={colorPicker(setFontPick)}/>
-        </div>
+        </Box>
       </form>
-      <button onClick={createTheme}>CREATE</button>
-    </div>
+      <Button onClick={createTheme}>CREATE</Button>
+    </Box>
   )
 }
 

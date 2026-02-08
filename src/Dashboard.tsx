@@ -9,27 +9,52 @@ import WidgetFrame from './WidgetFrame';
 import Calendar from './Calendar';
 import Email from './Email';
 import Timer from './Timer';
+import type { ThemeObject } from '../types/Calendar';
+import { Box } from '@chakra-ui/react';
 
 function Dashboard () {
   const { activeDash: dashboardId } = useContext(UserContext);
 
   const [dashboard, setDashboard] = useState({name: "Loading"});
+  const [themeId, setThemeId] = useState(-1)
+  const [themeObject, setThemeObject] = useState({} as ThemeObject)
+  console.log(dashboard, 'dashboard')
+  console.log(themeObject, 'should be the whole theme object')
   const loadDashboard = async () => {
     try {
       const response = await axios.get(`/dashboard/${dashboardId}`);
       setDashboard(response.data);
+      setThemeId(response.data.themeId)
     } catch (error) {
       console.error('Failed to get dashboard:', error);
     }
   };
+
+  // find the theme that matches the theme id stuff
+  const settingTheme = async () => {
+    try {
+      const currentTheme = await axios.get(`/theme/theme/${themeId}`)
+      console.log(currentTheme, 'currentTheme')
+      if(!currentTheme){
+        console.error('could not get theme')
+      }
+      setThemeObject(currentTheme.data)
+    } catch (error) {
+      console.error('Failed to get theme:', error);
+    }
+  }
+
+  useEffect(() => {
+    settingTheme()
+  }, [themeId])
 
   useEffect(() => {
     loadDashboard();
   }, [dashboardId]);
 
   return (
-    <>
-      <NavBar pages={["Home", "Hub"]} />
+    <Box bg={themeObject.bgColor} minH='100vh' w='100%'>
+      <NavBar pages={["Home", "Hub"]} color={themeObject.navColor}/>
       <h2>{dashboard.name}</h2>
       <Link to='/edit'>Edit</Link>
       <WidgetFrame
@@ -42,6 +67,7 @@ function Dashboard () {
         resizeActive={true}
         handleResize={(posX, posY, width, height) => console.log(`Now ${width}x${height} with top left corner at (${posX}, ${posY})`)}
         snapSize={100}
+        color={themeObject.font}
       >
         <Calendar />
       </WidgetFrame>
@@ -54,6 +80,7 @@ function Dashboard () {
         minHeight={1}
         resizeActive={true}
         snapSize={100}
+        color={themeObject.font}
       >
         <Email/>
       </WidgetFrame>
@@ -66,10 +93,11 @@ function Dashboard () {
         minHeight={2}
         resizeActive={false}
         snapSize={100}
+        color={themeObject.font}
       >
         <Timer/>
       </WidgetFrame>
-    </>
+    </Box>
   );
 }
 

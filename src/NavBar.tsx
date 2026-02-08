@@ -11,6 +11,7 @@ import { UserContext } from './UserContext';
 
 interface MyProps {
   pages: Array<string>,
+  color?: string
 }
 
 function NavBar (props: MyProps) {
@@ -33,7 +34,7 @@ function NavBar (props: MyProps) {
 
   return (
     <div style={{position: "sticky", top: "0", zIndex: "200"}}>
-      <Container as="div" w="100%" h="45px" backgroundColor="gray.emphasized" margin="0" maxWidth="none" paddingLeft="16" paddingRight="16">
+      <Container as="div" w="100%" h="45px" backgroundColor={props.color ?? "gray.emphasized"} margin="0" maxWidth="none" paddingLeft="16" paddingRight="16" >
         {/* TODO: Make this responsive for mobile and turn into a collapsible thing */}
         <AbsoluteCenter>
           <Icon size="lg" color="gray.focusRing" margin="1">

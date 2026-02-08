@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useState, useEffect} from 'react';
-import { Button, Switch, For } from "@chakra-ui/react"
+import { Button, Switch, For, Text, Box} from "@chakra-ui/react"
 import { PinInput } from "@chakra-ui/react"
 
 function Notifications ({ownerId} : {ownerId: number}) {
@@ -13,7 +13,6 @@ const [checked, setChecked] = useState(false)
 const [verificationStatus, setVerificationStatus] = useState(false)
 
 
-console.log(isAdding, step, hasNumber, 'ehehehehe')
 
 useEffect(() => {
   const getNumber = async () => {
@@ -28,7 +27,6 @@ useEffect(() => {
       return;
       
     }
-    console.log(number, 'this time its number')
     setHasNumber(true)
     setPhoneNumber(number.data.data.contact)
     setChecked(number.data.data.noti)
@@ -49,7 +47,6 @@ getNumber()
 // then allow them to add a number if they dont have one
 const addNumber = async () => {
   const contactNumber = '+1' + phoneNumber
-  console.log(contactNumber)
   try {
     await axios.post(`/notifications/${ownerId}`, {contactNumber})
   } catch (error) {
@@ -71,7 +68,6 @@ const sendVerification = async () => {
 const checkVerification = async () => {
   try {
     const verification = await axios.post(`/notifications/verify/check/${ownerId}`, {code})
-    console.log(verification, 'coming from inside checkVerification')
     setVerificationStatus(verification.data)
     return {verified : true}
   } catch (error) {
@@ -121,18 +117,18 @@ const deleteNumber = async () => {
 }
 
   return (
-    <div>
+    <Box>
 
       {!hasNumber && !isAdding && (
-        <div>
-          <p>Notifications</p>
-          <button onClick={() => setIsAdding(true)}>Add Phone Number</button>
-        </div>
+        <Box>
+          <Text>Notifications</Text>
+          <Button size="sm" variant="surface" colorPalette="blue" onClick={() => setIsAdding(true)}>Add Phone Number</Button>
+        </Box>
       )}
 
       {(isAdding && step === 'phone') && (
-        <div>
-          <p>Enter A Phone Number</p>
+        <Box>
+          <Text>Enter A Phone Number</Text>
           <For each={['sm']}>
             {(size) => (
             <PinInput.Root key={size} size={size} onValueChange={(e) => setPhoneNumber(e.valueAsString)}>
@@ -152,7 +148,7 @@ const deleteNumber = async () => {
             </PinInput.Root>
             )}
           </For>
-          <Button onClick={async () => {
+          <Button size="sm" variant="surface" colorPalette="blue" onClick={async () => {
             if(!phoneNumber || phoneNumber.length !== 10){
               // if no phone number was added, return them to the place to enter a phone number
               return;
@@ -168,11 +164,11 @@ const deleteNumber = async () => {
             setStep('verify')
           }}>Send Verification Code</Button>
 
-        </div>
+        </Box>
       )}
       {step === 'verify' && (
-        <div>
-          <p>Enter Verification Code</p>
+        <Box>
+          <Text>Enter Verification Code</Text>
           <For each={['sm']}>
             {(size) => (
             <PinInput.Root key={size} size={size} onValueChange={(e) => setCode(e.valueAsString)}>
@@ -188,7 +184,7 @@ const deleteNumber = async () => {
             </PinInput.Root>
             )}
           </For>
-          <Button onClick={async () => {
+          <Button size="sm" variant="surface" colorPalette="blue" onClick={async () => {
             const verified = await checkVerification()
             console.log(verified, 'this is verified on click')
             if(verified?.verified === true){
@@ -203,29 +199,29 @@ const deleteNumber = async () => {
               console.log('Wrong Code')
             }
           }}>Verify Code</Button>
-        </div>
+        </Box>
       )}
 
       {hasNumber && (
-        <div>
-        <p> Notifications </p>
-        <Switch.Root checked={checked}  onCheckedChange={(e) => updateNotifications(e.checked)}>
+        <Box>
+        <Text fontWeight="medium"> Notifications </Text>
+        <Switch.Root colorPalette="blue" checked={checked}  onCheckedChange={(e) => updateNotifications(e.checked)}>
           <Switch.HiddenInput />
           <Switch.Control>
             <Switch.Thumb />
           </Switch.Control>
           <Switch.Label />
         </Switch.Root>
-        <p>Phone Number: *** - *** - {phoneNumber.slice(8)}</p>
-        <Button onClick={async () => {
+        <Text>Phone Number: *** - *** - {phoneNumber.slice(8)}</Text>
+        <Button size="sm" variant="surface" colorPalette="blue" onClick={async () => {
           setIsAdding(true)
           setCode('')
           setStep('phone')
         }}>Update Phone Number</Button>
-        <Button onClick={() => deleteNumber()}>Delete Phone Number</Button>
-        </div>
+        <Button size="sm" variant="surface" colorPalette="red" onClick={() => deleteNumber()}>Delete Phone Number</Button>
+        </Box>
       )}
-    </div>
+    </Box>
 
   )
 }
