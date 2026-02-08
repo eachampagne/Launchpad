@@ -1,15 +1,16 @@
 import { createContext, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router';
 
 import axios from 'axios';
 
 type ClientUser = {
   id: number,
-  name?: string,
+  name: string,
   primaryDashId: number | null
 }
 
 export const UserContext = createContext({
-  user: {id: -1, primaryDashId: null} as ClientUser,
+  user: {id: -1, name: 'Not signed in', primaryDashId: null} as ClientUser,
   activeDash: -1,
   handleLogout: () => {},
   setActiveDash: (n: number) => {},
@@ -17,12 +18,14 @@ export const UserContext = createContext({
 });
 
 function UserProvider ({children}: {children?: React.ReactNode}) {
+  let navigate = useNavigate();
   const [user, setUser] = useState({id: -1} as ClientUser);
   const [activeDash, setActiveDash] = useState(-1);
 
   const handleLogout = async () => {
     try {
       await axios.post('/logout');
+      navigate('/');
       getUser();
     } catch (error) {
       console.error('Failed to log out:', error);
@@ -34,8 +37,13 @@ function UserProvider ({children}: {children?: React.ReactNode}) {
       const response = await axios.get('/user');
       if (response.data.id) {
         setUser(response.data as ClientUser);
+
+        // id the user has selected a primary dash, that's the first one that should be accessed
+        if (response.data.primaryDashId) {
+          setActiveDash(response.data.primaryDashId);
+        }
       } else {
-        setUser({id: -1} as ClientUser);
+        setUser({id: -1, name: 'Not signed in', primaryDashId: null} as ClientUser);
       }
     } catch (error) {
       console.error('Failed to get user:', error);

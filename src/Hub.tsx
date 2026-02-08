@@ -51,7 +51,7 @@ export default function Hub(
   const [dashboards, setDashboards] = useState([] as any[]);
   const [schedules, setSchedules] = useState([] as any[]);
 
-  const { user: {id: ownerId, primaryDashId: primaryDashIdContext}, activeDash, setActiveDash: handleDashboardSelection, getPrimaryDash: refreshPrimaryDash } = useContext(UserContext);
+  const { user: {id: ownerId, primaryDashId: primaryDashIdContext, name: username}, activeDash, setActiveDash: handleDashboardSelection, getPrimaryDash: refreshPrimaryDash } = useContext(UserContext);
 
   const [primaryDashId, setPrimaryDashId] = useState(primaryDashIdContext); // the context value is the 'real' value. PrimaryDashId is a local value used to track which value is selected in the scheduler
 
@@ -217,20 +217,15 @@ function OpenEditDash(dashboardId: number) {
               border="1px solid"
               borderColor="gray.600"
             />
-            <HStack gap={2}>
-              <Box
-                px={4}
-                py={1}
-                border="1px solid"
-                borderColor="gray.600"
-                borderRadius="md"
-              >
-                <Text>Username</Text>
-              </Box>
-              <Button size="xs" variant="outline">
-                Edit
-              </Button>
-            </HStack>
+            <Box
+              px={4}
+              py={1}
+              border="1px solid"
+              borderColor="gray.600"
+              borderRadius="md"
+            >
+              <Text>{username}</Text>
+            </Box>
           </VStack>
 
           {/* Defaults + Notifications + Connected Accounts */}
