@@ -53,6 +53,10 @@ function DashEditor() {
 
   // const [userId, setUserId] = useState(ownerId);
 
+    useEffect(() => {
+    loadDashboard();
+  }, [dashboardId]);
+
   //Will load layout when selectedLayoutId changes
   useEffect(() => {
     if(selectedLayoutId === -1){
@@ -67,10 +71,6 @@ function DashEditor() {
       console.log('Could not find your layout:', err);
     });
   }, [selectedLayoutId]);
-
-  useEffect(() => {
-    loadDashboard();
-  }, []);
 
   const loadDashboard = async () => {
     try {
@@ -116,24 +116,6 @@ function DashEditor() {
   }
 
 
-  useEffect(() => {
-    loadDashboard();
-  }, [dashboardId]);
-
-  //Will load layout when selectedLayoutId changes
-  useEffect(() => {
-    if(selectedLayoutId === -1){
-      return;
-    }
-
-    axios.get(`/layout/${selectedLayoutId}`)
-    .then((res) => {
-      setSelectedLayout(res.data);
-
-    }).catch((err) => {
-      console.log('Could not find your layout:', err);
-    });
-  }, [selectedLayoutId]);
 
 
   //Will create a clone of applied layout
