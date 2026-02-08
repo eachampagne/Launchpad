@@ -1,4 +1,5 @@
 import { createContext, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router';
 
 import axios from 'axios';
 
@@ -17,12 +18,14 @@ export const UserContext = createContext({
 });
 
 function UserProvider ({children}: {children?: React.ReactNode}) {
+  let navigate = useNavigate();
   const [user, setUser] = useState({id: -1} as ClientUser);
   const [activeDash, setActiveDash] = useState(-1);
 
   const handleLogout = async () => {
     try {
       await axios.post('/logout');
+      navigate('/');
       getUser();
     } catch (error) {
       console.error('Failed to log out:', error);

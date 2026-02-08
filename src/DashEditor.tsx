@@ -138,7 +138,7 @@ function DashEditor() {
           {/**MVP GRID PLACEHOLDER */}
         </section>
       )}
-      <Link to='/'>Done</Link>
+      <Link to='/Dashboard'>Done</Link>
       <Theme dashboardId={dashboardId} dashboard={dashboard} ownerId={ownerId} />
       <LayoutGallery onSelect={setSelectedLayoutId}/>
 
