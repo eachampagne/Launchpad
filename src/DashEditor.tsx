@@ -6,25 +6,40 @@ import { UserContext } from './UserContext';
 import NavBar from "./NavBar";
 import Theme from './Theme';
 import LayoutGallery from './LayoutGallery';
+import LayoutCanvas from './LayoutCanvas'
 
 type Layout = {
   id: number;
   gridSize: string;
-  layoutElements: [];
+  layoutElements: LayoutElement[];
+};
 
+type LayoutElement = {
+  id: number;
+  posX: number;
+  posY: number;
+  sizeX: number;
+  sizeY: number;
+  widget: {
+    name: string
+  }
 };
 
 type Dashboard = {
   id: number;
   name: string;
+  layout: Layout
+  ownerId: number;
   layoutId: number | null;
 };
 
 
+
 function DashEditor() {
   const { activeDash: dashboardId, user: { id: ownerId } } = useContext(UserContext);
-  
-  const [dashboard, setDashboard] = useState({name: "Loading", ownerId: -1});
+  const [dashboard, setDashboard] = useState<Dashboard | null>(null);
+
+
   const [newName, setNewName] = useState('');
   const [renaming, setRenaming] = useState(false);
   const [selectedLayoutId, setSelectedLayoutId] = useState(-1);//(-1 = nothing selected)
@@ -38,6 +53,24 @@ function DashEditor() {
 
   // const [userId, setUserId] = useState(ownerId);
 
+    useEffect(() => {
+    loadDashboard();
+  }, [dashboardId]);
+
+  //Will load layout when selectedLayoutId changes
+  useEffect(() => {
+    if(selectedLayoutId === -1){
+      return;
+    }
+
+    axios.get(`/layout/${selectedLayoutId}`)
+    .then((res) => {
+      setSelectedLayout(res.data);
+
+    }).catch((err) => {
+      console.log('Could not find your layout:', err);
+    });
+  }, [selectedLayoutId]);
 
   const loadDashboard = async () => {
     try {
@@ -49,6 +82,13 @@ function DashEditor() {
       console.error('Failed to get dashboard:', error);
     }
   };
+
+    if (!dashboard) {
+    console.log("No dashboard")
+    return <div>
+      Loading
+    </div>;
+  }
 
   const renameDashboard = async () => {
     if (newName === dashboard.name) {
@@ -75,24 +115,8 @@ function DashEditor() {
     setNewName(dashboard.name);
   }
 
-  useEffect(() => {
-    loadDashboard();
-  }, [dashboardId]);
 
-  //Will load layout when selectedLayoutId changes
-  useEffect(() => {
-    if(selectedLayoutId === -1){
-      return;
-    }
 
-    axios.get(`/layout/${selectedLayoutId}`)
-    .then((res) => {
-      setSelectedLayout(res.data);
-
-    }).catch((err) => {
-      console.log('Could not find your layout:', err);
-    });
-  }, [selectedLayoutId]);
 
   //Will create a clone of applied layout
   const applyLayout = async (layoutId: number) => {
@@ -127,6 +151,8 @@ function DashEditor() {
     }
   };
 
+
+
   return (
     <>
       <NavBar pages={["Home", "Hub"]} />
@@ -141,6 +167,7 @@ function DashEditor() {
       <Link to='/Dashboard'>Done</Link>
       <Theme dashboardId={dashboardId} dashboard={dashboard} ownerId={ownerId} />
       <LayoutGallery onSelect={setSelectedLayoutId}/>
+      <LayoutCanvas layout={dashboard.layout} editable />
 
       {selectedLayout && (
         <>
