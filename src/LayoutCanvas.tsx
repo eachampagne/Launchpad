@@ -62,6 +62,7 @@ const LayoutCanvas = function({layout, editable=false}: { layout: Layout; editab
       return (
         <WidgetFrame
         key={element.id}
+        widgetId={element.id}
         posX ={element.posX}
         posY={element.posY}
         sizeX={element.sizeX}
