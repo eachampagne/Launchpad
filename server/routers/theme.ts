@@ -80,8 +80,7 @@ theme.post('/', async (req, res) => {
 theme.patch('/', async (req, res) => {
   // need to insert information
   // console.log(req)
-  const { public: isPublic, navColor, bgColor, font, ownerId} = req.body as {public: boolean, navColor: string, bgColor: string, font: string, ownerId: number}
-  const {id} = req.body;
+  const { id, public: isPublic, navColor, bgColor, font, ownerId} = req.body as {id: number, public: boolean, navColor: string, bgColor: string, font: string, ownerId: number}
   try {
     await prisma.theme.update({
       where: {
