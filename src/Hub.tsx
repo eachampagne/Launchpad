@@ -210,13 +210,13 @@ function OpenEditDash(dashboardId: number) {
         <Box w="100%" maxW="1400px" p={6}>
           {/* Profile */}
           <VStack gap={3} mb={6}>
-            <Box
+            {/* <Box
               w="96px"
               h="96px"
               borderRadius="full"
               border="1px solid"
               borderColor="gray.600"
-            />
+            /> */}
             <Box
               px={4}
               py={1}
