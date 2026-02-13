@@ -1,4 +1,4 @@
-// import axios from 'axios';
+import axios from 'axios';
 
 import { Heading, Text, Button, Link, Box, Container, Flex, Icon } from '@chakra-ui/react'
 import NavBar from './NavBar';
@@ -10,7 +10,22 @@ import { useState, useEffect, useContext } from 'react'
 import { LuRocket } from "react-icons/lu"
 
 function Home () {
-  const { handleLogout } = useContext(UserContext)
+  const { handleLogout } = useContext(UserContext);
+  const [prs, setPrs] = useState([] as {number: number, merged: boolean, mergedAt: string, title: string}[]);
+
+  const fetchChangelog = async () => {
+    try {
+      const response = await axios.get('/github/changelog');
+      setPrs(response.data);
+    } catch (error) {
+      console.error('Failed to get changelog:', error);
+    }
+  }
+
+  // fetch the repos for the changelog on page load
+  useEffect(() => {
+    fetchChangelog();
+  }, []);
 
   return (
     <>
@@ -48,7 +63,7 @@ function Home () {
               <Text fontSize="lg" mb="5"> Some additional information about us. Blah blah blah blah blah. </Text>
             </Container>
             {/* Concept: Pass in a changelog value that is taken in from somewhere else. Ideally something that is easy for us to update. */}
-            <ChangelogScroll />
+            <ChangelogScroll changelog={prs}/>
           </Flex>
       </Container>
 
