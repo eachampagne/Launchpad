@@ -198,11 +198,6 @@ export default function Hub(
     navigate("/dashboard", { replace: true })
   };
 
-// used to open dashboard editor for selected dashboard
-function OpenEditDash(dashboardId: number) {
-  handleDashboardSelection(dashboardId);
-  navigate("/edit", { replace: true })
-}
 
   return (
     <>
@@ -546,14 +541,6 @@ function OpenEditDash(dashboardId: number) {
                           <Popover.Content minW="150px">
                             <Popover.Body p={0}>
                               <VStack align="stretch" gap={0}>
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  justifyContent="flex-start"
-                                  onClick={() => OpenEditDash(dashboard.id)}
-                                >
-                                  Edit
-                                </Button>
                                 <Button
                                   size="sm"
                                   variant="ghost"
