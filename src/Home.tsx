@@ -37,9 +37,8 @@ function Home () {
         <Flex justifyContent="center" gap="16">
           <ImageCarousel />
           <Container width="-moz-fit-content" margin="2" textAlign="center" p="3">
-            <Text fontSize="lg" mb="5"> Here are some really cool details about who we are and what we do. </Text>
-            <Text fontSize="lg" mb="5"> We have a lot of features. </Text>
-            <Text fontSize="lg" mb="5"> Our Website is Awesome! </Text>
+            <Text fontSize="lg" mb="5"> Launchpad is the homepage you've always wanted! </Text>
+            <Text fontSize="lg" mb="5"> Customize your dashboard's widgets and colors and watch your productivity take off. </Text>
           </Container>
           <Box background="gray.950" p="3" margin="2" width="-moz-fit-content" textAlign="center" w="250px">
             <Heading color="gray.focusRing" > Join Us! </Heading>
@@ -56,11 +55,12 @@ function Home () {
       <Container p="14" backgroundColor="gray.800">
           <Flex justifyContent="space-between" gap="16">
             <Container width="-moz-fit-content" margin="2" textAlign="center" p="3">
-              <Text fontSize="lg" mb="5"> Some additional information about us. Blah blah blah blah blah. </Text>
-              <Text fontSize="lg" mb="5"> Some additional information about us. Blah blah blah blah blah. </Text>
-              <Text fontSize="lg" mb="5"> Some additional information about us. Blah blah blah blah blah. </Text>
-              <Text fontSize="lg" mb="5"> Some additional information about us. Blah blah blah blah blah. </Text>
-              <Text fontSize="lg" mb="5"> Some additional information about us. Blah blah blah blah blah. </Text>
+              <Text fontSize="lg" mb="5" textAlign="left">
+                Launchpad lets you build your digital home! Place and resize widgets, choose the colors that fit your mood - set up your dashboard the way you like! You can even have your dashboard change with the time of day.
+              </Text>
+              <Text fontSize="lg" mb="5" textAlign="left">
+                View your calendar and email, and set pomodoro timers, all in one place. Launchpad give you the tools to take control of your life.
+              </Text>
             </Container>
             {/* Concept: Pass in a changelog value that is taken in from somewhere else. Ideally something that is easy for us to update. */}
             <ChangelogScroll changelog={prs}/>
@@ -74,7 +74,7 @@ function Home () {
               <LuRocket />
             </Icon>
             <Flex justifyContent="center" gap="16">
-              <Link> Placeholder Meet the Team | Placeholder Contact Us | Place Other Misc Pages Here | ETC </Link>
+              <Link href="https://github.com/Operation-Yuzu/Launchpad"> View the Source Code </Link>
             </Flex>
           </Flex>
       </Container>
