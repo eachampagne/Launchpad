@@ -40,3 +40,11 @@
 2. `npx prisma generate`
 
 3. `npx prisma db seed` if the database was reset
+
+### Testing with Playwright
+
+TODO
+
+Make sure the server is running when you run the tests!
+
+I don't know if ultimately we need to switch to the deployed URL or how this will work with GitHub Actions.

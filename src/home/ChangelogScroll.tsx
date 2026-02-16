@@ -14,7 +14,7 @@ const ChangeLogScroll = ({changelog}: {changelog: {number: number, merged: boole
             </AbsoluteCenter>
           }
         >
-          {(change, index) => <Container textAlign="center" p="3" backgroundColor={index % 2 === 0 ? "gray.950" : "gray.900"}>
+          {(change, index) => <Container textAlign="center" p="3" backgroundColor={index % 2 === 0 ? "gray.950" : "gray.900"} data-testid="changelog-entry">
             <HStack>
               <Container w="20%" p="0">
                 {new Date(change.mergedAt).toLocaleDateString()}

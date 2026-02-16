@@ -10,7 +10,8 @@
     "build:server": "tsc -b ./server/",
     "lint": "eslint .",
     "preview": "vite preview",
-    "start": "node tsout-server/server/index.js"
+    "start": "node tsout-server/server/index.js",
+    "test": "npx playwright test"
   },
   "dependencies": {
     "@chakra-ui/react": "^3.31.0",
@@ -37,6 +38,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@playwright/test": "^1.58.2",
     "@types/express": "^5.0.6",
     "@types/express-session": "^1.18.2",
     "@types/node": "^24.10.9",
