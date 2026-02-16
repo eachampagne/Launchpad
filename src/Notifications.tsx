@@ -1,8 +1,8 @@
 import axios from "axios";
 import { useState, useEffect} from 'react';
-import { Button, Switch, For, Text, Box, Flex, Spacer, Center, HStack} from "@chakra-ui/react"
+import { Button, Switch, For, Text, Box, Flex, Spacer, Center} from "@chakra-ui/react"
 import { PinInput } from "@chakra-ui/react"
-import { IoCall } from "react-icons/io5";
+import { IoCall, IoTrashSharp, IoPencilSharp } from "react-icons/io5";
 
 
 
@@ -33,13 +33,17 @@ useEffect(() => {
     setHasNumber(true)
     setPhoneNumber(number.data.data.contact)
     setChecked(number.data.data.noti)
-    
+    if(!verificationStatus){
+
+      setVerificationStatus(Boolean(number.data.data.verified))
+    }
 
   } catch (error) {
     console.error('something went wrong with the number', error)
     setHasNumber(false)
     setChecked(false)
     setPhoneNumber('')
+    setVerificationStatus(false)
   }
 
 }
@@ -60,8 +64,8 @@ const addNumber = async () => {
 const sendVerification = async () => {
   const contactNumber = phoneNumber
   try {
-    const verification = await axios.post(`/notifications/verify/send/${ownerId}`, {contactNumber})
-    setVerificationStatus(verification.data)
+    await axios.post(`/notifications/verify/send/${ownerId}`, {contactNumber})
+    //setVerificationStatus(verification.data)
   } catch (error) {
     console.error('something went wrong making the post', error)
   }
@@ -70,10 +74,10 @@ const sendVerification = async () => {
 // send the verification for checking
 const checkVerification = async () => {
   try {
-    const verification = await axios.post(`/notifications/verify/check/${ownerId}`, {code})
-
-    setVerificationStatus(verification.data)
-    return {verified : true}
+    const {data} = await axios.post(`/notifications/verify/check/${ownerId}`, {code})
+    setIsAdding(false)
+    setVerificationStatus(Boolean(data.verified))
+    return {verified : Boolean(data.verified)}
   } catch (error) {
     console.error('something went wrong making the verification', error)
     return {verified : false}
@@ -108,7 +112,7 @@ const updateNotifications = async (checked: boolean) => {
 // delete button for the number
 const deleteNumber = async () => {
   try {
-    axios.delete(`/notifications/${ownerId}`)
+    await axios.delete(`/notifications/${ownerId}`)
     setHasNumber(false)
     setIsAdding(false)
     setPhoneNumber('')
@@ -210,7 +214,7 @@ const deleteNumber = async () => {
           <Button placeContent='center' size="xs" variant="surface" colorPalette="blue" onClick={async () => {
             const verified = await checkVerification()
             console.log(verified, 'this is verified on click')
-            if(verified?.verified === true){
+            if(verified.verified){
               // may or may not need this
               setHasNumber(true)
               setIsAdding(false)
@@ -228,7 +232,7 @@ const deleteNumber = async () => {
       )}
 
 
-      {hasNumber && verificationStatus === false && step !== 'verify' && !isAdding &&  (
+      {hasNumber && !isAdding && !verificationStatus && step !== 'verify' && (
         // so if the user clicks off the verification code step
         // they will have a number but they cannot enable notifications until they verify the number
         <Box  w='100%'>
@@ -246,7 +250,7 @@ const deleteNumber = async () => {
         </Flex>
         <Text fontWeight="medium" mb='4' >Phone Number: XXX - XXX - {phoneNumber.slice(8)}</Text>
         <Flex justify='space-between' align='center' mb='3'>
-        <Button size="xs" variant="surface" colorPalette="blue" onClick={async () => {
+        <Button size="xs" variant="ghost" colorPalette="blue" onClick={async () => {
           setIsAdding(true)
           setCode('')
           setStep('phone')
@@ -254,16 +258,18 @@ const deleteNumber = async () => {
         <Button onClick={async () => {
           setStep('verify')
           await sendVerification()
+          
         }}>Verify Number</Button>
+        
+        <Button size="xs" variant="ghost" colorPalette="red" placeContent='center' onClick={() => deleteNumber()}>{<IoTrashSharp/>}</Button>
         </Flex>
-        <Button size="2xs" variant="surface" colorPalette="red" onClick={() => deleteNumber()}> Delete </Button>
         </Box>
       )}
 
 
 
 
-      {hasNumber && verificationStatus === true && isAdding === false &&  (
+      {hasNumber && verificationStatus && !isAdding && step == 'phone' && (
         <Box  w='100%'>
         <Flex justify='space-between' align='center' mb='3' w='100%'>
           
@@ -277,15 +283,16 @@ const deleteNumber = async () => {
           <Switch.Label />
         </Switch.Root>
         </Flex>
-        <Text fontWeight="medium" mb='4' >Phone Number: XXX - XXX - {phoneNumber.slice(8)}</Text>
         <Flex justify='space-between' align='center' mb='3'>
-        <Button size="xs" variant="surface" colorPalette="blue" onClick={async () => {
+        <Text fontWeight="medium" mb='4' >Phone Number: XXX - XXX - {phoneNumber.slice(8)}</Text>
+      
+        <Button size="xs" variant="ghost" colorPalette="blue" onClick={async () => {
           setIsAdding(true)
           setCode('')
           setStep('phone')
-        }}>Update Phone Number</Button>
+        }}>{<IoPencilSharp />}</Button>
         </Flex>
-        <Button size="2xs" variant="surface" colorPalette="red" onClick={() => deleteNumber()}> Delete </Button>
+        <Button size="xs" variant="ghost" colorPalette="red" placeContent='center' onClick={() => deleteNumber()}>{<IoTrashSharp/>}</Button>
         </Box>
       )}
     </Box>
