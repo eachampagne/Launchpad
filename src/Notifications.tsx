@@ -121,7 +121,6 @@ const deleteNumber = async () => {
 
       {!hasNumber && !isAdding && (
         <Box>
-          <Text>Notifications</Text>
           <Button placeContent='center' size="xs" variant="surface" colorPalette="blue" onClick={() => setIsAdding(true)}>Add Phone Number</Button>
         </Box>
       )}
