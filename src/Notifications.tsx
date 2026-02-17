@@ -17,39 +17,42 @@ const [verificationStatus, setVerificationStatus] = useState(false)
 
 
 
-useEffect(() => {
+
   const getNumber = async () => {
 
   try {
     const number = await axios.get(`/notifications/${ownerId}`)
     console.log(number, 'this is number')
-    if(!number.data){
+    if(!number.data?.data){
       setHasNumber(false)
       setChecked(false)
       setPhoneNumber('')
+      setVerificationStatus(false)
       return;
       
     }
     setHasNumber(true)
     setPhoneNumber(number.data.data.contact)
-    setChecked(number.data.data.noti)
-    if(!verificationStatus){
-
-      setVerificationStatus(Boolean(number.data.data.verified))
-    }
+    setChecked(Boolean(number.data.data.noti))
+    
+    setVerificationStatus(Boolean(number.data.data.verified))
+    
+    setIsAdding(false)
+    setStep('phone')
 
   } catch (error) {
     console.error('something went wrong with the number', error)
     setHasNumber(false)
-    setChecked(false)
-    setPhoneNumber('')
-    setVerificationStatus(false)
+    // setChecked(false)
+    // setPhoneNumber('')
+    // setVerificationStatus(false)
   }
 
 }
-getNumber()
-}, [ownerId])
 
+useEffect(() => {
+  getNumber()
+}, [ownerId])
 
 // then allow them to add a number if they dont have one
 const addNumber = async () => {
@@ -216,12 +219,13 @@ const deleteNumber = async () => {
             console.log(verified, 'this is verified on click')
             if(verified.verified){
               // may or may not need this
-              setHasNumber(true)
-              setIsAdding(false)
+              // setVerificationStatus(true)
+              // setIsAdding(false)
+              // setStep('phone')
+              // setHasNumber(true)
               // step it back to the phone part
-              setVerificationStatus(true)
-              setStep('phone')
               setCode('')
+              await getNumber()
             } else {
               // code do a pop out error, or make it read border flash
               console.log('Wrong Code')
@@ -232,7 +236,7 @@ const deleteNumber = async () => {
       )}
 
 
-      {hasNumber && !isAdding && !verificationStatus && step !== 'verify' && (
+      {hasNumber && !isAdding && !verificationStatus  && step !== 'verify' && (
         // so if the user clicks off the verification code step
         // they will have a number but they cannot enable notifications until they verify the number
         <Box  w='100%'>
@@ -269,7 +273,7 @@ const deleteNumber = async () => {
 
 
 
-      {hasNumber && verificationStatus && !isAdding && step == 'phone' && (
+      {hasNumber && verificationStatus && !isAdding && step !== 'verify' && (
         <Box  w='100%'>
         <Flex justify='space-between' align='center' mb='3' w='100%'>
           
@@ -296,6 +300,7 @@ const deleteNumber = async () => {
         </Box>
       )}
     </Box>
+
 
   )
 }
