@@ -191,7 +191,6 @@ export default function Hub(
   const handlePublishTheme = () => {};
 
   // used to navigate to dashboard after click
-  // TODO coordinate with team to give button navigation functionality
  function OpenDashboard(dashboardId: number) {
     
     handleDashboardSelection(dashboardId)
@@ -213,15 +212,6 @@ export default function Hub(
               border="1px solid"
               borderColor="gray.600"
             /> */}
-            <Box
-              px={4}
-              py={1}
-              border="1px solid"
-              borderColor="gray.600"
-              borderRadius="md"
-            >
-              <Text>Signed in as: {username}</Text>
-            </Box>
           </VStack>
 
           {/* Defaults + Notifications + Connected Accounts */}
@@ -618,12 +608,6 @@ export default function Hub(
               </SimpleGrid>
             </Box>
           </Box>
-
-          <Flex justify="center">
-            <Button variant="outline" bg="red.500">
-              Delete Account
-            </Button>
-          </Flex>
         </Box>
       </Flex>
     </>
