@@ -92,7 +92,8 @@ function Dashboard () {
       <h2>{dashboard.name}</h2>
       <Link to='/edit'>Edit</Link>
       <LayoutCanvas
-      layout={dashboard.layout}>
+      layout={dashboard.layout}
+      editable={false}>
       </LayoutCanvas>
 
     </Box>
