@@ -104,7 +104,7 @@ router.get('/auth/:widget', (req, res) => {
   req.session.state = state;
   
   const authorizationUrl = oauth2Client.generateAuthUrl({
-    access_type: 'online', // do I need offline?
+    access_type: 'offline', // do I need offline?
     scope: scopes[toAuthenticate],
     include_granted_scopes: true,
     state: state
@@ -136,9 +136,13 @@ router.get('/auth/redirect/google', async (req, res) => {
     res.end('State mismatch. Possible CSRF attack');
   } else {
     const { tokens } = await oauth2Client.getToken(query.code as string);
+
+    console.log(tokens);
+
     oauth2Client.setCredentials(tokens);
 
     let authCalendar = false, authGmail = false, authProfile = false;
+    let refresh_token = null, refresh_expiry_date = null;
 
     // TODO: deal with the rest of the scopes
     if (tokens.scope?.includes('profile')) {
@@ -153,69 +157,43 @@ router.get('/auth/redirect/google', async (req, res) => {
       authGmail = true;
     }
 
+    if (tokens.refresh_token) {
+      refresh_token = tokens.refresh_token;
+
+      refresh_expiry_date = new Date((tokens as any).refresh_token_expires_in * 1000 + Date.now());
+
+      // if (Object.hasOwn(tokens, 'refresh_token_expires_in')) {
+      //   refresh_expiry_date = tokens.refresh_token_expires_in;
+
+      // }
+    }
+
+    // this assumes that a given user should only have ONE valid token at a time
+    // given that new tokens include previously granted scopes, there should be no reason to retain old tokens
+    // but this is an assumption baked in now
+    await prisma.googleToken.deleteMany({
+      where: {
+        accountId: req.user.id
+      }
+    })
+
     await prisma.googleToken.create({
       data: {
         accountId: req.user.id,
         access_token: tokens.access_token as string,
         id_token: tokens.id_token as string,
         expiry_date: new Date(tokens.expiry_date as number),
+        refresh_token,
+        refresh_expiry_date,
         authProfile,
         authCalendar,
         authGmail
       }
     });
 
-    res.redirect('/');
+    res.redirect('/hub');
   }
 
-});
-
-router.get('/checkauth/:widget', async (req, res) => {
-  // check auth
-  if (req.user === undefined) {
-    res.sendStatus(401);
-    return;
-  }
-
-  let toCheck: 'authCalendar' | 'authGmail' | 'authProfile';
-
-  switch (req.params.widget) {
-    case "calendar":
-      toCheck = 'authCalendar';
-      break;
-    case "gmail":
-      toCheck = 'authGmail';
-      break;
-    case "profile":
-      toCheck = 'authProfile';
-      break;
-    default:
-      res.sendStatus(404);
-      return;
-  }
-
-  const validTokens = (await prisma.googleToken.findMany({where: {accountId: req.user.id, [toCheck]: true}}));
-
-  let numValidTokens = 0;
-  const now = new Date();
-
-  // delete out of date tokens, count valid ones
-  // there may be a better way to do this concurrently
-  // TODO: refactor to use refresh tokens. Instead of deleting, refresh and replace the token
-  validTokens.forEach(async token => {
-    if (token.expiry_date < now) {
-      await prisma.googleToken.deleteMany({where: {id: token.id}}); // .delete() expects a single unique record to exist, and throws an error if it doesn't
-      // but because many widgets might be checking their auth status simultaneously, there's a possible race condition on deleting expired tokens
-    } else {
-      numValidTokens++;
-    }
-  });
-
-  if (numValidTokens > 0) {
-    res.status(200).send(true);
-  } else {
-    res.status(200).send(false);
-  }
 });
 
 export default router;
