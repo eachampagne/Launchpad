@@ -76,11 +76,11 @@ export async function getGoogleOauth(userId: number, widget: string) {
     id_token: token.id_token
   });
 
-  // if (token.refresh_token) {
-  //   oauth2Client.setCredentials({
-  //     refresh_token: token.refresh_token
-  //   });
-  // }
+  if (token.refresh_token) {
+    oauth2Client.setCredentials({
+      refresh_token: token.refresh_token
+    });
+  }
 
   return oauth2Client;
 }
