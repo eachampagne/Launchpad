@@ -2,6 +2,8 @@ import { readFile } from 'node:fs/promises';
 import express from 'express';
 import { google } from 'googleapis';
 
+import { prisma } from '../database/prisma.js';
+
 import { getGoogleOauth } from '../utils/googleapi.js';
 
 import type { Event } from '../../types/Calendar.js';
@@ -29,7 +31,7 @@ router.get('/', async (req, res) => {
     const oauth2Client = await getGoogleOauth(userId, 'calendar');
 
     if (oauth2Client === null) { // because no token for this user
-      res.sendStatus(401);
+      res.sendStatus(403);
       return;
     }
 
@@ -66,6 +68,17 @@ router.get('/', async (req, res) => {
     res.status(200).send(events);
 
   } catch (error) {
+    if ((error as any).status === 401) { // this should be some kind of Gaxios thing
+      // token is invalid somehow (maybe revoked manually in Google settings?)
+      // delete and send error to client
+      await prisma.googleToken.deleteMany({
+        where: {
+          accountId: userId
+        }
+      })
+      return res.sendStatus(403);
+    }
+
     console.error('Failed to get calendar data:', error);
     res.sendStatus(500);
   }
@@ -84,7 +97,7 @@ router.get('/list', async (req, res) => {
     const oauth2Client = await getGoogleOauth(userId, 'calendar');
 
     if (oauth2Client === null) { // because no token for this user
-      res.sendStatus(401);
+      res.sendStatus(403);
       return;
     }
 
@@ -101,6 +114,17 @@ router.get('/list', async (req, res) => {
       res.status(200).send(items);
     }
   } catch (error) {
+    if ((error as any).status === 401) { // this should be some kind of Gaxios thing
+      // token is invalid somehow (maybe revoked manually in Google settings?)
+      // delete and send error to client
+      await prisma.googleToken.deleteMany({
+        where: {
+          accountId: userId
+        }
+      })
+      return res.sendStatus(403);
+    }
+
     console.error('Failed to get calendar list:', error);
     res.sendStatus(500);
   }
