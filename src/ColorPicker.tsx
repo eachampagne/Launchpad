@@ -4,7 +4,7 @@ import { ColorPicker, parseColor } from "@chakra-ui/react"
 
 interface ColorProps {
     value?: string;
-    onValueChange: (value: string) => void
+    onValueChange: (details: any) => void
   }
 
 function Color ({value, onValueChange}: ColorProps) {
@@ -14,7 +14,7 @@ function Color ({value, onValueChange}: ColorProps) {
   //const picker = useColorPicker();
   // onValueChange={(e) => setColor(e.value.toString('hex'))} color={color}
   return (
-    <ColorPicker.Root value={value ? parseColor(value) : undefined} onValueChange={(details) => onValueChange(details.valueAsString)}>
+    <ColorPicker.Root value={value ? parseColor(value) : undefined} onValueChange={onValueChange}>
   <ColorPicker.HiddenInput />
   <ColorPicker.Label />
   <ColorPicker.Control>
