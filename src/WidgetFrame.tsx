@@ -222,7 +222,7 @@ function DragHandle({parentWidth, parentHeight, move, snap}: {parentWidth: numbe
 
   return (
     <Container
-      bgColor="green"
+      opacity="0"
       position="absolute"
       top={`${handleThickness}px`}
       left={`${handleThickness}px`}
@@ -237,7 +237,7 @@ function DragHandle({parentWidth, parentHeight, move, snap}: {parentWidth: numbe
   );
 }
 
-function WidgetFrame({widgetId, posX, posY, sizeX, sizeY, minWidth, minHeight, snapSize, editActive, handleResize, children, color}: {widgetId: number, posX: number, posY: number, sizeX: number, sizeY: number, minWidth: number, minHeight: number, snapSize: number, editActive: boolean, handleResize?: (widgetId: number, posX: number, posY: number, width: number, height: number) => void, children?: React.ReactNode, color: string}) {
+function WidgetFrame({widgetId, posX, posY, sizeX, sizeY, minWidth, minHeight, snapSize, editActive, handleResizeOrMove, children, color}: {widgetId: number, posX: number, posY: number, sizeX: number, sizeY: number, minWidth: number, minHeight: number, snapSize: number, editActive: boolean, handleResizeOrMove?: (widgetId: number, posX: number, posY: number, width: number, height: number) => void, children?: React.ReactNode, color: string}) {
   const [top, setTop] = useState(posY * snapSize);
   const [bottom, setBottom] = useState((posY + sizeY) * snapSize);
   const [left, setLeft] = useState(posX * snapSize);
@@ -317,13 +317,20 @@ function WidgetFrame({widgetId, posX, posY, sizeX, sizeY, minWidth, minHeight, s
   };
 
   const move = (deltaX: number, deltaY: number) => {
-    console.log(deltaX, deltaY);
-    return;
+    setLeft(l => l + deltaX);
+    setRight(r => r + deltaX);
+    setTop(t => t + deltaY);
+    setBottom(b => b + deltaY);
   }
 
   const snapPosition = () => {
-    console.log('snap position');
-    return;
+    setHasSnapped(true); // make sure the effect event to pass the new size and location to the parent fires
+
+    // round all position values to nearest increment of snapSize
+    setLeft(l => Math.round(l / snapSize) * snapSize);
+    setRight(r => Math.round(r / snapSize) * snapSize);
+    setTop(t => Math.round(t / snapSize) * snapSize);
+    setBottom(b => Math.round(b / snapSize) * snapSize);
   }
 
   const onSnap = useEffectEvent(() => {
@@ -338,8 +345,8 @@ function WidgetFrame({widgetId, posX, posY, sizeX, sizeY, minWidth, minHeight, s
       const newWidth = newRightCoor - newLeftCoor;
       const newHeight = newBottomCoor - newTopCoor;
 
-      if (handleResize) {
-        handleResize(widgetId, newLeftCoor, newTopCoor, newWidth, newHeight);
+      if (handleResizeOrMove) {
+        handleResizeOrMove(widgetId, newLeftCoor, newTopCoor, newWidth, newHeight);
       }
 
       setHasSnapped(false); // this will trigger a second render but hopefully *only* one
@@ -352,19 +359,22 @@ function WidgetFrame({widgetId, posX, posY, sizeX, sizeY, minWidth, minHeight, s
 
   const renderHandles = () => {
     if (editActive) {
+      const parentWidth = right - left;
+      const parentHeight = bottom - top;
+
       return (
         <>
           <For
             each={Object.values(Side)}
           >
-            {(item) => <SideHandle side={item} parentWidth={right-left} parentHeight={bottom-top} resize={resize} snap={snapSide}/>}
+            {(item) => <SideHandle side={item} parentWidth={parentWidth} parentHeight={parentHeight} resize={resize} snap={snapSide}/>}
           </For>
           <For
             each={Object.values(Corner)}
           >
-            {(item) => <CornerHandle corner={item} parentWidth={right-left} parentHeight={bottom-top} resize={resize} snap={snapSide}/>}
+            {(item) => <CornerHandle corner={item} parentWidth={parentWidth} parentHeight={parentHeight} resize={resize} snap={snapSide}/>}
           </For>
-          <DragHandle parentWidth={right-left} parentHeight={bottom-top} move={move} snap={snapPosition}/>
+          <DragHandle parentWidth={parentWidth} parentHeight={parentHeight} move={move} snap={snapPosition}/>
         </>
       );
     } else {
