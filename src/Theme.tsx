@@ -14,7 +14,7 @@ import { useState, useEffect, use} from 'react';
 import Color from './ColorPicker';
 import axios from 'axios';
 import { ColorSwatch } from "@chakra-ui/react"
-import { Box, Button, Text } from "@chakra-ui/react"
+import { Box, Button, Text, Group } from "@chakra-ui/react"
 import { Listbox, createListCollection } from "@chakra-ui/react"
 
 
@@ -82,7 +82,9 @@ function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, o
 //  for patch - update the theme on the current dashboard
   const updateTheme = async (data: any) => {
     try {
-    return await axios.patch(`/dashboard/${dashboardId}`, data)
+    await axios.patch(`/theme`, {...data, ownerId: ownerId})
+    await allThemes()
+    await getTheDash()
     }catch (error) {
         console.error(error, 'something went wrong is getTheDash')
       }
@@ -124,14 +126,17 @@ function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, o
       <Listbox.Content  maxH='200px' overflowY='auto' w='130%'>
         {allThemesList.items.map((theme) => (
           <Box border='1px solid' borderRadius='md' borderColor='grey'>
-          <Listbox.Item item={theme} key={theme.id} onClick={() => {
+          <Listbox.Item item={theme} key={theme.id} onClick={async () => {
             setCurrTheme(theme)
             setNavColorPick(theme.navColor)
             setBgColorPick(theme.bgColor)
             setFontPick(theme.font)
-            updateTheme({themeId: theme.id})
+            await axios.patch(`/dashboard/${dashboardId}`, { themeId: theme.id })
+            await getTheDash()
           }}>
-            <Listbox.ItemText> navColor: <ColorSwatch value={theme.navColor}/> bgColor: <ColorSwatch value={theme.bgColor}/> font: <ColorSwatch value={theme.font}/></Listbox.ItemText>
+            <Listbox.ItemText>
+            navColor: <ColorSwatch value={theme.navColor}/> bgColor: <ColorSwatch value={theme.bgColor}/> font: <ColorSwatch value={theme.font}/>
+            </Listbox.ItemText>
             <Listbox.ItemIndicator />
           <Button size='2xs' variant='surface' colorPalette='red' onClick={() => {
             deleteTheme({themeId: theme.id})
@@ -147,22 +152,23 @@ function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, o
       <form>
         <label>navColor</label>
         <Box id='navColor'>
-          <Color onValueChange={colorPicker(setNavColorPick)}  />
+          <Color value={navColorPick} onValueChange={colorPicker(setNavColorPick)}  />
         </Box>
         <label>bgColor</label>
         <Box id='bgColor'>
-          <Color onValueChange={colorPicker(setBgColorPick)}/>
+          <Color value={bgColorPick} onValueChange={colorPicker(setBgColorPick)}/>
         </Box>
         <label>font</label>
         <Box id='font'>
-          <Color onValueChange={colorPicker(setFontPick)}/>
+          <Color value={fontPick} onValueChange={colorPicker(setFontPick)}/>
         </Box>
       </form>
       <Button size='2xs' variant='surface' colorPalette='blue' onClick={createTheme}>CREATE</Button>
       <Button size='2xs' variant='ghost' colorPalette='blue' onClick={() => {
-        if(currTheme.id !== -1){
+        const updateThemeId = currTheme.id !== -1 ? currTheme.id : activeDash.id
+        if(updateThemeId !== -1){
           updateTheme({
-            themeId: currTheme.id,
+            id: updateThemeId,
             navColor: navColorPick,
             bgColor: bgColorPick,
             font: fontPick
@@ -171,7 +177,7 @@ function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, o
         } else {
           console.error('Select a theme')
         }
-      }}></Button>
+      }}>Update Theme</Button>
       </Box>
     </Box>
   )

@@ -26,7 +26,8 @@ phoneNumbers.get('/:ownerId', async (req, res) => {
     console.log(userNumber, 'in server')
     const data = {
       contact: userNumber.contactNumber,
-      noti: userNumber.notifications
+      noti: userNumber.notifications,
+      verified: userNumber.verified
     }
     // console.log(Number(req.params.ownerId))
     return res.status(200).send({

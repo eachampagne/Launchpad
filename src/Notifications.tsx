@@ -1,7 +1,10 @@
 import axios from "axios";
 import { useState, useEffect} from 'react';
-import { Button, Switch, For, Text, Box, Flex, Spacer} from "@chakra-ui/react"
+import { Button, Switch, For, Text, Box, Flex, Spacer, Center} from "@chakra-ui/react"
 import { PinInput } from "@chakra-ui/react"
+import { IoCall, IoTrashSharp, IoPencilSharp } from "react-icons/io5";
+
+
 
 function Notifications ({ownerId} : {ownerId: number}) {
 const [phoneNumber, setPhoneNumber] = useState('');
@@ -14,35 +17,42 @@ const [verificationStatus, setVerificationStatus] = useState(false)
 
 
 
-useEffect(() => {
+
   const getNumber = async () => {
 
   try {
     const number = await axios.get(`/notifications/${ownerId}`)
     console.log(number, 'this is number')
-    if(!number.data){
+    if(!number.data?.data){
       setHasNumber(false)
       setChecked(false)
       setPhoneNumber('')
+      setVerificationStatus(false)
       return;
       
     }
     setHasNumber(true)
     setPhoneNumber(number.data.data.contact)
-    setChecked(number.data.data.noti)
+    setChecked(Boolean(number.data.data.noti))
     
+    setVerificationStatus(Boolean(number.data.data.verified))
+    
+    setIsAdding(false)
+    setStep('phone')
 
   } catch (error) {
     console.error('something went wrong with the number', error)
     setHasNumber(false)
-    setChecked(false)
-    setPhoneNumber('')
+    // setChecked(false)
+    // setPhoneNumber('')
+    // setVerificationStatus(false)
   }
 
 }
-getNumber()
-}, [ownerId])
 
+useEffect(() => {
+  getNumber()
+}, [ownerId])
 
 // then allow them to add a number if they dont have one
 const addNumber = async () => {
@@ -57,8 +67,8 @@ const addNumber = async () => {
 const sendVerification = async () => {
   const contactNumber = phoneNumber
   try {
-    const verification = await axios.post(`/notifications/verify/send/${ownerId}`, {contactNumber})
-    setVerificationStatus(verification.data)
+    await axios.post(`/notifications/verify/send/${ownerId}`, {contactNumber})
+    //setVerificationStatus(verification.data)
   } catch (error) {
     console.error('something went wrong making the post', error)
   }
@@ -67,9 +77,10 @@ const sendVerification = async () => {
 // send the verification for checking
 const checkVerification = async () => {
   try {
-    const verification = await axios.post(`/notifications/verify/check/${ownerId}`, {code})
-    setVerificationStatus(verification.data)
-    return {verified : true}
+    const {data} = await axios.post(`/notifications/verify/check/${ownerId}`, {code})
+    setIsAdding(false)
+    setVerificationStatus(Boolean(data.verified))
+    return {verified : Boolean(data.verified)}
   } catch (error) {
     console.error('something went wrong making the verification', error)
     return {verified : false}
@@ -104,7 +115,7 @@ const updateNotifications = async (checked: boolean) => {
 // delete button for the number
 const deleteNumber = async () => {
   try {
-    axios.delete(`/notifications/${ownerId}`)
+    await axios.delete(`/notifications/${ownerId}`)
     setHasNumber(false)
     setIsAdding(false)
     setPhoneNumber('')
@@ -120,22 +131,23 @@ const deleteNumber = async () => {
     <Box  w='100%'>
 
       {!hasNumber && !isAdding && (
-        <Box>
-          <Text>Notifications</Text>
-          <Button placeContent='center' size="xs" variant="surface" colorPalette="blue" onClick={() => setIsAdding(true)}>Add Phone Number</Button>
-        </Box>
+        <Center>
+          <Button placeContent='center' size='xs' variant='ghost' colorPalette='blue' onClick={() => setIsAdding(true)}>{<IoCall />} Add Phone Number</Button>
+        </Center>
       )}
 
       {(isAdding && step === 'phone') && (
         <Box>
-          <Text>Enter A Phone Number</Text>
+          <Center>
+          <Text fontWeight='medium'>Enter A Phone Number</Text>
+          </Center>
           <For each={['2xs']}>
             {(size) => (
             <PinInput.Root key={size} size={size} onValueChange={(e) => setPhoneNumber(e.valueAsString)}>
               <PinInput.HiddenInput />
               <PinInput.Control >
-                <Box gap='1'>
-                <PinInput.Input index={0} placeholder='X'/>
+                <Box gap='1' >
+                <PinInput.Input index={0} placeholder='X' />
                 <PinInput.Input index={1} placeholder='X' />
                 <PinInput.Input index={2} placeholder='X' />
                 </Box>
@@ -156,7 +168,8 @@ const deleteNumber = async () => {
             </PinInput.Root>
             )}
           </For>
-          <Button placeContent='center' size="xs" variant="surface" colorPalette="blue" onClick={async () => {
+          <Center mt='1'>
+          <Button  placeContent='center' size="xs" variant="surface" colorPalette="blue" onClick={async () => {
             if(!phoneNumber || phoneNumber.length !== 10){
               // if no phone number was added, return them to the place to enter a phone number
               return;
@@ -170,47 +183,97 @@ const deleteNumber = async () => {
             }
             await sendVerification();
             setStep('verify')
-          }}>Send Verification Code</Button>
+          }}>Send Code</Button>
+          </Center>
 
         </Box>
       )}
+
+
+      
       {step === 'verify' && (
         <Box>
+          <Center>
           <Text fontWeight="medium" >Enter Verification Code</Text>
+          </Center>
+          <Center>
           <For each={['sm']}>
             {(size) => (
             <PinInput.Root key={size} size={size} onValueChange={(e) => setCode(e.valueAsString)}>
               <PinInput.HiddenInput />
               <PinInput.Control>
-                <PinInput.Input index={0} placeholder='X' />
-                <PinInput.Input index={1} placeholder='X' />
-                <PinInput.Input index={2} placeholder='X' />
-                <PinInput.Input index={3} placeholder='X' />
-                <PinInput.Input index={4} placeholder='X' />
+                <PinInput.Input index={0} placeholder='X'/>
+                <PinInput.Input index={1} placeholder='X'/>
+                <PinInput.Input index={2} placeholder='X'/>
+                <PinInput.Input index={3} placeholder='X'/>
+                <PinInput.Input index={4} placeholder='X'/>
                 <PinInput.Input index={5} placeholder='X'/>
               </PinInput.Control>
             </PinInput.Root>
             )}
           </For>
+          </Center>
+          <Center mt='1'>
           <Button placeContent='center' size="xs" variant="surface" colorPalette="blue" onClick={async () => {
             const verified = await checkVerification()
             console.log(verified, 'this is verified on click')
-            if(verified?.verified === true){
+            if(verified.verified){
               // may or may not need this
-              setHasNumber(true)
-              setIsAdding(false)
+              // setVerificationStatus(true)
+              // setIsAdding(false)
+              // setStep('phone')
+              // setHasNumber(true)
               // step it back to the phone part
-              setStep('phone')
               setCode('')
+              await getNumber()
             } else {
               // code do a pop out error, or make it read border flash
               console.log('Wrong Code')
             }
-          }}>Verify Code</Button>
+          }}>Verify</Button>
+          </Center>
         </Box>
       )}
 
-      {hasNumber && (
+
+      {hasNumber && !isAdding && !verificationStatus  && step !== 'verify' && (
+        // so if the user clicks off the verification code step
+        // they will have a number but they cannot enable notifications until they verify the number
+        <Box  w='100%'>
+        <Flex justify='space-between' align='center' mb='3' w='100%'>
+          
+        <Text fontWeight="medium"> Notifications </Text>
+        <Spacer />
+        <Switch.Root disabled colorPalette="blue" checked={checked}  onCheckedChange={(e) => updateNotifications(e.checked)}>
+          <Switch.HiddenInput />
+          <Switch.Control>
+            <Switch.Thumb />
+          </Switch.Control>
+          <Switch.Label />
+        </Switch.Root>
+        </Flex>
+        <Text fontWeight="medium" mb='4' >Phone Number: XXX - XXX - {phoneNumber.slice(8)}</Text>
+        <Flex justify='space-between' align='center' mb='3'>
+        <Button size="xs" variant="ghost" colorPalette="blue" onClick={async () => {
+          setIsAdding(true)
+          setCode('')
+          setStep('phone')
+        }}>Update Phone Number</Button>
+        <Button onClick={async () => {
+          setStep('verify')
+          await sendVerification()
+          
+        }}>Verify Number</Button>
+        
+        <Button size="xs" variant="ghost" colorPalette="red" placeContent='center' onClick={() => deleteNumber()}>{<IoTrashSharp/>}</Button>
+        </Flex>
+        </Box>
+      )}
+
+
+
+
+      {hasNumber && verificationStatus && !isAdding && step !== 'verify' && (
         <Box  w='100%'>
         <Flex justify='space-between' align='center' mb='3' w='100%'>
           
@@ -224,18 +287,20 @@ const deleteNumber = async () => {
           <Switch.Label />
         </Switch.Root>
         </Flex>
-        <Text fontWeight="medium" mb='4' >Phone Number: XXX - XXX - {phoneNumber.slice(8)}</Text>
         <Flex justify='space-between' align='center' mb='3'>
-        <Button size="xs" variant="surface" colorPalette="blue" onClick={async () => {
+        <Text fontWeight="medium" mb='4' >Phone Number: XXX - XXX - {phoneNumber.slice(8)}</Text>
+      
+        <Button size="xs" variant="ghost" colorPalette="blue" onClick={async () => {
           setIsAdding(true)
           setCode('')
           setStep('phone')
-        }}>Update Phone Number</Button>
+        }}>{<IoPencilSharp />}</Button>
         </Flex>
-        <Button size="2xs" variant="surface" colorPalette="red" onClick={() => deleteNumber()}> Delete </Button>
+        <Button size="xs" variant="ghost" colorPalette="red" placeContent='center' onClick={() => deleteNumber()}>{<IoTrashSharp/>}</Button>
         </Box>
       )}
     </Box>
+
 
   )
 }

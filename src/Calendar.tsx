@@ -18,27 +18,35 @@ function Calendar() {
   const [calendars, setCalendars] = useState([] as CalendarObject[]);
   const [activeCalendarId, setActiveCalendarId] = useState('');
 
-  const checkAuth = async () => {
-    // if not signed in, don't even send the request
-    if (user.id === -1) {
-      setAuthStatus(AuthStatus.SignedOut);
-      return;
-    }
-
+  const getEvents = async (calendarId = '') => {
     try {
-      const response = await axios.get('/checkauth/calendar');
-      if (response.data === true) {
-        setAuthStatus(AuthStatus.Authorized);
-        getEvents();
-        getCalendars();
-      } else if (response.data === false) {
-        setAuthStatus(AuthStatus.Unauthorized);
-      } else {
-        console.error('Unexpected response from auth check: expected true or false, got', response.data);
-      }
+      const query = calendarId ? `?calendarId=${encodeURIComponent(calendarId)}` : ''; //apparently one of the Google calendars has a pound sign
+      
+      const response = await axios.get(`/calendar${query}`);
+      setEvents(response.data);
+      setActiveCalendarId(calendarId);
+      setAuthStatus(AuthStatus.Authorized);
     } catch (error) {
       if ((error as AxiosError).status === 401) {
         setAuthStatus(AuthStatus.SignedOut);
+      } else if ((error as AxiosError).status === 403) {
+        setAuthStatus(AuthStatus.Unauthorized);
+      } else {
+        console.error('Failed to get calendar events:', error);
+      }
+    }
+  }
+
+  const getCalendars = async () => {
+    try {
+      const response = await axios.get('/calendar/list');
+      setCalendars(response.data);
+      setAuthStatus(AuthStatus.Authorized);
+    } catch (error) {
+      if ((error as AxiosError).status === 401) {
+        setAuthStatus(AuthStatus.SignedOut);
+      } else if ((error as AxiosError).status === 403) {
+        setAuthStatus(AuthStatus.Unauthorized);
       } else {
         console.error('Failed to check auth status:', error);
       }
@@ -50,30 +58,15 @@ function Calendar() {
     getEvents(target.value);
   }
 
-  const getEvents = async (calendarId = '') => {
-    const query = calendarId ? `?calendarId=${encodeURIComponent(calendarId)}` : ''; //apparently one of the Google calendars has a pound sign
-
-    try {
-      const response = await axios.get(`/calendar${query}`);
-      setEvents(response.data);
-      setActiveCalendarId(calendarId);
-    } catch (error) {
-      console.error('Failed to get calendar events:', error);
-    }
-  };
-
-  const getCalendars = async () => {
-    try {
-      const response = await axios.get('/calendar/list');
-      setCalendars(response.data);
-    } catch (error) {
-      console.error('Failed to get calendars:', error);
-    }
-  }
-
   useEffect(() => {
-    // TODO: if Calendar inherits a user through props, it may be possible to skip checking auth if we know the user is signed out
-    checkAuth();
+    // if not signed in, don't even send the request
+    if (user.id === -1) {
+      setAuthStatus(AuthStatus.SignedOut);
+      return;
+    } else {
+      getEvents();
+      getCalendars();
+    }
   }, [user]);
 
   const renderCalendarList = () => {
