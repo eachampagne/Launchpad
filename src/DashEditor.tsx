@@ -35,6 +35,12 @@ type Dashboard = {
   layoutId: number | null;
 };
 
+const gridCols = 19;
+const gridRows = 12;
+//px per grid unit
+const snapSize = 100;
+
+
 
 
 function DashEditor() {
@@ -47,6 +53,8 @@ function DashEditor() {
   const [selectedLayoutId, setSelectedLayoutId] = useState(-1);//(-1 = nothing selected)
   const [selectedLayout, setSelectedLayout] = useState<Layout | null>(null)
   const [appliedDash, setAppliedDash] = useState<Dashboard | null>(null)
+
+  
 
 
   // function updateSelected (param: number){
@@ -198,8 +206,8 @@ function DashEditor() {
       {/* LEFT: GRID EDITOR */}
       <Box flex="1" display="flex" justifyContent="center">
         <Box
-          width="520px"
-          height="520px"
+          width={`${gridCols * snapSize}px`}
+          height={`${gridRows * snapSize}px`}
           borderWidth="1px"
           borderRadius="md"
           p={2}
@@ -209,9 +217,8 @@ function DashEditor() {
           justifyContent="center"
         >
           {/* SCALE CONTAINER */}
-         
             <LayoutCanvas layout={dashboard.layout} editable/>
-      
+
         </Box>
       </Box>
 
