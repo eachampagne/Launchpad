@@ -85,7 +85,6 @@ const LayoutCanvas = function({layout, editable=false}: { layout: Layout; editab
         minHeight={1}
         color='#e5e7eb'
         snapSize={snapSize}
-        resizeActive={editable}
         handleResize={handleResize}
         editActive={editable}
         color='#e5e7eb'
