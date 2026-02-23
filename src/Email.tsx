@@ -1,5 +1,6 @@
 import { useState, useEffect, useContext } from 'react';
 import axios, { AxiosError } from 'axios';
+import { decode } from 'html-entities';
 
 import { Button, Flex, For, Heading, Icon, LinkBox, LinkOverlay, ScrollArea, Stack, Text } from '@chakra-ui/react';
 import { LuMail } from 'react-icons/lu';
@@ -47,7 +48,7 @@ function Email () {
                     each={emails}
                     fallback={<Text>No emails to show.</Text>}
                   >
-                    {(email) => <Text>{email.snippet}</Text>}
+                    {(email) => <Text>{decode(email.snippet)}</Text>}
                   </For>
                 </Stack>
               </ScrollArea.Content>
