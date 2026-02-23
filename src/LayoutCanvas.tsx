@@ -85,9 +85,8 @@ const LayoutCanvas = function({layout, editable=false}: { layout: Layout; editab
         minHeight={1}
         color='#e5e7eb'
         snapSize={snapSize}
-        handleResize={handleResize}
+        handleResizeOrMove={handleResize}
         editActive={editable}
-        color='#e5e7eb'
         >
         <WidgetComp />
         </WidgetFrame>
