@@ -30,6 +30,7 @@ type LayoutElement = {
 type Dashboard = {
   id: number;
   name: string;
+  themeId: number;
   layout: Layout
 };
 
@@ -76,6 +77,13 @@ function Dashboard () {
   }, [themeId])
 
   useEffect(() => {
+    axios.get(`/dashboard/${dashboardId}`)
+    .then((res) => {
+      setDashboard(res.data)
+
+    }).catch((err) => {
+      console.log(err)
+    })
     loadDashboard();
   }, [dashboardId]);
 

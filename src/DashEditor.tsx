@@ -1,5 +1,7 @@
 import { useState, useEffect, useContext, type ChangeEvent } from 'react';
 import { Link } from "react-router";
+import { Box, Flex } from "@chakra-ui/react";
+
 import axios from 'axios';
 
 import { UserContext } from './UserContext';
@@ -33,6 +35,12 @@ type Dashboard = {
   layoutId: number | null;
 };
 
+const gridCols = 19;
+const gridRows = 12;
+//px per grid unit
+const snapSize = 100;
+
+
 
 
 function DashEditor() {
@@ -45,6 +53,8 @@ function DashEditor() {
   const [selectedLayoutId, setSelectedLayoutId] = useState(-1);//(-1 = nothing selected)
   const [selectedLayout, setSelectedLayout] = useState<Layout | null>(null)
   const [appliedDash, setAppliedDash] = useState<Dashboard | null>(null)
+
+  
 
 
   // function updateSelected (param: number){
@@ -154,31 +164,107 @@ function DashEditor() {
 
 
   return (
+    // <>
+    //   <NavBar pages={["Home", "Hub"]} />
+    //   <h2>Editing: {renderName()}</h2>
+      
+    //   {appliedDash?.layoutId && (
+    //     <section>
+    //       <h3> APPLIED LAYOUT</h3>
+    //       <p>LAYOUT ID: {appliedDash.layoutId}</p>
+    //       {/**MVP GRID PLACEHOLDER */}
+    //     </section>
+    //   )}
+    //   <Link to='/Dashboard'>Done</Link>
+    //   <Theme dashboardId={dashboardId} dashboard={dashboard} ownerId={ownerId} />
+    //   <LayoutGallery onSelect={setSelectedLayoutId}/>
+    //   <LayoutCanvas layout={dashboard.layout} editable={true}/>
+
+    //   {selectedLayout && (
+    //     <>
+    //     <h4>LAYOUT PREVIEW</h4>
+    //     <p>SELECTED LAYOUT #{selectedLayoutId}</p>
+    //     <p>GRID SIZE: {selectedLayout.gridSize}</p>
+    //     <button onClick={() => applyLayout(selectedLayout.id)}> APPLY CURRENT LAYOUT </button>
+    //     </>
+    //   )}
+
+    // </>
     <>
-      <NavBar pages={["Home", "Hub"]} />
-      <h2>Editing: {renderName()}</h2>
-      {appliedDash?.layoutId && (
-        <section>
-          <h3> APPLIED LAYOUT</h3>
-          <p>LAYOUT ID: {appliedDash.layoutId}</p>
-          {/**MVP GRID PLACEHOLDER */}
-        </section>
-      )}
-      <Link to='/Dashboard'>Done</Link>
-      <Theme dashboardId={dashboardId} dashboard={dashboard} ownerId={ownerId} />
-      <LayoutGallery onSelect={setSelectedLayoutId}/>
-      <LayoutCanvas layout={dashboard.layout} editable={true}/>
+    <NavBar pages={["Home", "Hub"]} />
 
-      {selectedLayout && (
-        <>
-        <h4>LAYOUT PREVIEW</h4>
-        <p>SELECTED LAYOUT #{selectedLayoutId}</p>
-        <p>GRID SIZE: {selectedLayout.gridSize}</p>
-        <button onClick={() => applyLayout(selectedLayout.id)}> APPLY CURRENT LAYOUT </button>
-        </>
-      )}
+    <h2>Editing: {renderName()}</h2>
 
-    </>
+    <Flex
+      width="100%"
+      minH="calc(100vh - 120px)"
+      my={6}
+      px={6}
+      gap={6}
+      align="flex-start"
+    >
+      {/* LEFT: GRID EDITOR */}
+      <Box flex="1" display="flex" justifyContent="center">
+        <Box
+          width={`${gridCols * snapSize}px`}
+          height={`${gridRows * snapSize}px`}
+          borderWidth="1px"
+          borderRadius="md"
+          p={2}
+          overflow="hidden"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+        >
+          {/* SCALE CONTAINER */}
+            <LayoutCanvas layout={dashboard.layout} editable/>
+
+        </Box>
+      </Box>
+
+      {/* RIGHT: SETTINGS */}
+      <Box flex="1" display="flex" justifyContent="center">
+        <Box
+          width="520px"
+          borderWidth="1px"
+          borderRadius="md"
+          p={4}
+        >
+          <Theme
+            dashboardId={dashboardId}
+            dashboard={dashboard}
+            ownerId={ownerId}
+          />
+ 
+
+          <Box mt={4}>
+            <LayoutGallery onSelect={setSelectedLayoutId} />
+          </Box>
+
+          {selectedLayout && (
+            <Box mt={4}>
+              <h4>LAYOUT PREVIEW</h4>
+              <p>SELECTED LAYOUT #{selectedLayoutId}</p>
+              <p>GRID SIZE: {selectedLayout.gridSize}</p>
+              <button onClick={() => applyLayout(selectedLayout.id)}>
+                APPLY CURRENT LAYOUT
+              </button>
+            </Box>
+          )}
+        </Box>
+      </Box>
+    </Flex>
+
+    {appliedDash?.layoutId && (
+      <section>
+        <h3>APPLIED LAYOUT</h3>
+        <p>LAYOUT ID: {appliedDash.layoutId}</p>
+      </section>
+    )}
+
+    <Link to="/Dashboard">Done</Link>
+  </>
+
   );
 }
 
