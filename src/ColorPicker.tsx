@@ -1,14 +1,20 @@
-import { ColorPicker } from "@chakra-ui/react"
+import { ColorPicker, parseColor } from "@chakra-ui/react"
 // import { useState } from "react"
 
-function Color ({onValueChange}: {onValueChange: (e: any) => void}) {
+
+interface ColorProps {
+    value?: string;
+    onValueChange: (details: any) => void
+  }
+
+function Color ({value, onValueChange}: ColorProps) {
   //console.log(onValueChange, 'hey there')
   // const [color, setColor] = useState('#ffffff')
   // console.log(color)
   //const picker = useColorPicker();
   // onValueChange={(e) => setColor(e.value.toString('hex'))} color={color}
   return (
-    <ColorPicker.Root onValueChange={onValueChange}>
+    <ColorPicker.Root value={value ? parseColor(value) : undefined} onValueChange={onValueChange}>
   <ColorPicker.HiddenInput />
   <ColorPicker.Label />
   <ColorPicker.Control>

@@ -27,15 +27,17 @@ model User {
 }
 
 model GoogleToken {
-  id           Int      @id @default(autoincrement())
-  account      User     @relation(fields: [accountId], references: [id])
-  accountId    Int
-  access_token String
-  id_token     String
-  expiry_date  DateTime
-  authProfile  Boolean  @default(false)
-  authGmail    Boolean  @default(false)
-  authCalendar Boolean  @default(false)
+  id                    Int      @id @default(autoincrement())
+  account               User     @relation(fields: [accountId], references: [id])
+  accountId             Int
+  access_token          String
+  id_token              String
+  expiry_date           DateTime
+  refresh_token         String?
+  refresh_expiry_date   DateTime?
+  authProfile           Boolean  @default(false)
+  authGmail             Boolean  @default(false)
+  authCalendar          Boolean  @default(false)
 }
 
 model Dashboard {

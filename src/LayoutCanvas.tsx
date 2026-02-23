@@ -1,3 +1,4 @@
+import axios from 'axios'
 import { Box } from "@chakra-ui/react";
 import WidgetFrame from "./WidgetFrame"
 import Calendar from './Calendar';
@@ -28,6 +29,19 @@ const widgetMap: Record<string, React.FC>= {
   Email,
   Timer
 };
+
+
+const handleResize = async ( elementId: number, posX: number, posY: number, sizeX: number, sizeY: number) => {
+  try{
+    await axios.patch(`/layout/${elementId}`, {
+      widgetSettings: { posX, posY, sizeX, sizeY}
+    })
+
+  } catch (err) {
+    console.log(err, 'Could not resize widget')
+  }
+}
+
 
 const gridCols = 19;
 const gridRows = 12;
@@ -69,9 +83,10 @@ const LayoutCanvas = function({layout, editable=false}: { layout: Layout; editab
         sizeY={element.sizeY}
         minWidth={1}
         minHeight={1}
-        snapSize={snapSize}
-        resizeActive={editable}
         color='#e5e7eb'
+        snapSize={snapSize}
+        handleResizeOrMove={handleResize}
+        editActive={editable}
         >
         <WidgetComp />
         </WidgetFrame>

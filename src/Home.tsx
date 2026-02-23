@@ -59,7 +59,7 @@ function Home () {
                 Launchpad lets you build your digital home! Place and resize widgets, choose the colors that fit your mood - set up your dashboard the way you like! You can even have your dashboard change with the time of day.
               </Text>
               <Text fontSize="lg" mb="5" textAlign="left">
-                View your calendar and email, and set pomodoro timers, all in one place. Launchpad give you the tools to take control of your life.
+                View your calendar and email, and set pomodoro timers, all in one place. Launchpad gives you the tools to take control of your life.
               </Text>
             </Container>
             {/* Concept: Pass in a changelog value that is taken in from somewhere else. Ideally something that is easy for us to update. */}
