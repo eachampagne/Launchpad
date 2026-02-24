@@ -10,7 +10,7 @@ import { useState, useEffect, useContext } from 'react'
 import { LuRocket } from "react-icons/lu"
 
 function Home () {
-  const { handleLogout } = useContext(UserContext);
+  const { handleLogout, handleLoginDemo } = useContext(UserContext);
   const [prs, setPrs] = useState([] as {number: number, merged: boolean, mergedAt: string, title: string}[]);
 
   const fetchChangelog = async () => {
@@ -45,6 +45,7 @@ function Home () {
             <div>
               <Button className="button google" colorPalette="gray" variant="outline" margin="1" asChild><Link href="/login/federated/google">Sign in with Google</Link></Button>
             </div>
+            <div><Button className="logout button google" margin="1" onClick={() => {handleLoginDemo()}} colorPalette="gray" variant="outline">Try out the demo</Button></div>
             {/* TODO: Move logout button to somewhere that makes more sense */}
             <div><Button className="logout button google" margin="1" onClick={() => {handleLogout()}} colorPalette="gray" variant="outline">Log Out</Button></div>
           </Box>

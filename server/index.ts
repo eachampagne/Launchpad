@@ -28,19 +28,6 @@ app.use(express.static(join(__dirname, '..', '..','dist'))); // evidently this i
 
 // * AUTH 
 
-// create demo account if doesn't exist on server start
-// (means the database being reset won't remove the account)
-await prisma.user.upsert({
-  where: { id: 0 },
-  update: {},
-  create: {
-    id: 0, // won't conflict with normal users because Prisma starts at 1
-    name: 'Demo account',
-    credentialProvider: '',
-    credentialSubject: ''
-  }
-});
-
 app.use(session({
   secret: process.env['secret']!, //  ! [variable]! means that it is not checking for null. Be careful!
   resave: true,
