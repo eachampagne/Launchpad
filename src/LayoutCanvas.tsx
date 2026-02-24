@@ -31,6 +31,14 @@ const widgetMap: Record<string, React.FC>= {
 };
 
 
+
+
+const gridCols = 19;
+const gridRows = 12;
+//px per grid unit
+const snapSize = 100;
+
+
 const handleResize = async ( elementId: number, posX: number, posY: number, sizeX: number, sizeY: number) => {
   try{
     await axios.patch(`/layout/${elementId}`, {
@@ -41,14 +49,6 @@ const handleResize = async ( elementId: number, posX: number, posY: number, size
     console.log(err, 'Could not resize widget')
   }
 }
-
-
-const gridCols = 19;
-const gridRows = 12;
-//px per grid unit
-const snapSize = 100;
-
-
 const LayoutCanvas = function({layout, editable=false}: { layout: Layout; editable?: boolean }){
   return (
     <Box
