@@ -13,10 +13,11 @@ import {
   Group,
   Field,
   Popover,
-  Icon,
   Portal,
   NativeSelect,
 } from "@chakra-ui/react";
+import { GrEdit } from "react-icons/gr";
+import { IoTrashSharp } from "react-icons/io5";
 import { UserContext } from "./UserContext";
 import NavBar from "./NavBar";
 import Notifications from "./Notifications";
@@ -51,6 +52,7 @@ export default function Hub(
   const [editingAlways, setEditingAlways] = useState(false);
   const [dashboards, setDashboards] = useState([] as any[]);
   const [schedules, setSchedules] = useState([] as any[]);
+  console.log(schedules)
 
   const { user: {id: ownerId, primaryDashId: primaryDashIdContext, name: username}, activeDash, setActiveDash: handleDashboardSelection, getPrimaryDash: refreshPrimaryDash } = useContext(UserContext);
 
@@ -88,6 +90,7 @@ export default function Hub(
 
     try {
       const res = await axios.get(`/schedule/${ownerId}`)
+      console.log(res)
       setSchedules(res.data)
     } catch (error) {
       console.error("There was a problem getting user's scheduled dashboards", error);
@@ -164,23 +167,43 @@ export default function Hub(
   };
 
   const handleSaveCustomSchedule = async (s: ScheduleDraft) => {
-    if (!s.dashboardId) return;
-    const hour24 =
-      s.period === "PM" ? (Number(s.hour) % 12) + 12 : Number(s.hour) % 12;
-    const time = `${hour24.toString().padStart(2, "0")}:${s.minute.padStart(2, "0")}`;
-    try {
-      await axios.post("/schedule", {
-        ownerId,
-        dashboardId: s.dashboardId,
-        time,
-      });
-      setScheduleDraft((prev) =>
-        prev.map((x) => (x.id === s.id ? { ...x, saved: true } : x)),
-      );
-    } catch (err) {
-      console.error(err);
-    }
+  if (!s.dashboardId) return;
+
+  const hour24 =
+    s.period === "PM" ? (Number(s.hour) % 12) + 12 : Number(s.hour) % 12;
+
+  const time = `${hour24.toString().padStart(2, "0")}:${s.minute.padStart(
+    2,
+    "0",
+  )}`;
+
+  try {
+    await axios.post("/schedule", {
+      ownerId,
+      dashboardId: s.dashboardId,
+      time,
+    });
+
+    // Remove draft input
+    setScheduleDraft((prev) => prev.filter((x) => x.id !== s.id));
+
+    // Refresh backend schedules so saved version renders
+    await getScheduledDashboardsData();
+  } catch (err) {
+    console.error(err);
+  }
   };
+
+  const handleDeleteSchedule = async (scheduleId: number) => {
+  try {
+    await axios.delete(`/schedule/${scheduleId}`);
+
+    // refresh backend schedules
+    await getScheduledDashboardsData();
+  } catch (err) {
+    console.error("Failed to delete schedule", err);
+  }
+};
 
   // used to set a dashboard's layout as public
   // TODO coordinate with layout team to finish function
@@ -200,9 +223,10 @@ export default function Hub(
 
   return (
     <>
-      <NavBar pages={["Home", "Dashboard"]} /> {/*empty string will take user to Home page*/}
+      <NavBar pages={["Home", "Dashboard"]} />{" "}
+      {/*empty string will take user to Home page*/}
       <Flex minH="100vh" justify="center">
-        <Box w="100%" maxW="1400px" p={6}>
+        <Box w="100%" maxW="1800px" p={6}>
           {/* Profile */}
           <VStack gap={3} mb={6}>
             {/* <Box
@@ -219,7 +243,7 @@ export default function Hub(
             {/* Defaults */}
             <Box
               flex="1"
-              minH="230px"
+              h="280px"
               overflowY="auto"
               border="1px solid"
               borderColor="gray.600"
@@ -227,24 +251,28 @@ export default function Hub(
               p={4}
             >
               <HStack justify="space-between" mb={3}>
-                <Text fontWeight="bold">Defaults</Text>
+                <Text fontWeight="bold">Primary Dashboard Schedule</Text>
                 {mode === "CUSTOM" && (
                   <Button
                     size="xs"
-                    onClick={() => setScheduleDraft((s) => [createDraft(), ...s])}
+                    onClick={() =>
+                      setScheduleDraft((s) => [createDraft(), ...s])
+                    }
                   >
                     +
                   </Button>
                 )}
-                {mode === "ALWAYS" && primaryDashId !== null && !editingAlways && (
-                  <Button
-                    size="xs"
-                    variant="ghost"
-                    onClick={() => setEditingAlways(true)}
-                  >
-                    ✎
-                  </Button>
-                )}
+                {mode === "ALWAYS" &&
+                  primaryDashId !== null &&
+                  !editingAlways && (
+                    <Button
+                      size="xs"
+                      variant="ghost"
+                      onClick={() => setEditingAlways(true)}
+                    >
+                      <GrEdit />
+                    </Button>
+                  )}
                 {mode === "ALWAYS" && editingAlways && (
                   <Button size="xs" onClick={() => setEditingAlways(false)}>
                     Cancel
@@ -260,35 +288,33 @@ export default function Hub(
                     const value = e.target.value as "ALWAYS" | "CUSTOM";
                     setMode(value);
 
-                    if (value === "CUSTOM" && scheduleDraft.length === 0) {
-                      setScheduleDraft([createDraft()]);
-                    }
-
                     if (value === "ALWAYS") {
                       setScheduleDraft([]);
                     }
                   }}
                 >
                   <option value="ALWAYS">Always</option>
-                  <option value="CUSTOM">Custom Time</option>
+                  <option value="CUSTOM">Scheduled Dashboards</option>
                 </NativeSelect.Field>
                 <NativeSelect.Indicator />
               </NativeSelect.Root>
 
               {/* ALWAYS MODE */}
               {mode === "ALWAYS" && (
-                
                 <HStack gap={3} mb={4} align="center">
                   <NativeSelect.Root>
                     <NativeSelect.Field
                       value={primaryDashId ?? ""}
-                      onChange={(e) => { 
-                        const value = Number(e.target.value)
-                        setPrimaryDashId(value)}} 
+                      onChange={(e) => {
+                        const value = Number(e.target.value);
+                        setPrimaryDashId(value);
+                      }}
                       style={{ minWidth: "200px" }}
                       aria-disabled={primaryDashId !== null && !editingAlways}
                       pointerEvents={
-                        primaryDashId !== null && !editingAlways ? "none" : "auto"
+                        primaryDashId !== null && !editingAlways
+                          ? "none"
+                          : "auto"
                       }
                     >
                       <option value="" disabled>
@@ -315,151 +341,153 @@ export default function Hub(
                       </Button>
                     )}
                 </HStack>
-                  
               )}
 
               {/* CUSTOM MODE */}
               {mode === "CUSTOM" && (
                 <VStack gap={3} align="stretch">
+                  {/* Saved schedules from backend */}
+                  {schedules.map((s) => (
+                    <HStack key={`saved-${s.id}`} gap={3} align="center">
+                      <Box flex="1">
+                        <Text minW="90px">{s.time}</Text>
+                      </Box>
+                      <Box flex="1">
+                        <Text>{s.dashboard?.name}</Text>
+                      </Box>
+                      <Button
+                        size="xs"
+                        colorPalette="red"
+                        variant="ghost"
+                        onClick={() => handleDeleteSchedule(s.id)}
+                      >
+                        <IoTrashSharp />
+                      </Button>
+                    </HStack>
+                  ))}
+
+                  {/* Draft schedules created with + */}
                   {scheduleDraft.map((s) => (
-                    <HStack key={s.id} gap={3} align="center">
-                      {s.saved ? (
-                        <>
-                          {/* time (left) */}
-                          <Text minW="90px">
-                            {s.hour}:{s.minute} {s.period}
-                          </Text>
+                    <HStack key={`draft-${s.id}`} gap={3} align="center">
+                      <HStack>
+                        <Input
+                          w="60px"
+                          value={s.hour}
+                          onChange={(e) =>
+                            setScheduleDraft((prev) =>
+                              prev.map((x) =>
+                                x.id === s.id
+                                  ? { ...x, hour: e.target.value }
+                                  : x,
+                              ),
+                            )
+                          }
+                        />
 
-                          {/* dashboard name (right) */}
-                          <Text flex="1">
-                            {
-                              dashboards.find((d) => d.id === s.dashboardId)
-                                ?.name
+                        <Text>:</Text>
+
+                        <Input
+                          w="60px"
+                          value={s.minute}
+                          onChange={(e) =>
+                            setScheduleDraft((prev) =>
+                              prev.map((x) =>
+                                x.id === s.id
+                                  ? { ...x, minute: e.target.value }
+                                  : x,
+                              ),
+                            )
+                          }
+                        />
+
+                        <NativeSelect.Root>
+                          <NativeSelect.Field
+                            value={s.period}
+                            onChange={(e) =>
+                              setScheduleDraft((prev) =>
+                                prev.map((x) =>
+                                  x.id === s.id
+                                    ? {
+                                        ...x,
+                                        period: e.target.value as "AM" | "PM",
+                                      }
+                                    : x,
+                                ),
+                              )
                             }
-                          </Text>
-                        </>
-                      ) : (
-                        <>
-                          <HStack>
-                            <Input
-                              w="60px"
-                              value={s.hour}
-                              onChange={(e) =>
-                                setScheduleDraft((prev) =>
-                                  prev.map((x) =>
-                                    x.id === s.id
-                                      ? { ...x, hour: e.target.value }
-                                      : x,
-                                  ),
-                                )
-                              }
-                            />
-
-                            <Text>:</Text>
-
-                            <Input
-                              w="60px"
-                              value={s.minute}
-                              onChange={(e) =>
-                                setScheduleDraft((prev) =>
-                                  prev.map((x) =>
-                                    x.id === s.id
-                                      ? { ...x, minute: e.target.value }
-                                      : x,
-                                  ),
-                                )
-                              }
-                            />
-
-                            <NativeSelect.Root>
-                              <NativeSelect.Field
-                                value={s.period}
-                                onChange={(e) =>
-                                  setScheduleDraft((prev) =>
-                                    prev.map((x) =>
-                                      x.id === s.id
-                                        ? {
-                                            ...x,
-                                            period: e.target.value as
-                                              | "AM"
-                                              | "PM",
-                                          }
-                                        : x,
-                                    ),
-                                  )
-                                }
-                              >
-                                <option value="AM">AM</option>
-                                <option value="PM">PM</option>
-                              </NativeSelect.Field>
-                              <NativeSelect.Indicator />
-                            </NativeSelect.Root>
-                          </HStack>
-
-                          <NativeSelect.Root>
-                            <NativeSelect.Field
-                              value={s.dashboardId ?? ""}
-                              onChange={(e) => {
-                                const value = Number(e.target.value) || null;
-                                setScheduleDraft((prev) =>
-                                  prev.map((x) =>
-                                    x.id === s.id
-                                      ? { ...x, dashboardId: value }
-                                      : x,
-                                  ),
-                                );
-                              }}
-                              style={{ minWidth: "180px" }}
-                            >
-                              <option value="" disabled>
-                                Select dashboard
-                              </option>
-                              {dashboards.map((d) => (
-                                <option key={d.id} value={d.id}>
-                                  {d.name}
-                                </option>
-                              ))}
-                            </NativeSelect.Field>
-                            <NativeSelect.Indicator />
-                          </NativeSelect.Root>
-
-                          <Button
-                            size="sm"
-                            onClick={() => handleSaveCustomSchedule(s)}
                           >
-                            Save
-                          </Button>
-                        </>
-                      )}
+                            <option value="AM">AM</option>
+                            <option value="PM">PM</option>
+                          </NativeSelect.Field>
+                          <NativeSelect.Indicator />
+                        </NativeSelect.Root>
+                      </HStack>
+
+                      <NativeSelect.Root>
+                        <NativeSelect.Field
+                          value={s.dashboardId ?? ""}
+                          onChange={(e) => {
+                            const value = Number(e.target.value) || null;
+                            setScheduleDraft((prev) =>
+                              prev.map((x) =>
+                                x.id === s.id
+                                  ? { ...x, dashboardId: value }
+                                  : x,
+                              ),
+                            );
+                          }}
+                          style={{ minWidth: "180px" }}
+                        >
+                          <option value="" disabled>
+                            Select dashboard
+                          </option>
+                          {dashboards.map((d) => (
+                            <option key={d.id} value={d.id}>
+                              {d.name}
+                            </option>
+                          ))}
+                        </NativeSelect.Field>
+                        <NativeSelect.Indicator />
+                      </NativeSelect.Root>
+
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          console.log("clicked", s);
+                          handleSaveCustomSchedule(s);
+                        }}
+                      >
+                        Save
+                      </Button>
                     </HStack>
                   ))}
                 </VStack>
               )}
             </Box>
-              {/* Notifications */}
+            {/* Notifications */}
             <Box
               flex="1"
               border="1px solid"
               borderColor="gray.600"
               borderRadius="lg"
               p={4}
-              maxH="230px"
+              h="280px"
               overflowY="auto"
             >
               <Text fontWeight="bold" mb={3}>
                 Notifications
               </Text>
               <VStack gap={3}>
-                  <HStack
-                    w="100%"
-                    p={2}
-                    border="1px solid"
-                    borderColor="gray.600"
-                    borderRadius="md"
-                  >
+                <HStack
+                  w="100%"
+                  p={2}
+                  border="1px solid"
+                  borderColor="gray.600"
+                  borderRadius="md"
+                >
                   {/* do stuff here azaria*/}
-                  <Notifications ownerId={ownerId}/>
-                  </HStack>
+                  <Notifications ownerId={ownerId} />
+                </HStack>
               </VStack>
             </Box>
             {/* Connected Accounts */}
@@ -469,7 +497,7 @@ export default function Hub(
               borderColor="gray.600"
               borderRadius="lg"
               p={4}
-              maxH="230px"
+              h="280px"
               overflowY="auto"
             >
               <Text fontWeight="bold" mb={3}>
@@ -491,7 +519,7 @@ export default function Hub(
               Dashboards
             </Text>
 
-            <Box maxH="300px">
+            <Box maxH="400px">
               <SimpleGrid columns={4} gap={4}>
                 {dashboards.map((dashboard) => (
                   <Box
@@ -508,7 +536,9 @@ export default function Hub(
                     justifyContent="center"
                     p={2}
                     _hover={{ borderColor: "blue.500" }}
-                    onClick={() => { OpenDashboard(dashboard.id) }}
+                    onClick={() => {
+                      OpenDashboard(dashboard.id);
+                    }}
                   >
                     <Text pointerEvents="none">{dashboard.name}</Text>
 
@@ -535,7 +565,10 @@ export default function Hub(
                                   size="sm"
                                   variant="ghost"
                                   justifyContent="flex-start"
-                                  onClick={(e) => { e.stopPropagation(); handlePublishLayout() }}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handlePublishLayout();
+                                  }}
                                 >
                                   Publish Layout
                                 </Button>
@@ -544,7 +577,10 @@ export default function Hub(
                                   size="sm"
                                   variant="ghost"
                                   justifyContent="flex-start"
-                                  onClick={(e) => { e.stopPropagation(); handlePublishTheme() }}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handlePublishTheme();
+                                  }}
                                 >
                                   Publish Theme
                                 </Button>
@@ -554,7 +590,10 @@ export default function Hub(
                                   variant="ghost"
                                   justifyContent="flex-start"
                                   color="red.500"
-                                  onClick={(e) => { e.stopPropagation(); handleDelete(dashboard.id) }}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDelete(dashboard.id);
+                                  }}
                                 >
                                   Delete
                                 </Button>
