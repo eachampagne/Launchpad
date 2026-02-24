@@ -10,14 +10,10 @@ import router from './routers/router.js';
 import session from 'express-session';
 import passport from 'passport';
 import authRouter from './routers/auth.js'
-import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "../generated/prisma/client.js";
 import { PrismaSessionStore } from '@quixo3/prisma-session-store';
 // * AUTH 
 
-const connectionString = `${process.env.DATABASE_URL}`;
-const adapter = new PrismaPg({ connectionString });
-const prisma = new PrismaClient({ adapter });
+import { prisma } from './database/prisma.js';
 
 const app = express();
 
@@ -31,6 +27,20 @@ app.use(express.json());
 app.use(express.static(join(__dirname, '..', '..','dist'))); // evidently this is relative to the compiled index.js file
 
 // * AUTH 
+
+// create demo account if doesn't exist on server start
+// (means the database being reset won't remove the account)
+await prisma.user.upsert({
+  where: { id: 0 },
+  update: {},
+  create: {
+    id: 0, // won't conflict with normal users because Prisma starts at 1
+    name: 'Demo account',
+    credentialProvider: '',
+    credentialSubject: ''
+  }
+});
+
 app.use(session({
   secret: process.env['secret']!, //  ! [variable]! means that it is not checking for null. Be careful!
   resave: true,
