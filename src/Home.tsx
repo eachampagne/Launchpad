@@ -1,13 +1,11 @@
 import axios from 'axios';
 
-import { Heading, Text, Button, Link, Box, Container, Flex, Icon, HStack, Image, AbsoluteCenter } from '@chakra-ui/react'
+import { Heading, Text, Button, Link, Box, Container, Flex, Image } from '@chakra-ui/react'
 import NavBar from './NavBar';
 import { UserContext } from './UserContext';
 import ImageCarousel from './home/ImageCarousel';
 import ChangelogScroll from './home/ChangelogScroll';
 import { useState, useEffect, useContext } from 'react'
-
-import { LuRocket } from "react-icons/lu";
 
 import gridLogoURL from './assets/Launchpad_Logo_grid.png';
 import rocketLogoURL from './assets/Launchpad_Logo_rocket.png';
