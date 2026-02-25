@@ -77,13 +77,13 @@ function Dashboard () {
   }, [themeId])
 
   useEffect(() => {
-    // axios.get(`/dashboard/${dashboardId}`)
-    // .then((res) => {
-    //   setDashboard(res.data)
+    axios.get(`/dashboard/${dashboardId}`)
+    .then((res) => {
+      setDashboard(res.data)
 
-    // }).catch((err) => {
-    //   console.log(err)
-    // })
+    }).catch((err) => {
+      console.log(err)
+    })
     loadDashboard();
   }, [dashboardId]);
 

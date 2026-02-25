@@ -171,14 +171,14 @@ function DashEditor() {
 
       <Flex
         width="100%"
-        minH="calc(100vh - 120px)"
-        my={6}
+        //minH="calc(100vh - 120px)"
+        my={8}
         px={6}
-        gap={6}
+        gap={8}
         align="flex-start"
       >
         {/* LEFT: GRID EDITOR */}
-        <Box flex="1" display="flex" justifyContent="center">
+        <Box flex="2" display="flex" justifyContent="center">
           <Box
             width={`${gridCols * snapSize}px`}
             height={`${gridRows * snapSize}px`}
@@ -193,7 +193,7 @@ function DashEditor() {
         </Box>
 
         {/* RIGHT: SETTINGS */}
-        <Box flex="1" display="flex" justifyContent="center">
+        <Box flex="1" maxW="500px">
           <Box width="520px" borderWidth="1px" borderRadius="md" p={4}>
             <Theme
               dashboardId={dashboardId}

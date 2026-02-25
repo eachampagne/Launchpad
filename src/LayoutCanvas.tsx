@@ -44,7 +44,7 @@ const LayoutCanvas = function({layout, editable=false, onLayoutChange}: { layout
 
   const handleResize = async ( elementId: number, posX: number, posY: number, sizeX: number, sizeY: number) => {
   try{
-    await axios.patch(`/layout/element/${elementId}`, {
+    await axios.patch(`/layout/${elementId}`, {
       widgetSettings: { posX, posY, sizeX, sizeY}
     })
 
@@ -55,7 +55,7 @@ const LayoutCanvas = function({layout, editable=false, onLayoutChange}: { layout
 
   const handleDelete = async (elementId: number) => {
   try {
-    await axios.delete(`/layout/element/${elementId}`);
+    await axios.delete(`/layout/${elementId}`);
     if (onLayoutChange) {
       onLayoutChange(); //refresh parent dashboard
     }

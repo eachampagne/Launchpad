@@ -395,7 +395,7 @@ function WidgetFrame({widgetId, posX, posY, sizeX, sizeY, minWidth, minHeight, s
       userSelect={editActive ? "none" : "text"}
       bgColor={color}
     >
-      {resizeActive && onDelete && (
+      {editActive && onDelete && (
         <button
           style={{
             position: "absolute",
