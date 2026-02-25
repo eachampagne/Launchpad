@@ -8,6 +8,7 @@ import { useContext } from 'react';
 import { LuRocket } from "react-icons/lu"
 
 import { UserContext } from './UserContext';
+import { IoLogOutOutline } from "react-icons/io5";
 
 
 interface MyProps {
@@ -22,13 +23,13 @@ function NavBar (props: MyProps) {
   const renderLoginInfo = () => {
     if (user.id === -1) { // not logged in
       return (
-        <Button colorPalette="gray" variant="surface" height="25px" mt="12px" mr="8px" p="1" asChild><a href="/login/federated/google" color={props.textColor}>Sign in</a></Button>
+        <Button colorPalette="gray" variant="ghost" height="25px" mt="12px" mr="8px" p="1" asChild><a href="/login/federated/google" color={props.textColor}>Sign in</a></Button>
       );
     } else { // logged in
       return (
         <Flex align="center">
           <Text mt="12px" >{user.name}</Text>
-          <Button colorPalette="gray" variant="surface" height="25px" mt="12px" ml="8px" p="1" onClick={() => {handleLogout()}} color={props.textColor} >Log Out</Button>
+          <Button colorPalette="white" variant="ghost" height="25px" mt="12px" ml="8px" p="1" onClick={() => {handleLogout()}} color={props.textColor} >{<IoLogOutOutline />}</Button>
         </Flex>
       );
     }
@@ -47,7 +48,7 @@ function NavBar (props: MyProps) {
         <Flex width="100%">
           <For each={props.pages}>
             {(page) => (
-              <Button colorPalette="gray" variant="surface" height="25px" mt="12px" mr="8px" p="1" asChild><Link to={`/${page === "Home" ? '' : page}`} color={props.textColor} >{page}</Link></Button>
+              <Button colorPalette="gray" variant="ghost" height="25px" mt="12px" mr="8px" p="1" asChild><Link to={`/${page === "Home" ? '' : page}`} color={props.textColor} >{page}</Link></Button>
             )}
           </For>
           <Spacer />
