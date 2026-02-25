@@ -1,0 +1,1 @@
+export type EmailObject = {id: string, snippet: string};

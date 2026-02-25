@@ -64,6 +64,8 @@ const demoSecondaryCalendar = [
   }
 ] as Event[];
 
+// functions are async for parity with API calls
+
 export async function getDemoCalendarList() {
   return demoCalendarList;
 }
