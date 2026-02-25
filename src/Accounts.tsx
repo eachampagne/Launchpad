@@ -9,7 +9,6 @@ function Accounts() {
   const [accounts, setAccounts] = useState([] as Account[]);
 
   const refreshAccounts = async () => {
-    console.log('refreshing accounts');
     try {
       const response = await axios.get('/accounts');
   
@@ -32,6 +31,9 @@ function Accounts() {
     <Accordion.Root collapsible>
       <For
         each={accounts}
+        fallback={
+          <Text>No linked accounts.</Text>
+        }
       >
         {(account) => (
           <Accordion.Item value={account.name}>

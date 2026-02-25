@@ -3,6 +3,8 @@ import { prisma } from '../database/prisma.js';
 
 const account = express.Router();
 
+const demoId = Number(process.env['DEMO_ACCOUNT_ID']) || -2;
+
 account.get('/', async (req, res) => {
   // check auth
   if (req.user === undefined) {
@@ -10,6 +12,11 @@ account.get('/', async (req, res) => {
   }
 
   const id = req.user.id;
+
+  // demo account has no linked accounts
+  if (id === demoId) {
+    return res.status(200).send([]);
+  }
 
   const google = await prisma.googleToken.findFirst({where: {accountId: id}});
 

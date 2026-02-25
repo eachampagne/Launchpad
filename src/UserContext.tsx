@@ -13,12 +13,13 @@ export const UserContext = createContext({
   user: {id: -1, name: 'Not signed in', primaryDashId: null} as ClientUser,
   activeDash: -1,
   handleLogout: () => {},
+  handleLoginDemo: () => {},
   setActiveDash: (n: number) => {},
   getPrimaryDash: () => {}
 });
 
 function UserProvider ({children}: {children?: React.ReactNode}) {
-  let navigate = useNavigate();
+  const navigate = useNavigate();
   const [user, setUser] = useState({id: -1} as ClientUser);
   const [activeDash, setActiveDash] = useState(-1);
 
@@ -29,6 +30,19 @@ function UserProvider ({children}: {children?: React.ReactNode}) {
       getUser();
     } catch (error) {
       console.error('Failed to log out:', error);
+    }
+  }
+
+  const handleLoginDemo = async () => {
+    try {
+      await axios.post('/login/demo', {
+        username: 'demo', // the username and password cannot be missing or empty strings
+        password: 'demo'
+      });
+      navigate('/hub');
+      getUser();
+    } catch (error) {
+      console.error('Failed to log in to demo:', error);
     }
   }
 
@@ -75,6 +89,7 @@ function UserProvider ({children}: {children?: React.ReactNode}) {
       user,
       activeDash,
       handleLogout,
+      handleLoginDemo,
       setActiveDash,
       getPrimaryDash
     }}>
