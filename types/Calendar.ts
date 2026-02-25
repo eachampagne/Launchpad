@@ -32,7 +32,8 @@ export type Event = EventAllDay | EventPartDay;
 export type CalendarObject = {
   id: string,
   summary: string,
-  description: string
+  description: string,
+  primary?: boolean
 }
 
 export type ThemeObject = {

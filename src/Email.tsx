@@ -5,15 +5,16 @@ import { Button, Flex, For, Heading, Icon, LinkBox, LinkOverlay, ScrollArea, Sta
 import { LuMail } from 'react-icons/lu';
 
 import { AuthStatus } from '../types/WidgetStatus.ts';
+import type { EmailObject } from '../types/Email.ts';
 import { UserContext } from './UserContext';
 
 function Email () {
   const { user } = useContext(UserContext);
 
   const [authStatus, setAuthStatus] = useState(AuthStatus.SignedOut);
-  const [emails, setEmails] = useState([] as {id: string, snippet: string}[]);
+  const [emails, setEmails] = useState([] as EmailObject[]);
 
-  const checkAuth = async () => {
+  const getEmails = async () => {
     // if not signed in, don't even send the request
     if (user.id === -1) {
       setAuthStatus(AuthStatus.SignedOut);
@@ -21,30 +22,17 @@ function Email () {
     }
 
     try {
-      const response = await axios.get('/checkauth/gmail');
-      if (response.data === true) {
-        setAuthStatus(AuthStatus.Authorized);
-        getEmails();
-      } else if (response.data === false) {
-        setAuthStatus(AuthStatus.Unauthorized);
-      } else {
-        console.error('Unexpected response from auth check: expected true or false, got', response.data);
-      }
+      const response = await axios.get('/email');
+      setEmails(response.data);
+      setAuthStatus(AuthStatus.Authorized);
     } catch (error) {
       if ((error as AxiosError).status === 401) {
         setAuthStatus(AuthStatus.SignedOut);
+      } else if ((error as AxiosError).status === 403) {
+        setAuthStatus(AuthStatus.Unauthorized);
       } else {
-        console.error('Failed to check auth status:', error);
+        console.error('Failed to fetch emails:', error);
       }
-    }
-  };
-
-  const getEmails = async () => {
-    try {
-      const response = await axios.get('/email');
-      setEmails(response.data);
-    } catch (error) {
-      console.error('Failed to fetch emails:', error);
     }
   };
 
@@ -88,7 +76,7 @@ function Email () {
   };
 
   useEffect(() => {
-    checkAuth();
+    getEmails();
   }, [user]);
 
   return (
