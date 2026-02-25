@@ -39,7 +39,10 @@ const gridRows = 12;
 const snapSize = 100;
 
 
-const handleResize = async ( elementId: number, posX: number, posY: number, sizeX: number, sizeY: number) => {
+
+const LayoutCanvas = function({layout, editable=false}: { layout: Layout; editable?: boolean }){
+
+  const handleResize = async ( elementId: number, posX: number, posY: number, sizeX: number, sizeY: number) => {
   try{
     await axios.patch(`/layout/${elementId}`, {
       widgetSettings: { posX, posY, sizeX, sizeY}
@@ -49,7 +52,15 @@ const handleResize = async ( elementId: number, posX: number, posY: number, size
     console.log(err, 'Could not resize widget')
   }
 }
-const LayoutCanvas = function({layout, editable=false}: { layout: Layout; editable?: boolean }){
+
+  const handleDelete = async (elementId: number) => {
+  try {
+    await axios.delete(`/layout/${elementId}`);
+  } catch (err) {
+    console.log("Could not delete widget", err);
+  }
+};
+
   return (
     <Box
     //Anchors absolute widgets
@@ -87,6 +98,7 @@ const LayoutCanvas = function({layout, editable=false}: { layout: Layout; editab
         snapSize={snapSize}
         resizeActive={editable}
         handleResize={handleResize}
+        onDelete={handleDelete}
         >
         <WidgetComp />
         </WidgetFrame>

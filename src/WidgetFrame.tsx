@@ -198,7 +198,7 @@ function CornerHandle({corner, parentWidth, parentHeight, resize, snap}: {corner
   );
 }
 
-function WidgetFrame({widgetId, posX, posY, sizeX, sizeY, minWidth, minHeight, snapSize, resizeActive, handleResize, children, color}: {widgetId: number, posX: number, posY: number, sizeX: number, sizeY: number, minWidth: number, minHeight: number, snapSize: number, resizeActive: boolean, handleResize?: (widgetId: number, posX: number, posY: number, width: number, height: number) => void, children?: React.ReactNode, color: string}) {
+function WidgetFrame({widgetId, posX, posY, sizeX, sizeY, minWidth, minHeight, snapSize, resizeActive, handleResize, children, color, onDelete}: {widgetId: number, posX: number, posY: number, sizeX: number, sizeY: number, minWidth: number, minHeight: number, snapSize: number, resizeActive: boolean, handleResize?: (widgetId: number, posX: number, posY: number, width: number, height: number) => void, children?: React.ReactNode, color: string, onDelete?: (id: number) => void}) {
   const [top, setTop] = useState(posY * snapSize);
   const [bottom, setBottom] = useState((posY + sizeY) * snapSize);
   const [left, setLeft] = useState(posX * snapSize);
@@ -323,7 +323,35 @@ function WidgetFrame({widgetId, posX, posY, sizeX, sizeY, minWidth, minHeight, s
   };
 
   return (
-    <Container padding="5" bg="blue" position="absolute" top={`${top}px`} left={`${left}px`} width={`${right-left}px`} height={`${bottom-top}px`} overflow="clip" userSelect={resizeActive ? "none" : "text"} bgColor={color}>
+    <Container
+      padding="5"
+      bg="blue"
+      position="absolute"
+      top={`${top}px`}
+      left={`${left}px`}
+      width={`${right - left}px`}
+      height={`${bottom - top}px`}
+      overflow="clip"
+      userSelect={resizeActive ? "none" : "text"}
+      bgColor={color}
+    >
+      {resizeActive && onDelete && (
+        <button
+          style={{
+            position: "absolute",
+            top: 4,
+            right: 4,
+            zIndex: 10,
+            background: "red",
+            color: "white",
+            border: "none",
+            cursor: "pointer",
+          }}
+          onClick={() => onDelete(widgetId)}
+        >
+          ✕
+        </button>
+      )}
       {children}
       {renderResizeHandles()}
     </Container>

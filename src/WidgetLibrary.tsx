@@ -7,12 +7,8 @@ type Widget = {
   name: string;
 };
 
-type Props = {
-  layoutId: number;
-  onWidgetAdded: () => void;
-};
 
-function WidgetLibrary({ layoutId, onWidgetAdded }: Props) {
+function WidgetLibrary({ layoutId, onWidgetAdded }: {layoutId: number; onWidgetAdded: () => void;}) {
   const [widgets, setWidgets] = useState<Widget[]>([]);
 
   // Fetch widgets from backend
