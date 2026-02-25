@@ -5,13 +5,13 @@ interface EventBase {
   id: string
 }
 
-interface AllDayTime {
+export interface AllDayTime {
   date: string,
   dateTime?: never,
   timeZone?: never
 }
 
-interface PartDayTime {
+export interface PartDayTime {
   date?: never,
   dateTime: string,
   timeZone: string

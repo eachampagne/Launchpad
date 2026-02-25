@@ -2,11 +2,11 @@ import { useState, useEffect, useContext, type ChangeEvent } from 'react';
 
 import axios, { AxiosError } from 'axios';
 
-import { Button, Flex, For, Heading, Icon, LinkBox, LinkOverlay, NativeSelect, ScrollArea, Text, VStack } from '@chakra-ui/react';
+import { Button, Container, Flex, For, Heading, Icon, LinkBox, LinkOverlay, NativeSelect, ScrollArea, Text, VStack } from '@chakra-ui/react';
 import { LuCalendarDays } from 'react-icons/lu';
 
 
-import type { Event, CalendarObject } from '../types/Calendar.ts';
+import type { AllDayTime, PartDayTime, Event, CalendarObject } from '../types/Calendar.ts';
 import { AuthStatus } from '../types/WidgetStatus.ts';
 import { UserContext } from './UserContext';
 
@@ -69,6 +69,34 @@ function Calendar() {
     }
   }, [user]);
 
+  // returns a tuple of [dateString, timeString]. All-day events have a null timeString
+  const timeToString = (time: AllDayTime | PartDayTime) => {
+    if (Object.hasOwn(time, 'timeZone')) { // is a PartDayTime
+      const dateTime = new Date(time.dateTime as string);
+
+      const dateString = Intl.DateTimeFormat('en-US', {
+        month: 'short',
+        day: 'numeric',
+      }).format(dateTime);
+      const timeString = Intl.DateTimeFormat('en-US', {
+        hour: 'numeric',
+        minute: 'numeric',
+        timeZone: time.timeZone
+      }).format(dateTime);
+
+      return [dateString, timeString];
+    } else { // is an AllDayTime
+      const date = new Date(time.date as string);
+
+      const dateString = Intl.DateTimeFormat('en-US', {
+        month: 'short',
+        day: 'numeric',
+      }).format(date);
+
+      return [dateString, null];
+    }
+  };
+
   const renderCalendarList = () => {
     if (authStatus === AuthStatus.Authorized) {
       return (
@@ -114,9 +142,30 @@ function Calendar() {
                     each={events}
                     fallback={<Text w="100%">No events found.</Text>}
                   >
-                    {(event) => (
-                        <Text w="100%">{event.summary}</Text>
-                      )
+                    {(event) => {
+                      const [startDate, startTime] = timeToString(event.start);
+                      const [endDate, endTime] = timeToString(event.end);
+
+                      let fullDateTime: string, startEmphasis: string;
+                      if (startTime) {
+                        fullDateTime = `${startTime} ${startDate} - ${endTime} ${endDate}`;
+                        startEmphasis = startTime;
+                      } else {
+                        fullDateTime = `${startDate} - ${endDate}`;
+                        startEmphasis = startDate as string;
+                      }
+
+                      return (
+                        <Flex w="100%" wrap="wrap" justify="flex-start" align="center">
+                          <Container maxWidth="75px" p="0" m="0">
+                            {startEmphasis}
+                          </Container>
+                          <VStack minWidth="50px" w="fit">
+                            <Text w="100%">{event.summary}</Text>
+                            <Text textStyle="xs" w="100%">{fullDateTime}</Text>
+                          </VStack>
+                        </Flex>
+                      )}
                     }
                   </For>
                 </VStack>

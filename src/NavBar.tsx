@@ -1,14 +1,13 @@
 // import { useState, useEffect } from 'react';
 // import axios from 'axios';
 
-import { Heading, Container, AbsoluteCenter, For, Button, Icon, Text, Flex, Spacer} from '@chakra-ui/react';
+import { Heading, Container, AbsoluteCenter, For, Button, Text, Flex, Spacer, Image, LinkOverlay} from '@chakra-ui/react';
 import { Link } from "react-router";
 import { useContext } from 'react';
 
-import { LuRocket } from "react-icons/lu"
-
 import { UserContext } from './UserContext';
 
+import rocketLogoURL from './assets/Launchpad_Logo_rocket.png';
 
 interface MyProps {
   pages: Array<string>,
@@ -39,10 +38,9 @@ function NavBar (props: MyProps) {
       <Container as="div" w="100%" h="45px" backgroundColor={props.navColor ?? "gray.emphasized"} margin="0" maxWidth="none" paddingLeft="16" paddingRight="16" color={props.textColor}>
         {/* TODO: Make this responsive for mobile and turn into a collapsible thing */}
         <AbsoluteCenter>
-          <Icon size="lg" color={props.textColor} margin="1">
-            <LuRocket />
-          </Icon>
+          <Image height="1.5rem" mr="1" src={rocketLogoURL}/>
           <Heading>LaunchPad</Heading>
+          <LinkOverlay href="/" />
         </AbsoluteCenter>
         <Flex width="100%">
           <For each={props.pages}>
