@@ -12,12 +12,6 @@ import type { Event } from '../../types/Calendar.js';
 const router = express.Router();
 const demoId = Number(process.env['DEMO_ACCOUNT_ID']) || -2;
 
-async function getDummyData() {
-  const dummyJson = await readFile('./data/dummydata.json', "utf8"); // relative to project root, apparently
-
-  return JSON.parse(dummyJson);
-}
-
 router.get('/', async (req, res) => {
   // check auth
   if (req.user === undefined) {
