@@ -1,13 +1,16 @@
 import axios from 'axios';
 
-import { Heading, Text, Button, Link, Box, Container, Flex, Icon } from '@chakra-ui/react'
+import { Heading, Text, Button, Link, Box, Container, Flex, Icon, HStack, Image, AbsoluteCenter } from '@chakra-ui/react'
 import NavBar from './NavBar';
 import { UserContext } from './UserContext';
 import ImageCarousel from './home/ImageCarousel';
 import ChangelogScroll from './home/ChangelogScroll';
 import { useState, useEffect, useContext } from 'react'
 
-import { LuRocket } from "react-icons/lu"
+import { LuRocket } from "react-icons/lu";
+
+import gridLogoURL from './assets/Launchpad_Logo_grid.png';
+import rocketLogoURL from './assets/Launchpad_Logo_rocket.png';
 
 function Home () {
   const { handleLogout, handleLoginDemo, user, activeDash } = useContext(UserContext);
@@ -65,8 +68,20 @@ function Home () {
       {/* Navbar */}
       <NavBar pages={["Hub", "Dashboard"]}/>
 
-      {/* Section 1, Call to Action */}
+      
+
       <Container p="14" backgroundColor="gray.950">
+        {/* Section 0, Title and Logo */}
+        <Container>
+          <Flex w="100%" justifyContent="center" align="center">
+            <Image height="4rem" src={gridLogoURL}/>
+            <Heading size="7xl">
+              Launchpad
+            </Heading>
+          </Flex>
+        </Container>
+
+        {/* Section 1, Call to Action */}
         <Flex justifyContent="center" gap="16">
           <ImageCarousel />
           <Container width="-moz-fit-content" margin="2" textAlign="center" p="3">
@@ -98,9 +113,7 @@ function Home () {
       {/* Section 3,  Footer */}
       <Container p="14" backgroundColor="gray.contrast">
           <Flex justifyContent="space-between" gap="16">
-            <Icon size="2xl" color="gray.focusRing" margin="1">
-              <LuRocket />
-            </Icon>
+            <Image height="3rem" src={rocketLogoURL}/>
             <Flex justifyContent="center" gap="16">
               <Link href="https://github.com/Operation-Yuzu/Launchpad"> View the Source Code </Link>
             </Flex>
