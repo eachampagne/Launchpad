@@ -45,7 +45,10 @@ function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, o
 
   const colorPicker = (setter: (value: string) => void) => {
     return (e: any) => {
-      setter(e.value.toString('hex'))
+      const newColor = e.valueAsString || e.value
+      if(newColor){
+        setter(String(newColor))
+      }
     }
   }
 
@@ -101,8 +104,8 @@ function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, o
  // deleting the theme
   const deleteTheme = async (data: any) => {
     try {
-      const {themeId} = data
-      await axios.delete(`/theme/delete/${ownerId}`, {data: {themeId}})
+      const { themeId } = data
+      await axios.delete(`/theme/delete/${ownerId}`, {data: { themeId }})
       allThemes()
     } catch (error) {
       console.error(error)
@@ -155,7 +158,7 @@ function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, o
                   <Box textAlign='center'>
                   <Text fontSize='xs' color='white' fontWeight='medium' mb='1'>{colorMap[key]}</Text>
                   </Box>
-                  <Text fontSize='10px' color='white'>{theme[key]}</Text>
+                  {/* <Text fontSize='10px' color='white'>{theme[key]}</Text> */}
                   </Box>
                 ))}
               </Box>
@@ -165,6 +168,7 @@ function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, o
             </Listbox.Item>
             
           <Button size='2xs' variant='ghost' colorPalette='red' onClick={(e) => {
+            e.preventDefault()
             e.stopPropagation()
             deleteTheme({themeId: theme.id})
             }}>{<IoTrashSharp />}</Button>
