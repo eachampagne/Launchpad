@@ -9,6 +9,7 @@ import NavBar from "./NavBar";
 import Theme from './Theme';
 import LayoutGallery from './LayoutGallery';
 import LayoutCanvas from './LayoutCanvas'
+import WidgetLibrary from "./WidgetLibrary";
 
 type Layout = {
   id: number;
@@ -38,7 +39,7 @@ type Dashboard = {
 const gridCols = 19;
 const gridRows = 12;
 //px per grid unit
-const snapSize = 100;
+const snapSize = 60;
 
 
 
@@ -164,107 +165,76 @@ function DashEditor() {
 
 
   return (
-    // <>
-    //   <NavBar pages={["Home", "Hub"]} />
-    //   <h2>Editing: {renderName()}</h2>
-      
-    //   {appliedDash?.layoutId && (
-    //     <section>
-    //       <h3> APPLIED LAYOUT</h3>
-    //       <p>LAYOUT ID: {appliedDash.layoutId}</p>
-    //       {/**MVP GRID PLACEHOLDER */}
-    //     </section>
-    //   )}
-    //   <Link to='/Dashboard'>Done</Link>
-    //   <Theme dashboardId={dashboardId} dashboard={dashboard} ownerId={ownerId} />
-    //   <LayoutGallery onSelect={setSelectedLayoutId}/>
-    //   <LayoutCanvas layout={dashboard.layout} editable={true}/>
-
-    //   {selectedLayout && (
-    //     <>
-    //     <h4>LAYOUT PREVIEW</h4>
-    //     <p>SELECTED LAYOUT #{selectedLayoutId}</p>
-    //     <p>GRID SIZE: {selectedLayout.gridSize}</p>
-    //     <button onClick={() => applyLayout(selectedLayout.id)}> APPLY CURRENT LAYOUT </button>
-    //     </>
-    //   )}
-
-    // </>
     <>
-    <NavBar pages={["Home", "Hub"]} />
+      <NavBar pages={["Home", "Hub"]} />
+      <h2>Editing: {renderName()}</h2>
 
-    <h2>Editing: {renderName()}</h2>
-
-    <Flex
-      width="100%"
-      minH="calc(100vh - 120px)"
-      my={6}
-      px={6}
-      gap={6}
-      align="flex-start"
-    >
-      {/* LEFT: GRID EDITOR */}
-      <Box flex="1" display="flex" justifyContent="center">
-        <Box
-          width={`${gridCols * snapSize}px`}
-          height={`${gridRows * snapSize}px`}
-          borderWidth="1px"
-          borderRadius="md"
-          p={2}
-          overflow="hidden"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          {/* SCALE CONTAINER */}
-            <LayoutCanvas layout={dashboard.layout} editable/>
-
-        </Box>
-      </Box>
-
-      {/* RIGHT: SETTINGS */}
-      <Box flex="1" display="flex" justifyContent="center">
-        <Box
-          width="520px"
-          borderWidth="1px"
-          borderRadius="md"
-          p={4}
-        >
-          <Theme
-            dashboardId={dashboardId}
-            dashboard={dashboard}
-            ownerId={ownerId}
-          />
- 
-
-          <Box mt={4}>
-            <LayoutGallery onSelect={setSelectedLayoutId} />
+      <Flex
+        width="100%"
+        //minH="calc(100vh - 120px)"
+        my={8}
+        px={6}
+        gap={8}
+        align="flex-start"
+      >
+        {/* LEFT: GRID EDITOR */}
+        <Box flex="2" display="flex" justifyContent="center">
+          <Box
+            width={`${gridCols * snapSize}px`}
+            height={`${gridRows * snapSize}px`}
+            border="1px solid"
+            borderColor="gray.500"
+            borderRadius="md"
+            bg="white"
+          >
+            {/* SCALE CONTAINER */}
+            <LayoutCanvas layout={dashboard.layout} editable  onLayoutChange={loadDashboard} />
           </Box>
-
-          {selectedLayout && (
-            <Box mt={4}>
-              <h4>LAYOUT PREVIEW</h4>
-              <p>SELECTED LAYOUT #{selectedLayoutId}</p>
-              <p>GRID SIZE: {selectedLayout.gridSize}</p>
-              <button onClick={() => applyLayout(selectedLayout.id)}>
-                APPLY CURRENT LAYOUT
-              </button>
-            </Box>
-          )}
         </Box>
-      </Box>
-    </Flex>
 
-    {appliedDash?.layoutId && (
-      <section>
-        <h3>APPLIED LAYOUT</h3>
-        <p>LAYOUT ID: {appliedDash.layoutId}</p>
-      </section>
-    )}
+        {/* RIGHT: SETTINGS */}
+        <Box flex="1" maxW="500px">
+          <Box width="520px" borderWidth="1px" borderRadius="md" p={4}>
+            <Theme
+              dashboardId={dashboardId}
+              dashboard={dashboard}
+              ownerId={ownerId}
+            />
 
-    <Link to="/Dashboard">Done</Link>
-  </>
+            <Box mt={4}>
+              <LayoutGallery onSelect={setSelectedLayoutId} />
+            </Box>
 
+            {dashboard.layout && (
+              <WidgetLibrary
+                layoutId={dashboard.layout.id}
+                onWidgetAdded={loadDashboard}
+              />
+            )}
+
+            {selectedLayout && (
+              <Box mt={4}>
+                <h4>LAYOUT PREVIEW</h4>
+                <p>SELECTED LAYOUT #{selectedLayoutId}</p>
+                <p>GRID SIZE: {selectedLayout.gridSize}</p>
+                <button onClick={() => applyLayout(selectedLayout.id)}>
+                  APPLY CURRENT LAYOUT
+                </button>
+              </Box>
+            )}
+          </Box>
+        </Box>
+      </Flex>
+
+      {appliedDash?.layoutId && (
+        <section>
+          <h3>APPLIED LAYOUT</h3>
+          <p>LAYOUT ID: {appliedDash.layoutId}</p>
+        </section>
+      )}
+
+      <Link to="/Dashboard">Done</Link>
+    </>
   );
 }
 
