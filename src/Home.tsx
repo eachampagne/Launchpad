@@ -10,7 +10,7 @@ import { useState, useEffect, useContext } from 'react'
 import { LuRocket } from "react-icons/lu"
 
 function Home () {
-  const { handleLogout } = useContext(UserContext);
+  const { handleLogout, handleLoginDemo, user, activeDash } = useContext(UserContext);
   const [prs, setPrs] = useState([] as {number: number, merged: boolean, mergedAt: string, title: string}[]);
 
   const fetchChangelog = async () => {
@@ -27,6 +27,39 @@ function Home () {
     fetchChangelog();
   }, []);
 
+  const renderLogin = () => {
+    if (user.id === -1) { // not logged in
+      return (
+        <>
+          <Heading color="gray.focusRing" > Join Us! </Heading>
+          <div>
+            <Button className="button google" colorPalette="gray" variant="outline" margin="1" asChild><Link href="/login/federated/google">Sign in with Google</Link></Button>
+          </div>
+          <div>
+            <Button className="logout button google" margin="1" onClick={() => {handleLoginDemo()}} colorPalette="gray" variant="outline">Try out the demo</Button>
+          </div>
+        </>
+      );
+    } else { // logged in
+      return (
+        <>
+          <Heading color="gray.focusRing">Welcome, {user.name}!</Heading>
+          <div>
+            {
+              // if there is no active dash set, send user to hub rather than to a nonexistent dashboard
+              activeDash === -1 ?
+              <Button className="button google" colorPalette="gray" variant="outline" margin="1" asChild><Link href="/hub">Go to hub</Link></Button>
+              : <Button className="button google" colorPalette="gray" variant="outline" margin="1" asChild><Link href="/dashboard">Go to dashboard</Link></Button>
+            }
+          </div>
+          <div>
+            <Button className="logout button google" margin="1" onClick={() => {handleLogout()}} colorPalette="gray" variant="outline">Log Out</Button>
+          </div>
+        </>
+      );
+    }
+  };
+
   return (
     <>
       {/* Navbar */}
@@ -41,12 +74,7 @@ function Home () {
             <Text fontSize="lg" mb="5"> Customize your dashboard's widgets and colors and watch your productivity take off. </Text>
           </Container>
           <Box background="gray.950" p="3" margin="2" width="-moz-fit-content" textAlign="center" w="250px">
-            <Heading color="gray.focusRing" > Join Us! </Heading>
-            <div>
-              <Button className="button google" colorPalette="gray" variant="outline" margin="1" asChild><Link href="/login/federated/google">Sign in with Google</Link></Button>
-            </div>
-            {/* TODO: Move logout button to somewhere that makes more sense */}
-            <div><Button className="logout button google" margin="1" onClick={() => {handleLogout()}} colorPalette="gray" variant="outline">Log Out</Button></div>
+            {renderLogin()}
           </Box>
         </Flex>
       </Container>

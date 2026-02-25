@@ -4,10 +4,12 @@ import session from 'express-session';
 import passport from 'passport';
 import { google } from 'googleapis';
 import GoogleStrategy from 'passport-google-oidc';
+import LocalStrategy from 'passport-local';
 import { User } from '../../generated/prisma/client.js' // * 'User' Type.
 import { prisma } from '../database/prisma.js';
 
 const router = express.Router();
+const demoId = Number(process.env['DEMO_ACCOUNT_ID']) || -2; // won't conflict with normal users because Prisma starts at 1, or with client using -1 for logged out, but is truthy so won't mess up existing logic
 
 passport.use(new GoogleStrategy({
   clientID: process.env['GOOGLE_CLIENT_ID'],
@@ -37,6 +39,41 @@ passport.use(new GoogleStrategy({
   }).catch((err) => {
     cb(err);
   })
+}));
+
+passport.use(new LocalStrategy.Strategy(function verify(username: string, password: string, cb: Function) {
+  // if this were really a username/password login, the password would be checked against the hash, etc
+  // but there actually isn't a username or password for the demo account so none of that happens
+  prisma.user.findFirst({
+    where: {
+      id: demoId // the special demo id
+    }
+  })
+    .then((user) => {
+      if (!user) {
+        return prisma.user.create({
+          data: {
+            id: demoId,
+            name: 'Demo account',
+            credentialProvider: '',
+            credentialSubject: ''
+          }
+        }).then((newUser) => {
+          return cb(null, newUser);
+        })
+      } else {
+        return cb(null, user);
+      }
+    })
+    .catch((err) => {
+      console.error('Failed to find demo account:', err);
+      cb(err);
+    });
+}));
+
+router.post('/login/demo', passport.authenticate('local', {
+  successRedirect: '/hub',
+  failureRedirect: '/'
 }));
 
 router.get('/login/federated/google', passport.authenticate('google'));
@@ -136,8 +173,6 @@ router.get('/auth/redirect/google', async (req, res) => {
     res.end('State mismatch. Possible CSRF attack');
   } else {
     const { tokens } = await oauth2Client.getToken(query.code as string);
-
-    console.log(tokens);
 
     oauth2Client.setCredentials(tokens);
 

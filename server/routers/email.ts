@@ -6,7 +6,10 @@ import { prisma } from '../database/prisma.js';
 import { getGoogleOauth } from '../utils/googleapi.js';
 import { batchFetchImplementation } from '@jrmdayn/googleapis-batcher';
 
+import { getDemoEmails } from '../data/demoEmail.js';
+
 const email = express.Router();
+const demoId = Number(process.env['DEMO_ACCOUNT_ID']) || -2;
 
 email.get('/', async (req, res) => {
   // check auth
@@ -16,6 +19,11 @@ email.get('/', async (req, res) => {
   }
 
   const userId = req.user.id;
+
+  if (userId === demoId) {
+    const emails = await getDemoEmails();
+    return res.status(200).send(emails);
+  }
 
   try {
     const oauth2Client = await getGoogleOauth(userId, 'gmail');
