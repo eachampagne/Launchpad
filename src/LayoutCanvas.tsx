@@ -36,7 +36,7 @@ const widgetMap: Record<string, React.FC>= {
 const gridCols = 19;
 const gridRows = 12;
 //px per grid unit
-const snapSize = 100;
+const snapSize = 60;
 
 
 
