@@ -40,11 +40,11 @@ const snapSize = 100;
 
 
 
-const LayoutCanvas = function({layout, editable=false}: { layout: Layout; editable?: boolean }){
+const LayoutCanvas = function({layout, editable=false, onLayoutChange}: { layout: Layout; editable?: boolean; onLayoutChange?: () => void; }){
 
   const handleResize = async ( elementId: number, posX: number, posY: number, sizeX: number, sizeY: number) => {
   try{
-    await axios.patch(`/layout/${elementId}`, {
+    await axios.patch(`/layout/element/${elementId}`, {
       widgetSettings: { posX, posY, sizeX, sizeY}
     })
 
@@ -55,7 +55,10 @@ const LayoutCanvas = function({layout, editable=false}: { layout: Layout; editab
 
   const handleDelete = async (elementId: number) => {
   try {
-    await axios.delete(`/layout/${elementId}`);
+    await axios.delete(`/layout/element/${elementId}`);
+    if (onLayoutChange) {
+      onLayoutChange(); //refresh parent dashboard
+    }
   } catch (err) {
     console.log("Could not delete widget", err);
   }
