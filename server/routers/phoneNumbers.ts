@@ -2,11 +2,18 @@ import express from 'express';
 
 import { prisma } from '../database/prisma.js';
 import "dotenv/config";
-import twilio from 'twilio'
+import twilio, { Twilio } from 'twilio'
 import { use } from 'passport';
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
-const client = twilio(accountSid, authToken);
+let client: Twilio | undefined;
+
+if (process.env.NODE_ENV !== "test") {
+  if (!accountSid || !authToken) {
+    throw new Error("Missing Twilio environment variables");
+  }
+  client = twilio(accountSid, authToken);
+}
 
 const phoneNumbers = express.Router();
 
@@ -82,6 +89,9 @@ phoneNumbers.post('/:ownerId', async (req, res) => {
 // send the verification code
 phoneNumbers.post('/verify/send/:ownerId', async (req, res) => {
   try {
+    if (!client) {
+      return res.status(503).send("Twilio not configured");
+    }
     const existing = await prisma.phoneNumbers.findUnique({
       where: {
         userId: Number(req.params.ownerId)
@@ -111,6 +121,9 @@ console.log(verification, 'verify')
 phoneNumbers.post('/verify/check/:ownerId', async (req, res) => {
   // gets the verification code they put in the field
   try {
+    if (!client) {
+      return res.status(503).send("Twilio not configured");
+    }
     const { code } = req.body
 
     if(!code){
