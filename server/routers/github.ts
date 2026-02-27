@@ -4,6 +4,7 @@ import axios from 'axios';
 const github = express.Router();
 
 github.get('/changelog', async (req, res) => {
+  console.log("CHANGELOG ROUTE HIT");
 // Test fallback for CI / fork PRs
     if (!process.env.GH_AUTH_TOKEN) {
     return res.status(200).json([
