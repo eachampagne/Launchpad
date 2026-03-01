@@ -10,14 +10,10 @@ import router from './routers/router.js';
 import session from 'express-session';
 import passport from 'passport';
 import authRouter from './routers/auth.js'
-import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "../generated/prisma/client.js";
 import { PrismaSessionStore } from '@quixo3/prisma-session-store';
 // * AUTH 
 
-const connectionString = `${process.env.DATABASE_URL}`;
-const adapter = new PrismaPg({ connectionString });
-const prisma = new PrismaClient({ adapter });
+import { prisma } from './database/prisma.js';
 
 const app = express();
 
@@ -31,6 +27,7 @@ app.use(express.json());
 app.use(express.static(join(__dirname, '..', '..','dist'))); // evidently this is relative to the compiled index.js file
 
 // * AUTH 
+
 app.use(session({
   secret: process.env['secret']!, //  ! [variable]! means that it is not checking for null. Be careful!
   resave: true,

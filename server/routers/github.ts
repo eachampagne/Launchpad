@@ -14,7 +14,7 @@ github.get('/changelog', async (req, res) => {
       query: queryString
     }, {
       headers: {
-        'Authorization': `bearer ${process.env.GITHUB_AUTH_TOKEN}`
+        'Authorization': `bearer ${process.env.GH_AUTH_TOKEN}`
       }
     });
 

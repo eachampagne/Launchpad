@@ -5,13 +5,13 @@ interface EventBase {
   id: string
 }
 
-interface AllDayTime {
+export interface AllDayTime {
   date: string,
   dateTime?: never,
   timeZone?: never
 }
 
-interface PartDayTime {
+export interface PartDayTime {
   date?: never,
   dateTime: string,
   timeZone: string
@@ -32,7 +32,8 @@ export type Event = EventAllDay | EventPartDay;
 export type CalendarObject = {
   id: string,
   summary: string,
-  description: string
+  description: string,
+  primary?: boolean
 }
 
 export type ThemeObject = {

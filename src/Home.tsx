@@ -1,16 +1,17 @@
 import axios from 'axios';
 
-import { Heading, Text, Button, Link, Box, Container, Flex, Icon } from '@chakra-ui/react'
+import { Heading, Text, Button, Link, Box, Container, Flex, Image } from '@chakra-ui/react'
 import NavBar from './NavBar';
 import { UserContext } from './UserContext';
 import ImageCarousel from './home/ImageCarousel';
 import ChangelogScroll from './home/ChangelogScroll';
 import { useState, useEffect, useContext } from 'react'
 
-import { LuRocket } from "react-icons/lu"
+import gridLogoURL from './assets/Launchpad_Logo_grid.png';
+import rocketLogoURL from './assets/Launchpad_Logo_rocket.png';
 
 function Home () {
-  const { handleLogout } = useContext(UserContext);
+  const { handleLogout, handleLoginDemo, user, activeDash } = useContext(UserContext);
   const [prs, setPrs] = useState([] as {number: number, merged: boolean, mergedAt: string, title: string}[]);
 
   const fetchChangelog = async () => {
@@ -27,13 +28,58 @@ function Home () {
     fetchChangelog();
   }, []);
 
+  const renderLogin = () => {
+    if (user.id === -1) { // not logged in
+      return (
+        <>
+          <Heading color="gray.focusRing" > Join Us! </Heading>
+          <div>
+            <Button className="button google" colorPalette="gray" variant="outline" margin="1" asChild><Link href="/login/federated/google">Sign in with Google</Link></Button>
+          </div>
+          <div>
+            <Button className="logout button google" margin="1" onClick={() => {handleLoginDemo()}} colorPalette="gray" variant="outline">Try out the demo</Button>
+          </div>
+        </>
+      );
+    } else { // logged in
+      return (
+        <>
+          <Heading color="gray.focusRing">Welcome, {user.name}!</Heading>
+          <div>
+            {
+              // if there is no active dash set, send user to hub rather than to a nonexistent dashboard
+              activeDash === -1 ?
+              <Button className="button google" colorPalette="gray" variant="outline" margin="1" asChild><Link href="/hub">Go to hub</Link></Button>
+              : <Button className="button google" colorPalette="gray" variant="outline" margin="1" asChild><Link href="/dashboard">Go to dashboard</Link></Button>
+            }
+          </div>
+          <div>
+            <Button className="logout button google" margin="1" onClick={() => {handleLogout()}} colorPalette="gray" variant="outline">Log Out</Button>
+          </div>
+        </>
+      );
+    }
+  };
+
   return (
     <>
       {/* Navbar */}
       <NavBar pages={["Hub", "Dashboard"]}/>
 
-      {/* Section 1, Call to Action */}
+      
+
       <Container p="14" backgroundColor="gray.950">
+        {/* Section 0, Title and Logo */}
+        <Container>
+          <Flex w="100%" justifyContent="center" align="center">
+            <Image height="4rem" src={gridLogoURL}/>
+            <Heading size="7xl">
+              Launchpad
+            </Heading>
+          </Flex>
+        </Container>
+
+        {/* Section 1, Call to Action */}
         <Flex justifyContent="center" gap="16">
           <ImageCarousel />
           <Container width="-moz-fit-content" margin="2" textAlign="center" p="3">
@@ -41,12 +87,7 @@ function Home () {
             <Text fontSize="lg" mb="5"> Customize your dashboard's widgets and colors and watch your productivity take off. </Text>
           </Container>
           <Box background="gray.950" p="3" margin="2" width="-moz-fit-content" textAlign="center" w="250px">
-            <Heading color="gray.focusRing" > Join Us! </Heading>
-            <div>
-              <Button className="button google" colorPalette="gray" variant="outline" margin="1" asChild><Link href="/login/federated/google">Sign in with Google</Link></Button>
-            </div>
-            {/* TODO: Move logout button to somewhere that makes more sense */}
-            <div><Button className="logout button google" margin="1" onClick={() => {handleLogout()}} colorPalette="gray" variant="outline">Log Out</Button></div>
+            {renderLogin()}
           </Box>
         </Flex>
       </Container>
@@ -70,9 +111,7 @@ function Home () {
       {/* Section 3,  Footer */}
       <Container p="14" backgroundColor="gray.contrast">
           <Flex justifyContent="space-between" gap="16">
-            <Icon size="2xl" color="gray.focusRing" margin="1">
-              <LuRocket />
-            </Icon>
+            <Image height="3rem" src={rocketLogoURL}/>
             <Flex justifyContent="center" gap="16">
               <Link href="https://github.com/Operation-Yuzu/Launchpad"> View the Source Code </Link>
             </Flex>

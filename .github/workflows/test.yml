@@ -1,0 +1,59 @@
+# .github/workflows/tests.yml
+name: Tests
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:        
+  unit-tests:
+    runs-on: ubuntu-latest
+
+    # 1. Start a real Postgres database on the runner's localhost:5432
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: ${{ secrets.PG_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.PG_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.PG_DB }}
+        ports:
+          - 5432:5432
+        # Ensure the DB is ready before the steps start
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: "postgresql://${{ secrets.PG_USER }}:${{ secrets.PG_PASSWORD }}@localhost:5432/${{ secrets.PG_DB }}"
+      GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+      GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+      APP_SECRET: ${{ secrets.secret }}
+      GOOGLE_LOGIN_REDIRECT_URL: ${{ secrets.GOOGLE_LOGIN_REDIRECT_URL }}
+      GOOGLE_AUTH_REDIRECT_URL: ${{ secrets.GOOGLE_AUTH_REDIRECT_URL }}
+      TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
+      TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+      GH_AUTH_TOKEN: ${{ secrets.GH_AUTH_TOKEN }}
+
+    steps:                        
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: Build and Install Dependencies
+        uses: ./.github/actions/build
+
+      # 2. Setup Database Schema (Required for Prisma + Playwright)
+      - name: Prisma Migrate and Generate
+        run: |
+          npx prisma generate
+          npx prisma migrate deploy
+
+      # 3. Install Playwright Browsers (Required for Ubuntu)
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      # 4. Run the actual tests
+      - name: Run Playwright tests            
+        run: npm test

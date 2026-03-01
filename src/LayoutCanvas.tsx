@@ -31,7 +31,18 @@ const widgetMap: Record<string, React.FC>= {
 };
 
 
-const handleResize = async ( elementId: number, posX: number, posY: number, sizeX: number, sizeY: number) => {
+
+
+const gridCols = 19;
+const gridRows = 12;
+//px per grid unit
+const snapSize = 60;
+
+
+
+const LayoutCanvas = function({layout, editable=false, onLayoutChange}: { layout: Layout; editable?: boolean; onLayoutChange?: () => void; }){
+
+  const handleResize = async ( elementId: number, posX: number, posY: number, sizeX: number, sizeY: number) => {
   try{
     await axios.patch(`/layout/${elementId}`, {
       widgetSettings: { posX, posY, sizeX, sizeY}
@@ -42,14 +53,17 @@ const handleResize = async ( elementId: number, posX: number, posY: number, size
   }
 }
 
+  const handleDelete = async (elementId: number) => {
+  try {
+    await axios.delete(`/layout/${elementId}`);
+    if (onLayoutChange) {
+      onLayoutChange(); //refresh parent dashboard
+    }
+  } catch (err) {
+    console.log("Could not delete widget", err);
+  }
+};
 
-const gridCols = 19;
-const gridRows = 12;
-//px per grid unit
-const snapSize = 100;
-
-
-const LayoutCanvas = function({layout, editable=false}: { layout: Layout; editable?: boolean }){
   return (
     <Box
     //Anchors absolute widgets
@@ -86,6 +100,7 @@ const LayoutCanvas = function({layout, editable=false}: { layout: Layout; editab
         color='#e5e7eb'
         snapSize={snapSize}
         handleResizeOrMove={handleResize}
+        onDelete={handleDelete}
         editActive={editable}
         >
         <WidgetComp />

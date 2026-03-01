@@ -1,17 +1,19 @@
 import { useState, useEffect, useContext } from 'react';
 import axios, { AxiosError } from 'axios';
+import { decode } from 'html-entities';
 
 import { Button, Flex, For, Heading, Icon, LinkBox, LinkOverlay, ScrollArea, Stack, Text } from '@chakra-ui/react';
 import { LuMail } from 'react-icons/lu';
 
 import { AuthStatus } from '../types/WidgetStatus.ts';
+import type { EmailObject } from '../types/Email.ts';
 import { UserContext } from './UserContext';
 
 function Email () {
   const { user } = useContext(UserContext);
 
   const [authStatus, setAuthStatus] = useState(AuthStatus.SignedOut);
-  const [emails, setEmails] = useState([] as {id: string, snippet: string}[]);
+  const [emails, setEmails] = useState([] as EmailObject[]);
 
   const getEmails = async () => {
     // if not signed in, don't even send the request
@@ -47,7 +49,7 @@ function Email () {
                     each={emails}
                     fallback={<Text>No emails to show.</Text>}
                   >
-                    {(email) => <Text>{email.snippet}</Text>}
+                    {(email) => <Text>{decode(email.snippet)}</Text>}
                   </For>
                 </Stack>
               </ScrollArea.Content>

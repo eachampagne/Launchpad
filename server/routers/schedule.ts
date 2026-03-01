@@ -15,7 +15,11 @@ schedule.get('/:ownerId', async (req, res) => {
     const ownerId = parseInt(idString)
     try {
         const schedules = await prisma.dashboardSchedule.findMany({
-            where: { ownerId }
+            where: { ownerId },
+            include: {
+              dashboard: true
+            }
+            
         })
 
         res.status(200).send(schedules)
