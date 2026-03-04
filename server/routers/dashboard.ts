@@ -100,13 +100,22 @@ dashboard.get('/:id', async (req, res) => {
         layout: {
           include : {
             layoutElements : {
-              include : { widget: true }
+              include : {
+                widget: true,
+                settings: {
+                  include: {
+                    calendar: true
+                  }
+                }
+              }
 
             }
           }
         }
       }
     });
+
+    console.log(dashboard?.layout.layoutElements);
 
     // TODO: check whether the given user should have access to this dashboard
 
