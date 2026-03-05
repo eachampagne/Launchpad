@@ -161,4 +161,52 @@ router.get('/list', async (req, res) => {
   }
 });
 
+router.patch('/default', async (req, res) => {
+  // check auth
+  const userId = req.user?.id;
+
+  if (userId === undefined) {
+    res.sendStatus(401);
+    return;
+  }
+
+  const { layoutElementId, defaultCalendar }: { layoutElementId: number | undefined, defaultCalendar: string | undefined }  = req.body;
+
+  if (layoutElementId === undefined || defaultCalendar === undefined) {
+    // bad request
+    return res.sendStatus(400);
+  }
+
+  try {
+    const widgetSettings = await prisma.widgetSettings.upsert({
+      where: {
+        layoutElementId
+      },
+      update: {},
+      create: {
+        layoutElementId
+      }
+    });
+
+    await prisma.calendarSetting.upsert({
+      where: {
+        widgetSettingsId: widgetSettings.id
+      },
+      update: {
+        defaultCalendar
+      },
+      create: {
+        widgetSettingsId: widgetSettings.id,
+        defaultCalendar
+      }
+    });
+
+    res.sendStatus(200);
+  } catch (error) {
+    console.error('Failed to update default calendar:', error);
+    res.sendStatus(500);
+  }
+
+});
+
 export default router;

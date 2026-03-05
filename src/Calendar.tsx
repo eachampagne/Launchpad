@@ -2,7 +2,7 @@ import { useState, useEffect, useContext, type ChangeEvent } from 'react';
 
 import axios, { AxiosError } from 'axios';
 
-import { Button, Container, Flex, For, Heading, Icon, LinkBox, LinkOverlay, NativeSelect, ScrollArea, Text, VStack } from '@chakra-ui/react';
+import { Button, Container, Flex, For, Heading, HStack, Icon, LinkBox, LinkOverlay, NativeSelect, ScrollArea, Text, VStack } from '@chakra-ui/react';
 import { LuCalendarDays } from 'react-icons/lu';
 
 
@@ -58,14 +58,25 @@ function Calendar() {
     getEvents(target.value);
   }
 
+  const setDefaultCalendar = async () => {
+    try {
+      await axios.patch('/calendar/default', {
+        layoutElementId: 2, // TODO: pass correct layoutElementId into widget
+        defaultCalendar: activeCalendarId
+      })
+    } catch (error) {
+      console.error('Failed to set default calendar:', error);
+    }
+  }
+
   useEffect(() => {
     // if not signed in, don't even send the request
     if (user.id === -1) {
       setAuthStatus(AuthStatus.SignedOut);
       return;
     } else {
-      getEvents();
       getCalendars();
+      getEvents();
     }
   }, [user]);
 
@@ -100,17 +111,20 @@ function Calendar() {
   const renderCalendarList = () => {
     if (authStatus === AuthStatus.Authorized) {
       return (
-        <NativeSelect.Root variant={'subtle'}>
-          <NativeSelect.Field onChange={handleCalendarSelect}>
-            <For
-              each={calendars}
-              fallback={<Text w="100%">No calendars found.</Text>}
-            >
-              { (calendar) => <option value={calendar.id}>{calendar.summary}</option>}
-            </For>
-          </NativeSelect.Field>
-          <NativeSelect.Indicator />
-        </NativeSelect.Root>
+        <HStack>
+          <NativeSelect.Root variant={'subtle'}>
+            <NativeSelect.Field onChange={handleCalendarSelect}>
+              <For
+                each={calendars}
+                fallback={<Text w="100%">No calendars found.</Text>}
+              >
+                { (calendar) => <option value={calendar.id}>{calendar.summary}</option>}
+              </For>
+            </NativeSelect.Field>
+            <NativeSelect.Indicator />
+          </NativeSelect.Root>
+          <Button onClick={setDefaultCalendar}>Make default</Button>
+        </HStack>
       )
     } else {
       return null;
