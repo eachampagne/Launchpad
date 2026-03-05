@@ -40,7 +40,7 @@ function LayoutGallery({onSelect, selectedLayoutId}: Props) {
         Select a layout to preview
       </Box>
 
-      <Grid gap={3}>
+      <Grid  templateColumns="repeat(2, 1fr)" gap={3}>
        {layout.map((lay) => {
         const isSelected = lay.id === selectedLayoutId
 
@@ -53,7 +53,7 @@ function LayoutGallery({onSelect, selectedLayoutId}: Props) {
             cursor="pointer"
             color="gray.800"
             borderColor={isSelected ? "orange.400" : "gray.300"}
-            bg={isSelected ? "blue.50" : "black.800"}
+            bg={isSelected ? "orange.50" : "white"}
             _hover={{ borderColor: "orange.300" }}
             onClick={() => onSelect(lay.id)}
           >
