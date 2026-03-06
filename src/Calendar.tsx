@@ -2,31 +2,36 @@ import { useState, useEffect, useContext, type ChangeEvent } from 'react';
 
 import axios, { AxiosError } from 'axios';
 
-import { Button, Container, Flex, For, Heading, Icon, LinkBox, LinkOverlay, NativeSelect, ScrollArea, Text, VStack } from '@chakra-ui/react';
+import { AbsoluteCenter, Button, Container, Flex, For, Heading, HStack, Icon, LinkBox, LinkOverlay, NativeSelect, ScrollArea, Spinner, Text, VStack } from '@chakra-ui/react';
 import { LuCalendarDays } from 'react-icons/lu';
 
 
 import type { AllDayTime, PartDayTime, Event, CalendarObject } from '../types/Calendar.ts';
+import type { WidgetSettings } from '../types/LayoutTypes.ts';
 import { AuthStatus } from '../types/WidgetStatus.ts';
 import { UserContext } from './UserContext';
 
-function Calendar() {
+function Calendar({widgetId, settings}: {widgetId: number, settings: WidgetSettings | null}) {
   const { user } = useContext(UserContext);
 
   const [authStatus, setAuthStatus] = useState(AuthStatus.SignedOut);
   const [events, setEvents] = useState([] as Event[]);
   const [calendars, setCalendars] = useState([] as CalendarObject[]);
-  const [activeCalendarId, setActiveCalendarId] = useState('');
+  const [activeCalendarId, setActiveCalendarId] = useState(settings?.calendar?.defaultCalendar || '');
+  const [isLoadingEvents, setIsLoadingEvents] = useState(false);
 
   const getEvents = async (calendarId = '') => {
     try {
       const query = calendarId ? `?calendarId=${encodeURIComponent(calendarId)}` : ''; //apparently one of the Google calendars has a pound sign
       
+      setIsLoadingEvents(true);
       const response = await axios.get(`/calendar${query}`);
+      setIsLoadingEvents(false);
       setEvents(response.data);
       setActiveCalendarId(calendarId);
       setAuthStatus(AuthStatus.Authorized);
     } catch (error) {
+      setIsLoadingEvents(false);
       if ((error as AxiosError).status === 401) {
         setAuthStatus(AuthStatus.SignedOut);
       } else if ((error as AxiosError).status === 403) {
@@ -42,6 +47,21 @@ function Calendar() {
       const response = await axios.get('/calendar/list');
       setCalendars(response.data);
       setAuthStatus(AuthStatus.Authorized);
+
+      // make sure the defaultCalendar passed from props actually exists
+      // just in case it's been deleted or something
+      if (settings?.calendar?.defaultCalendar) {
+        const calendarIds = response.data.map((calendar: {id: string}) => calendar.id);
+        if (!calendarIds.includes(settings.calendar.defaultCalendar)) {
+          setActiveCalendarId('');
+          setDefaultCalendar('null'); // clear selected in database
+          return ''; // pass empty string to then block to request primary calendar as fallback
+        } else {
+          return settings.calendar.defaultCalendar; // defaultCalendar is validated - pass to then block to request its events
+        }
+      } else {
+        return ''; // pass empty string to then block to request primary
+      }
     } catch (error) {
       if ((error as AxiosError).status === 401) {
         setAuthStatus(AuthStatus.SignedOut);
@@ -58,14 +78,30 @@ function Calendar() {
     getEvents(target.value);
   }
 
+  const setDefaultCalendar = async (newDefaultId: string | null) => {
+    try {
+      await axios.patch('/calendar/default', {
+        layoutElementId: widgetId,
+        defaultCalendar: newDefaultId
+      })
+    } catch (error) {
+      console.error('Failed to set default calendar:', error);
+    }
+  }
+
   useEffect(() => {
     // if not signed in, don't even send the request
     if (user.id === -1) {
       setAuthStatus(AuthStatus.SignedOut);
       return;
     } else {
-      getEvents();
-      getCalendars();
+      getCalendars()
+        .then((calendarToRequest: string | undefined) => {
+          // calendarToRequest is only undefined if there was an error in getCalendars
+          if (calendarToRequest !== undefined) {
+            getEvents(calendarToRequest);
+          }
+        });
     }
   }, [user]);
 
@@ -99,18 +135,26 @@ function Calendar() {
 
   const renderCalendarList = () => {
     if (authStatus === AuthStatus.Authorized) {
+      // the fallback in case the activeCalendarId is an empty string
+      const primaryCalendarId = calendars
+                                  .filter(calendar => calendar.primary === true)
+                                  .map(calendar => calendar.id)[0]; // this assumes there is one in the array
+
       return (
-        <NativeSelect.Root variant={'subtle'}>
-          <NativeSelect.Field onChange={handleCalendarSelect}>
-            <For
-              each={calendars}
-              fallback={<Text w="100%">No calendars found.</Text>}
-            >
-              { (calendar) => <option value={calendar.id}>{calendar.summary}</option>}
-            </For>
-          </NativeSelect.Field>
-          <NativeSelect.Indicator />
-        </NativeSelect.Root>
+        <HStack>
+          <NativeSelect.Root variant={'subtle'} color='white'>
+            <NativeSelect.Field onChange={handleCalendarSelect} value={activeCalendarId || primaryCalendarId}>
+              <For
+                each={calendars}
+                fallback={<Text w="100%">No calendars found.</Text>}
+              >
+                { (calendar) => <option value={calendar.id}>{calendar.summary}</option>}
+              </For>
+            </NativeSelect.Field>
+            <NativeSelect.Indicator />
+          </NativeSelect.Root>
+          <Button onClick={() => setDefaultCalendar(activeCalendarId)}>Make default</Button>
+        </HStack>
       )
     } else {
       return null;
@@ -133,6 +177,14 @@ function Calendar() {
         )
         break;
       case AuthStatus.Authorized:
+        if (isLoadingEvents) {
+          return (
+            <AbsoluteCenter>
+              <Spinner color="blue.500" animationDuration="0.8s" />
+            </AbsoluteCenter>
+          );
+        }
+        // render the events only if finished loading
         return (
           <ScrollArea.Root marginTop="0.5rem">
             <ScrollArea.Viewport>

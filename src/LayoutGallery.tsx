@@ -4,11 +4,8 @@ import { Grid, Box } from "@chakra-ui/react"
 import axios from 'axios';
 
 //set types
-type Layout = {
-  id: number;
-  gridSize: string;
-  layoutElements: [];
-};
+import type { Layout } from '../types/LayoutTypes';
+
 
 function LayoutGallery({onSelect,}: {onSelect: (layoutId: number) => void;}) {
   const [layout, setLayout] = useState<Layout[]>([]);
