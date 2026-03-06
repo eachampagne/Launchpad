@@ -2,7 +2,7 @@ import { useState, useEffect, useContext } from 'react';
 import axios, { AxiosError } from 'axios';
 import { decode } from 'html-entities';
 
-import { Button, Flex, For, Heading, Icon, LinkBox, LinkOverlay, ScrollArea, Stack, Text } from '@chakra-ui/react';
+import { AbsoluteCenter, Button, Flex, For, Heading, Icon, LinkBox, LinkOverlay, ScrollArea, Spinner, Stack, Text } from '@chakra-ui/react';
 import { LuMail } from 'react-icons/lu';
 
 import { AuthStatus } from '../types/WidgetStatus.ts';
@@ -15,6 +15,7 @@ function Email ({widgetId, settings}: {widgetId: number, settings: WidgetSetting
 
   const [authStatus, setAuthStatus] = useState(AuthStatus.SignedOut);
   const [emails, setEmails] = useState([] as EmailObject[]);
+  const [isLoadingEmails, setIsLoadingEmails] = useState(false);
 
   const getEmails = async () => {
     // if not signed in, don't even send the request
@@ -24,10 +25,13 @@ function Email ({widgetId, settings}: {widgetId: number, settings: WidgetSetting
     }
 
     try {
+      setIsLoadingEmails(true);
       const response = await axios.get('/email');
+      setIsLoadingEmails(false);
       setEmails(response.data);
       setAuthStatus(AuthStatus.Authorized);
     } catch (error) {
+      setIsLoadingEmails(false);
       if ((error as AxiosError).status === 401) {
         setAuthStatus(AuthStatus.SignedOut);
       } else if ((error as AxiosError).status === 403) {
@@ -41,6 +45,14 @@ function Email ({widgetId, settings}: {widgetId: number, settings: WidgetSetting
   const renderEmails = () => {
     switch(authStatus) {
       case AuthStatus.Authorized:
+        if (isLoadingEmails) {
+          return (
+            <AbsoluteCenter>
+              <Spinner color="blue.500" animationDuration="0.8s" />
+            </AbsoluteCenter>
+          );
+        }
+        // render the emails only if finished loading
         return (
           <ScrollArea.Root>
             <ScrollArea.Viewport>

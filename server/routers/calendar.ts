@@ -178,6 +178,8 @@ router.patch('/default', async (req, res) => {
   }
 
   try {
+    // TODO: check that the layout element exists and belongs to a layout owned by the requesting user
+
     const widgetSettings = await prisma.widgetSettings.upsert({
       where: {
         layoutElementId
@@ -188,7 +190,7 @@ router.patch('/default', async (req, res) => {
       }
     });
 
-    await prisma.calendarSetting.upsert({
+    await prisma.calendarSettings.upsert({
       where: {
         widgetSettingsId: widgetSettings.id
       },

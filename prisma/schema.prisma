@@ -132,12 +132,12 @@ model WidgetSettings {
   id                Int             @id @default(autoincrement())
   layoutElement     LayoutElement   @relation(fields: [layoutElementId], references: [id])
   layoutElementId   Int             @unique
-  calendar          CalendarSetting?
+  calendar          CalendarSettings?
 }
 
-model CalendarSetting {
+model CalendarSettings {
   id                Int             @id @default(autoincrement())
   widgetSettings    WidgetSettings  @relation(fields: [widgetSettingsId], references: [id])
   widgetSettingsId  Int             @unique
-  defaultCalendar   String
+  defaultCalendar   String?
 }

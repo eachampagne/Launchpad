@@ -2,7 +2,7 @@ import { useState, useEffect, useContext, type ChangeEvent } from 'react';
 
 import axios, { AxiosError } from 'axios';
 
-import { Button, Container, Flex, For, Heading, HStack, Icon, LinkBox, LinkOverlay, NativeSelect, ScrollArea, Text, VStack } from '@chakra-ui/react';
+import { AbsoluteCenter, Button, Container, Flex, For, Heading, HStack, Icon, LinkBox, LinkOverlay, NativeSelect, ScrollArea, Spinner, Text, VStack } from '@chakra-ui/react';
 import { LuCalendarDays } from 'react-icons/lu';
 
 
@@ -18,16 +18,20 @@ function Calendar({widgetId, settings}: {widgetId: number, settings: WidgetSetti
   const [events, setEvents] = useState([] as Event[]);
   const [calendars, setCalendars] = useState([] as CalendarObject[]);
   const [activeCalendarId, setActiveCalendarId] = useState(settings?.calendar?.defaultCalendar || '');
+  const [isLoadingEvents, setIsLoadingEvents] = useState(false);
 
   const getEvents = async (calendarId = '') => {
     try {
       const query = calendarId ? `?calendarId=${encodeURIComponent(calendarId)}` : ''; //apparently one of the Google calendars has a pound sign
       
+      setIsLoadingEvents(true);
       const response = await axios.get(`/calendar${query}`);
+      setIsLoadingEvents(false);
       setEvents(response.data);
       setActiveCalendarId(calendarId);
       setAuthStatus(AuthStatus.Authorized);
     } catch (error) {
+      setIsLoadingEvents(false);
       if ((error as AxiosError).status === 401) {
         setAuthStatus(AuthStatus.SignedOut);
       } else if ((error as AxiosError).status === 403) {
@@ -43,6 +47,21 @@ function Calendar({widgetId, settings}: {widgetId: number, settings: WidgetSetti
       const response = await axios.get('/calendar/list');
       setCalendars(response.data);
       setAuthStatus(AuthStatus.Authorized);
+
+      // make sure the defaultCalendar passed from props actually exists
+      // just in case it's been deleted or something
+      if (settings?.calendar?.defaultCalendar) {
+        const calendarIds = response.data.map((calendar: {id: string}) => calendar.id);
+        if (!calendarIds.includes(settings.calendar.defaultCalendar)) {
+          setActiveCalendarId('');
+          setDefaultCalendar('null'); // clear selected in database
+          return ''; // pass empty string to then block to request primary calendar as fallback
+        } else {
+          return settings.calendar.defaultCalendar; // defaultCalendar is validated - pass to then block to request its events
+        }
+      } else {
+        return ''; // pass empty string to then block to request primary
+      }
     } catch (error) {
       if ((error as AxiosError).status === 401) {
         setAuthStatus(AuthStatus.SignedOut);
@@ -59,11 +78,11 @@ function Calendar({widgetId, settings}: {widgetId: number, settings: WidgetSetti
     getEvents(target.value);
   }
 
-  const setDefaultCalendar = async () => {
+  const setDefaultCalendar = async (newDefaultId: string | null) => {
     try {
       await axios.patch('/calendar/default', {
         layoutElementId: widgetId,
-        defaultCalendar: activeCalendarId
+        defaultCalendar: newDefaultId
       })
     } catch (error) {
       console.error('Failed to set default calendar:', error);
@@ -76,8 +95,13 @@ function Calendar({widgetId, settings}: {widgetId: number, settings: WidgetSetti
       setAuthStatus(AuthStatus.SignedOut);
       return;
     } else {
-      getCalendars();
-      getEvents(activeCalendarId);
+      getCalendars()
+        .then((calendarToRequest: string | undefined) => {
+          // calendarToRequest is only undefined if there was an error in getCalendars
+          if (calendarToRequest !== undefined) {
+            getEvents(calendarToRequest);
+          }
+        });
     }
   }, [user]);
 
@@ -124,7 +148,7 @@ function Calendar({widgetId, settings}: {widgetId: number, settings: WidgetSetti
             </NativeSelect.Field>
             <NativeSelect.Indicator />
           </NativeSelect.Root>
-          <Button onClick={setDefaultCalendar}>Make default</Button>
+          <Button onClick={() => setDefaultCalendar(activeCalendarId)}>Make default</Button>
         </HStack>
       )
     } else {
@@ -148,6 +172,14 @@ function Calendar({widgetId, settings}: {widgetId: number, settings: WidgetSetti
         )
         break;
       case AuthStatus.Authorized:
+        if (isLoadingEvents) {
+          return (
+            <AbsoluteCenter>
+              <Spinner color="blue.500" animationDuration="0.8s" />
+            </AbsoluteCenter>
+          );
+        }
+        // render the events only if finished loading
         return (
           <ScrollArea.Root marginTop="0.5rem">
             <ScrollArea.Viewport>
