@@ -135,10 +135,15 @@ function Calendar({widgetId, settings}: {widgetId: number, settings: WidgetSetti
 
   const renderCalendarList = () => {
     if (authStatus === AuthStatus.Authorized) {
+      // the fallback in case the activeCalendarId is an empty string
+      const primaryCalendarId = calendars
+                                  .filter(calendar => calendar.primary === true)
+                                  .map(calendar => calendar.id)[0]; // this assumes there is one in the array
+
       return (
         <HStack>
-          <NativeSelect.Root variant={'subtle'}>
-            <NativeSelect.Field onChange={handleCalendarSelect}>
+          <NativeSelect.Root variant={'subtle'} color='white'>
+            <NativeSelect.Field onChange={handleCalendarSelect} value={activeCalendarId || primaryCalendarId}>
               <For
                 each={calendars}
                 fallback={<Text w="100%">No calendars found.</Text>}

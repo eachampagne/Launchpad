@@ -115,8 +115,6 @@ dashboard.get('/:id', async (req, res) => {
       }
     });
 
-    console.log(dashboard?.layout.layoutElements);
-
     // TODO: check whether the given user should have access to this dashboard
 
     if (!dashboard) { // dashboard is null if not found
@@ -288,6 +286,7 @@ dashboard.post('/:dashboardId/layout/:layoutId', async (req, res) => {
       }
     });
     //Duplicate layout elements
+    //This doesn't duplicate any widget specific settings but I think that's ok - if you're using someone else's layouts, you wouldn't be checking *their* calendar, for instance
     await prisma.layoutElement.createMany({
       data: sourceLayout.layoutElements.map(el =>({
         layoutId: newLayout.id,
