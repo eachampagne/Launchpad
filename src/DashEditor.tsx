@@ -193,9 +193,10 @@ function DashEditor() {
             height={`${gridRows * snapSize}px`}
             border="1px solid"
             borderColor="gray.500"
-            borderRadius="md"
+            borderRadius="xl"
             bg="white"
             color="gray.800"
+            overflow="hidden"
           >
             {/* SCALE CONTAINER */}
             <LayoutCanvas
