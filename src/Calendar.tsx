@@ -17,9 +17,8 @@ function Calendar({widgetId, settings}: {widgetId: number, settings: WidgetSetti
   const [authStatus, setAuthStatus] = useState(AuthStatus.SignedOut);
   const [events, setEvents] = useState([] as Event[]);
   const [calendars, setCalendars] = useState([] as CalendarObject[]);
-  const [activeCalendarId, setActiveCalendarId] = useState(settings?.calendar?.defaultCalendar || '');
-  const [isLoadingEvents, setIsLoadingEvents] = useState(false);
-
+  const [activeCalendarId, setActiveCalendarId] = useState('');
+  
   const getEvents = async (calendarId = '') => {
     try {
       const query = calendarId ? `?calendarId=${encodeURIComponent(calendarId)}` : ''; //apparently one of the Google calendars has a pound sign

@@ -1,23 +1,10 @@
-// needs something in dash editor to open this component
-// could add dashboard name change here if needed
-/**
- * need bgColor POST and PATCH
- * need navColor POST and PATCH
- * need text color POST and PATCH - idk if i need this or not
- * need font POST and PATCH
- * display all themes the user has - GET
- * might also add a default palette if user has no them
- */
 
-
-import { useState, useEffect, use} from 'react';
+import { useState, useEffect, useContext} from 'react';
 import Color from './ColorPicker';
 import axios from 'axios';
-import { ColorSwatch } from "@chakra-ui/react"
-import { Box, Button, Text, Group } from "@chakra-ui/react"
-import { Listbox, createListCollection } from "@chakra-ui/react"
-import { IoCall, IoTrashSharp, IoPencilSharp, IoAddCircleOutline } from "react-icons/io5";
-
+import { Box, Button, Text, Listbox, createListCollection } from "@chakra-ui/react"
+import { IoTrashSharp, IoPencilSharp, IoAddCircleOutline } from "react-icons/io5";
+import { UserContext } from './UserContext';
 
 
 function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, ownerId: number}, ownerId: number, dashboardId : number}) {
@@ -30,10 +17,9 @@ function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, o
   const [fontPick, setFontPick] = useState('#ff0000');
   const [activeDash, setActiveDash] = useState({id: -1, navColor: 'string', bgColor: 'string', font: 'string'});
   const [currTheme, setCurrTheme] = useState(activeDash);
-  // first lets get all the themes of that user
-  console.log(themesList, 'ALL MY THEMESES')
-  const allThemes = async () => {
+  const { setCurrentTheme } = useContext(UserContext);
 
+  const allThemes = async () => {
     try {
       const test = await axios.get(`/theme/${ownerId}`);
       setThemesList(test.data);
@@ -74,7 +60,6 @@ function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, o
         dashboards.forEach((dash: any) => {
           if(dash.id === dashboardId){
             setActiveDash(dash)
-            
           }
         })
 
@@ -141,12 +126,13 @@ function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, o
             setNavColorPick(theme.navColor)
             setBgColorPick(theme.bgColor)
             setFontPick(theme.font)
+            setCurrentTheme(theme)
             await axios.patch(`/dashboard/${dashboardId}`, { themeId: theme.id })
             await getTheDash();
           }}>
             <Listbox.ItemText w='full'>
             <Box w='full'>
-              <Box display='flex' h='60px' w='250px' mb='5' borderRadius='sm' overflow='hidden'>
+              <Box display='flex' h='60px' w='250px' mb='5' borderRadius='xs' overflow='hidden'>
               <Box flex='1' bg={theme.navColor} />
               <Box flex='1' bg={theme.bgColor} />
               <Box flex='1' bg={theme.font} />
@@ -210,7 +196,9 @@ function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, o
         }
       }}>{<IoPencilSharp/>}</Button>
       </Box>
+      
     </Box>
+
   )
 }
 

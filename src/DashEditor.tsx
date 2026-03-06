@@ -11,7 +11,32 @@ import LayoutGallery from './LayoutGallery';
 import LayoutCanvas from './LayoutCanvas'
 import WidgetLibrary from "./WidgetLibrary";
 
-import type { Layout, Dashboard } from '../types/LayoutTypes';
+
+
+type Layout = {
+  id: number;
+  gridSize: string;
+  layoutElements: LayoutElement[];
+};
+
+type LayoutElement = {
+  id: number;
+  posX: number;
+  posY: number;
+  sizeX: number;
+  sizeY: number;
+  widget: {
+    name: string
+  }
+};
+
+type Dashboard = {
+  id: number;
+  name: string;
+  layout: Layout
+  ownerId: number;
+  layoutId: number | null;
+};
 
 const gridCols = 19;
 const gridRows = 12;
@@ -24,7 +49,8 @@ const snapSize = 60;
 function DashEditor() {
   const { activeDash: dashboardId, user: { id: ownerId } } = useContext(UserContext);
   const [dashboard, setDashboard] = useState<Dashboard | null>(null);
-
+  const { currentTheme } = useContext(UserContext);
+  console.log(currentTheme, 'HELELLEOO CAN THIS THING WORK ')
 
   const [newName, setNewName] = useState('');
   const [renaming, setRenaming] = useState(false);
