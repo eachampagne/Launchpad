@@ -7,9 +7,10 @@ import { LuMail } from 'react-icons/lu';
 
 import { AuthStatus } from '../types/WidgetStatus.ts';
 import type { EmailObject } from '../types/Email.ts';
+import type { WidgetSettings } from '../types/LayoutTypes.ts';
 import { UserContext } from './UserContext';
 
-function Email () {
+function Email ({widgetId, settings}: {widgetId: number, settings: WidgetSettings | null}) {
   const { user } = useContext(UserContext);
 
   const [authStatus, setAuthStatus] = useState(AuthStatus.SignedOut);

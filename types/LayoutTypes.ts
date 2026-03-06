@@ -1,3 +1,11 @@
+type CalendarSettings = {
+  defaultCalendar: string
+};
+
+export type WidgetSettings = {
+  calendar: CalendarSettings | null
+};
+
 export type Layout = {
   id: number;
   gridSize: string;
@@ -12,7 +20,8 @@ export type LayoutElement = {
   sizeY: number;
   widget: {
     name: string
-  }
+  },
+  settings: WidgetSettings | null
 };
 
 export type Dashboard = {

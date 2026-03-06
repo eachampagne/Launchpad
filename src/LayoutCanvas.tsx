@@ -6,10 +6,10 @@ import Email from './Email';
 import Timer from './Timer';
 
 
-import type { Layout } from '../types/LayoutTypes';
+import type { Layout, WidgetSettings } from '../types/LayoutTypes';
 
 
-const widgetMap: Record<string, React.FC>= {
+const widgetMap: Record<string, React.FC<{widgetId: number, settings: WidgetSettings | null}>>= {
   Calendar,
   Email,
   Timer
@@ -88,7 +88,10 @@ const LayoutCanvas = function({layout, editable=false, onLayoutChange}: { layout
         onDelete={handleDelete}
         editActive={editable}
         >
-        <WidgetComp />
+          <WidgetComp
+            widgetId={element.id}
+            settings={element.settings}
+          />
         </WidgetFrame>
         )
       })}

@@ -7,16 +7,17 @@ import { LuCalendarDays } from 'react-icons/lu';
 
 
 import type { AllDayTime, PartDayTime, Event, CalendarObject } from '../types/Calendar.ts';
+import type { WidgetSettings } from '../types/LayoutTypes.ts';
 import { AuthStatus } from '../types/WidgetStatus.ts';
 import { UserContext } from './UserContext';
 
-function Calendar() {
+function Calendar({widgetId, settings}: {widgetId: number, settings: WidgetSettings | null}) {
   const { user } = useContext(UserContext);
 
   const [authStatus, setAuthStatus] = useState(AuthStatus.SignedOut);
   const [events, setEvents] = useState([] as Event[]);
   const [calendars, setCalendars] = useState([] as CalendarObject[]);
-  const [activeCalendarId, setActiveCalendarId] = useState('');
+  const [activeCalendarId, setActiveCalendarId] = useState(settings?.calendar?.defaultCalendar || '');
 
   const getEvents = async (calendarId = '') => {
     try {
@@ -61,7 +62,7 @@ function Calendar() {
   const setDefaultCalendar = async () => {
     try {
       await axios.patch('/calendar/default', {
-        layoutElementId: 2, // TODO: pass correct layoutElementId into widget
+        layoutElementId: widgetId,
         defaultCalendar: activeCalendarId
       })
     } catch (error) {
@@ -76,7 +77,7 @@ function Calendar() {
       return;
     } else {
       getCalendars();
-      getEvents();
+      getEvents(activeCalendarId);
     }
   }, [user]);
 
