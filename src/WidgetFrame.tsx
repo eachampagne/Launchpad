@@ -2,6 +2,8 @@ import { useState, useEffectEvent, useEffect } from 'react';
 
 import { Container, For } from "@chakra-ui/react";
 
+import { FiX } from "react-icons/fi"
+
 const handleThickness = 10;
 
 enum Side {
@@ -399,17 +401,22 @@ function WidgetFrame({widgetId, posX, posY, sizeX, sizeY, minWidth, minHeight, s
         <button
           style={{
             position: "absolute",
-            top: 4,
-            right: 4,
+            top: 6,
+            right: 10,
             zIndex: 10,
-            background: "red",
-            color: "white",
+            background: "rgba(0,0,0,0.6)",
+            color: "orange",
             border: "none",
+            borderRadius: 6,
             cursor: "pointer",
+            padding: "4px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
           onClick={() => onDelete(widgetId)}
         >
-          ✕
+          <FiX size={13} />
         </button>
       )}
       {children}
