@@ -91,6 +91,7 @@ model LayoutElement {
   posY     Int
   sizeX    Int
   sizeY    Int
+  settings   WidgetSettings?
 }
 
 model Widget {
@@ -125,4 +126,18 @@ model DashboardSchedule {
   dashboardId Int
   time        String
   createdAt   DateTime  @default(now())
+}
+
+model WidgetSettings {
+  id                Int             @id @default(autoincrement())
+  layoutElement     LayoutElement   @relation(fields: [layoutElementId], references: [id])
+  layoutElementId   Int             @unique
+  calendar          CalendarSettings?
+}
+
+model CalendarSettings {
+  id                Int             @id @default(autoincrement())
+  widgetSettings    WidgetSettings  @relation(fields: [widgetSettingsId], references: [id])
+  widgetSettingsId  Int             @unique
+  defaultCalendar   String?
 }
