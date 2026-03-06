@@ -100,7 +100,14 @@ dashboard.get('/:id', async (req, res) => {
         layout: {
           include : {
             layoutElements : {
-              include : { widget: true }
+              include : {
+                widget: true,
+                settings: {
+                  include: {
+                    calendar: true
+                  }
+                }
+              }
 
             }
           }
@@ -279,6 +286,7 @@ dashboard.post('/:dashboardId/layout/:layoutId', async (req, res) => {
       }
     });
     //Duplicate layout elements
+    //This doesn't duplicate any widget specific settings but I think that's ok - if you're using someone else's layouts, you wouldn't be checking *their* calendar, for instance
     await prisma.layoutElement.createMany({
       data: sourceLayout.layoutElements.map(el =>({
         layoutId: newLayout.id,
