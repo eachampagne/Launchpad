@@ -1,12 +1,12 @@
 // need this file to make a font color changer function based on the background - nav - widget color
 
 
-const changeTextColor = (bgHex: string) => {
-  if(!bgHex){
+const changeTextColor = (textColor?: string) => {
+  if(!textColor){
     return 'black'
   }
 
-  const hex = bgHex.replace('#', '');
+  const hex = textColor.replace('#', '');
 
   const r = parseInt(hex.substring(0, 2), 16);
   const g = parseInt(hex.substring(2, 4), 16);

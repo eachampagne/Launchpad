@@ -9,6 +9,7 @@ import { UserContext } from './UserContext';
 import { IoLogOutOutline } from "react-icons/io5";
 
 import rocketLogoURL from './assets/Launchpad_Logo_rocket.png';
+import changeTextColor from './utilities/color';
 
 interface MyProps {
   pages: Array<string>,
@@ -40,7 +41,7 @@ function NavBar (props: MyProps) {
         {/* TODO: Make this responsive for mobile and turn into a collapsible thing */}
         <AbsoluteCenter>
           <Image height="1.5rem" mr="1" src={rocketLogoURL}/>
-          <Heading>LaunchPad</Heading>
+          <Heading color={changeTextColor(props.textColor)}>LaunchPad</Heading>
           <LinkOverlay href="/" />
         </AbsoluteCenter>
         <Flex width="100%">

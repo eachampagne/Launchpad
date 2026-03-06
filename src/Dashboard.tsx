@@ -53,6 +53,7 @@ export default function Dashboard () {
     settingTheme()
   }, [themeId])
 
+
   useEffect(() => {
     axios.get(`/dashboard/${dashboardId}`)
     .then((res) => {
