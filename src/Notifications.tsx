@@ -1,19 +1,18 @@
 import axios from "axios";
 import { useState, useEffect} from 'react';
-import { Button, Switch, For, Text, Box, Flex, Spacer, Center} from "@chakra-ui/react"
-import { PinInput } from "@chakra-ui/react"
-import { IoCall, IoTrashSharp, IoPencilSharp } from "react-icons/io5";
-
+import { Button, Switch, For, Text, Box, Flex, Spacer, Center, PinInput} from "@chakra-ui/react"
+import { IoCall, IoTrashSharp, IoPencilSharp, IoCheckmark, IoCloseOutline } from "react-icons/io5";
 
 
 function Notifications ({ownerId} : {ownerId: number}) {
 const [phoneNumber, setPhoneNumber] = useState('');
 const [hasNumber, setHasNumber] = useState(false)
 const [isAdding, setIsAdding] = useState(false)
-const [step, setStep] = useState('phone') // will tell what component to render
+const [step, setStep] = useState('phone')
 const [code, setCode] = useState('')
 const [checked, setChecked] = useState(false)
 const [verificationStatus, setVerificationStatus] = useState(false)
+const [isDeleting, setIsDeleting] = useState(false)
 
 
 
@@ -22,7 +21,6 @@ const [verificationStatus, setVerificationStatus] = useState(false)
 
   try {
     const number = await axios.get(`/notifications/${ownerId}`)
-    console.log(number, 'this is number')
     if(!number.data?.data){
       setHasNumber(false)
       setChecked(false)
@@ -92,9 +90,6 @@ const updateNumber = async () => {
 
   try {
     await axios.patch(`/notifications/${ownerId}`, {contactNumber: phoneNumber})
-
-
-    console.log('success')
   } catch (error) {
     console.error('something went wrong updated the phone number', error)
   }
@@ -105,8 +100,6 @@ const updateNotifications = async (checked: boolean) => {
   setChecked(checked)
   try {
     await axios.patch(`/notifications/notifications/${ownerId}`, {notifications: checked})
-
-    console.log('success')
   } catch (error) {
     console.error('something went wrong updated the phone number', error)
   }
@@ -242,7 +235,7 @@ const deleteNumber = async () => {
         <Box  w='100%'>
         <Flex justify='space-between' align='center' mb='3' w='100%'>
           
-        <Text fontWeight="medium"> Notifications </Text>
+        <Text fontWeight="medium"> Enable Alerts </Text>
         <Spacer />
         <Switch.Root disabled colorPalette="blue" checked={checked}  onCheckedChange={(e) => updateNotifications(e.checked)}>
           <Switch.HiddenInput />
@@ -259,7 +252,7 @@ const deleteNumber = async () => {
           setCode('')
           setStep('phone')
         }}>Update Phone Number</Button>
-        <Button onClick={async () => {
+        <Button size="xs" variant="ghost" colorPalette="blue" onClick={async () => {
           setStep('verify')
           await sendVerification()
           
@@ -273,11 +266,11 @@ const deleteNumber = async () => {
 
 
 
-      {hasNumber && verificationStatus && !isAdding && step !== 'verify' && (
+      {hasNumber && verificationStatus && !isAdding && step !== 'verify' && !isDeleting && (
         <Box  w='100%'>
         <Flex justify='space-between' align='center' mb='3' w='100%'>
           
-        <Text fontWeight="medium"> Notifications </Text>
+        <Text fontWeight="medium"> Enable Alerts </Text>
         <Spacer />
         <Switch.Root colorPalette="blue" checked={checked}  onCheckedChange={(e) => updateNotifications(e.checked)}>
           <Switch.HiddenInput />
@@ -288,15 +281,46 @@ const deleteNumber = async () => {
         </Switch.Root>
         </Flex>
         <Flex justify='space-between' align='center' mb='3'>
-        <Text fontWeight="medium" mb='4' >Phone Number: XXX - XXX - {phoneNumber.slice(8)}</Text>
+        <Text fontWeight="medium" >Phone Number: XXX - XXX - {phoneNumber.slice(8)}</Text>
       
-        <Button size="xs" variant="ghost" colorPalette="blue" onClick={async () => {
+        <Button size="xs" variant="ghost" colorPalette="blue" alignItems='center' justifyContent='center' onClick={async () => {
           setIsAdding(true)
           setCode('')
           setStep('phone')
-        }}>{<IoPencilSharp />}</Button>
+        }}>{<IoPencilSharp size='sm' />}</Button>
         </Flex>
-        <Button size="xs" variant="ghost" colorPalette="red" placeContent='center' onClick={() => deleteNumber()}>{<IoTrashSharp/>}</Button>
+        <Button size="xs" variant="ghost" colorPalette="red" placeContent='center' onClick={() => setIsDeleting(true)}>{<IoTrashSharp/>}</Button>
+        </Box>
+      )}
+
+      {isDeleting  && (
+        <Box  w='100%'>
+          <Flex justify='space-between' align='center' mb='3' w='100%'>
+          
+        <Text fontWeight="medium"> Enable Alerts </Text>
+        <Spacer />
+        <Switch.Root colorPalette="blue" checked={checked}  onCheckedChange={(e) => updateNotifications(e.checked)}>
+          <Switch.HiddenInput />
+          <Switch.Control>
+            <Switch.Thumb />
+          </Switch.Control>
+          <Switch.Label />
+        </Switch.Root>
+        </Flex>
+        <Flex justify='space-between' align='center' mb='3'>
+        <Text fontWeight="medium" >Phone Number: XXX - XXX - {phoneNumber.slice(8)}</Text>
+      
+        <Button size="xs" variant="ghost" colorPalette="blue" alignItems='center' justifyContent='center' onClick={async () => {
+          setIsAdding(true)
+          setCode('')
+          setStep('phone')
+        }}>{<IoPencilSharp size='sm' />}</Button>
+        </Flex>
+        <Text> Are you sure? </Text>
+        <Box>
+        <Button size="sm" variant="ghost" fontSize='18px' onClick={() => deleteNumber()}>{<IoCheckmark />}</Button>
+        <Button size="sm" variant="ghost" fontSize='18px' onClick={() => setIsDeleting(false)}>{<IoCloseOutline />}</Button>
+        </Box>
         </Box>
       )}
     </Box>

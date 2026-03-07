@@ -11,30 +11,7 @@ import LayoutGallery from './LayoutGallery';
 import LayoutCanvas from './LayoutCanvas'
 import WidgetLibrary from "./WidgetLibrary";
 
-type Layout = {
-  id: number;
-  gridSize: string;
-  layoutElements: LayoutElement[];
-};
-
-type LayoutElement = {
-  id: number;
-  posX: number;
-  posY: number;
-  sizeX: number;
-  sizeY: number;
-  widget: {
-    name: string
-  }
-};
-
-type Dashboard = {
-  id: number;
-  name: string;
-  layout: Layout
-  ownerId: number;
-  layoutId: number | null;
-};
+import type { Layout, Dashboard } from '../types/LayoutTypes';
 
 const gridCols = 19;
 const gridRows = 12;
@@ -47,7 +24,8 @@ const snapSize = 60;
 function DashEditor() {
   const { activeDash: dashboardId, user: { id: ownerId } } = useContext(UserContext);
   const [dashboard, setDashboard] = useState<Dashboard | null>(null);
-
+  const { currentTheme } = useContext(UserContext);
+  console.log(currentTheme, 'HELELLEOO CAN THIS THING WORK ')
 
   const [newName, setNewName] = useState('');
   const [renaming, setRenaming] = useState(false);
@@ -150,7 +128,16 @@ function DashEditor() {
     if (renaming) {
       return (
         <span>
-          <input onChange={handleChange} value={newName}/>
+          <input
+          onChange={handleChange}
+          value={newName}
+          style={{
+            color: "black",
+            backgroundColor: "white",
+            border: "1px solid #82de11",
+            padding: "4px"
+          }}
+          />
           <button onClick={renameDashboard}>Save</button>
           <button onClick={handleCancelRename}>Cancel</button>
         </span>
@@ -184,11 +171,17 @@ function DashEditor() {
             height={`${gridRows * snapSize}px`}
             border="1px solid"
             borderColor="gray.500"
-            borderRadius="md"
-            bg="white"
+            borderRadius="xl"
+            bg={currentTheme?.bgColor || "white"} // this is the background of the grid
+            color="gray.800"
+            overflow="hidden"
           >
             {/* SCALE CONTAINER */}
-            <LayoutCanvas layout={dashboard.layout} editable  onLayoutChange={loadDashboard} />
+            <LayoutCanvas
+              layout={dashboard.layout}
+              editable
+              onLayoutChange={loadDashboard}
+            />
           </Box>
         </Box>
 
@@ -202,38 +195,47 @@ function DashEditor() {
             />
 
             <Box mt={4}>
-              <LayoutGallery onSelect={setSelectedLayoutId} />
+              <LayoutGallery
+                onSelect={setSelectedLayoutId}
+                selectedLayoutId={selectedLayoutId}
+              />
             </Box>
 
+            {selectedLayout && (
+              <Box mt={4}>
+                {/* <h4>LAYOUT PREVIEW</h4>
+                <p>SELECTED LAYOUT #{selectedLayoutId}</p>
+                <p>GRID SIZE: {selectedLayout.gridSize}</p> */}
+                <button onClick={() => applyLayout(selectedLayout.id)}>
+                  APPLY SELECTED LAYOUT
+                </button>
+              </Box>
+            )}
             {dashboard.layout && (
               <WidgetLibrary
                 layoutId={dashboard.layout.id}
                 onWidgetAdded={loadDashboard}
               />
             )}
-
-            {selectedLayout && (
-              <Box mt={4}>
-                <h4>LAYOUT PREVIEW</h4>
-                <p>SELECTED LAYOUT #{selectedLayoutId}</p>
-                <p>GRID SIZE: {selectedLayout.gridSize}</p>
-                <button onClick={() => applyLayout(selectedLayout.id)}>
-                  APPLY CURRENT LAYOUT
-                </button>
-              </Box>
-            )}
           </Box>
         </Box>
       </Flex>
 
-      {appliedDash?.layoutId && (
-        <section>
-          <h3>APPLIED LAYOUT</h3>
-          <p>LAYOUT ID: {appliedDash.layoutId}</p>
-        </section>
-      )}
-
-      <Link to="/Dashboard">Done</Link>
+      <Flex justify="flex-end" mt={8} px={6}>
+        <Link to="/Dashboard">
+          <Box
+            px={4}
+            py={2}
+            borderRadius="md"
+            bg="orange.50"
+            color="gray"
+            fontWeight="bold"
+            _hover={{ bg: "orange.300" }}
+            >
+            Done
+          </Box>
+        </Link>
+      </Flex>
     </>
   );
 }

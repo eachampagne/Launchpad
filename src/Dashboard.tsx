@@ -9,33 +9,10 @@ import axios from 'axios';
 import changeTextColor from './utilities/color.ts'
 
 
-
-type Layout = {
-  id: number;
-  gridSize: string;
-  layoutElements: LayoutElement[];
-};
-
-type LayoutElement = {
-  id: number;
-  posX: number;
-  posY: number;
-  sizeX: number;
-  sizeY: number;
-  widget: {
-    name: string
-  }
-};
-
-type Dashboard = {
-  id: number;
-  name: string;
-  themeId: number;
-  layout: Layout
-};
+import type { Dashboard } from '../types/LayoutTypes';
 
 
-function Dashboard () {
+export default function Dashboard () {
   const { activeDash: dashboardId } = useContext(UserContext);
 
   const [dashboard, setDashboard] = useState<Dashboard | null>(null);
@@ -95,10 +72,10 @@ function Dashboard () {
   }
 
   return (
-    <Box bg={themeObject.bgColor} color={textColor} minH='100vh' w='100%'>
+    <Box bg={themeObject.bgColor}  color="gray.800" minH='100vh' w='100%' >
       <NavBar pages={["Home", "Hub"]} textColor={textColor} navColor={themeObject.navColor}/>
       <h2>{dashboard.name}</h2>
-      <Link to='/edit'>Edit</Link>
+      <Link to='/edit' >Edit</Link>
       <LayoutCanvas
       layout={dashboard.layout}
       editable={false}>
@@ -107,5 +84,3 @@ function Dashboard () {
     </Box>
   );
 }
-
-export default Dashboard;

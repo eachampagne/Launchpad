@@ -1,6 +1,7 @@
-import { readFile } from 'node:fs/promises';
 import express from 'express';
 import { google } from 'googleapis';
+import type { GaxiosResponseWithHTTP2 } from 'googleapis-common';
+import type { AxiosError } from 'axios';
 
 import { prisma } from '../database/prisma.js';
 
@@ -76,7 +77,12 @@ router.get('/', async (req, res) => {
     res.status(200).send(events);
 
   } catch (error) {
-    if ((error as any).status === 401) { // this should be some kind of Gaxios thing
+   const status = (error as AxiosError | GaxiosResponseWithHTTP2).status;
+
+    // if the error is a 4xx status code (rather than, for example, a database error) assume the token is bad and delete it
+    // I suppose this could give false positives, but it's probably better to delete too many tokens and re-request too often
+    // then play status code whack-a-mole and have badly handled errors
+    if (status && status >= 400 && status < 500) {
       // token is invalid somehow (maybe revoked manually in Google settings?)
       // delete and send error to client
       await prisma.googleToken.deleteMany({
@@ -134,7 +140,12 @@ router.get('/list', async (req, res) => {
       }));
     }
   } catch (error) {
-    if ((error as any).status === 401) { // this should be some kind of Gaxios thing
+    const status = (error as AxiosError | GaxiosResponseWithHTTP2).status;
+
+    // if the error is a 4xx status code (rather than, for example, a database error) assume the token is bad and delete it
+    // I suppose this could give false positives, but it's probably better to delete too many tokens and re-request too often
+    // then play status code whack-a-mole and have badly handled errors
+    if (status && status >= 400 && status < 500) {
       // token is invalid somehow (maybe revoked manually in Google settings?)
       // delete and send error to client
       await prisma.googleToken.deleteMany({
@@ -148,6 +159,74 @@ router.get('/list', async (req, res) => {
     console.error('Failed to get calendar list:', error);
     res.sendStatus(500);
   }
+});
+
+router.patch('/default', async (req, res) => {
+  // check auth
+  const userId = req.user?.id;
+
+  if (userId === undefined) {
+    res.sendStatus(401);
+    return;
+  }
+
+  const { layoutElementId, defaultCalendar }: { layoutElementId: number | undefined, defaultCalendar: string | undefined }  = req.body;
+
+  if (layoutElementId === undefined || defaultCalendar === undefined) {
+    // bad request
+    return res.sendStatus(400);
+  }
+
+  try {
+    // check that the layout element exists
+    const layoutElement = await prisma.layoutElement.findUnique({
+      where: {
+        id: layoutElementId
+      },
+      include: {
+        layout: true
+      }
+    });
+
+    if (!layoutElement) {
+      return res.sendStatus(404);
+    }
+
+    // check that layout element belongs to a layout owned by the requesting user
+    const ownerId = layoutElement.layout.ownerId;
+    if (ownerId !== userId) {
+      return res.status(403);
+    }
+
+    const widgetSettings = await prisma.widgetSettings.upsert({
+      where: {
+        layoutElementId
+      },
+      update: {},
+      create: {
+        layoutElementId
+      }
+    });
+
+    await prisma.calendarSettings.upsert({
+      where: {
+        widgetSettingsId: widgetSettings.id
+      },
+      update: {
+        defaultCalendar
+      },
+      create: {
+        widgetSettingsId: widgetSettings.id,
+        defaultCalendar
+      }
+    });
+
+    res.sendStatus(200);
+  } catch (error) {
+    console.error('Failed to update default calendar:', error);
+    res.sendStatus(500);
+  }
+
 });
 
 export default router;

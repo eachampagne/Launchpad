@@ -24,7 +24,7 @@ theme.get('/theme/:themeId', async (req, res) => {
   }
 })
 
-// GET
+// all themes of user
 theme.get('/:ownerId', async (req, res) => {
   //const { ownerId } = JSON.parse(req.params);
   try {
@@ -44,11 +44,8 @@ theme.get('/:ownerId', async (req, res) => {
   }
 })
 
-// POST - This is for the user clicking something like 'Create a new theme'
-// change the dashboard color
+// POST - Creating a new theme
 theme.post('/', async (req, res) => {
-  // need to insert information
-  // console.log(req)
   const { public: isPublic, navColor, bgColor, font, ownerId} = req.body as {public: boolean, navColor: string, bgColor: string, font: string, ownerId: number}
   try {
     await prisma.theme.create({
@@ -68,18 +65,8 @@ theme.post('/', async (req, res) => {
 })
 
 
-// POST - This is for the user clicking something like 'Create a new theme' and they have to enter a title
-// maybe if no name is given, default will be the name but with the number
-// change the dashboard name
-
-
-
-// PUT/PATCH - This will be if a user clicks on a dashboard and starts the change the colors - name
-// update the dashboard colors
-// have to get the id of the theme
+// PUT/PATCH - Updates the theme that is current selected
 theme.patch('/', async (req, res) => {
-  // need to insert information
-  // console.log(req)
   const { id, public: isPublic, navColor, bgColor, font, ownerId} = req.body
   try {
     await prisma.theme.update({
@@ -102,7 +89,7 @@ theme.patch('/', async (req, res) => {
 
 })
 
-// delete
+// DELETE a theme
 theme.delete('/delete/:ownerId', async (req, res) => {
   const { themeId } = req.body
   try {
@@ -113,8 +100,6 @@ theme.delete('/delete/:ownerId', async (req, res) => {
       }
     })
       res.sendStatus(200);
-
-    
   } catch (error){
     console.error('You already have this theme', error);
     res.sendStatus(500);

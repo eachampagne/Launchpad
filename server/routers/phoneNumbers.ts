@@ -1,9 +1,12 @@
 import express from 'express';
-
 import { prisma } from '../database/prisma.js';
 import "dotenv/config";
+<<<<<<< HEAD
 import twilio, { Twilio } from 'twilio'
 import { use } from 'passport';
+=======
+import twilio from 'twilio'
+>>>>>>> f74f2a9faeb4684630262fb010903e407f9bf9aa
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 let client: Twilio | undefined;
@@ -17,8 +20,8 @@ if (process.env.NODE_ENV !== "test") {
 
 const phoneNumbers = express.Router();
 
+// GET the phone number of the user
 phoneNumbers.get('/:ownerId', async (req, res) => {
-  // gonna have to use the userId
 
   try {
     const userNumber = await prisma.phoneNumbers.findUnique({
@@ -30,7 +33,6 @@ phoneNumbers.get('/:ownerId', async (req, res) => {
     if(!userNumber){
       return res.status(404).send('Could not find your account')
     }
-    console.log(userNumber, 'in server')
     const data = {
       contact: userNumber.contactNumber,
       noti: userNumber.notifications,
@@ -45,15 +47,12 @@ phoneNumbers.get('/:ownerId', async (req, res) => {
   }
 })
 
-// POST - user CANNOT have two phone numbers
+// POST - INSERT the number provided by the user
 phoneNumbers.post('/:ownerId', async (req, res) => {
   const  ownerId  = Number(req.params.ownerId)
   const {contactNumber} = req.body as {contactNumber:string}
-  console.log(contactNumber)
-  // if no number is provided
   if(!contactNumber){
     return res.status(404).send({error: 'You need to provide a phone number'})
-    //return;
   }
   try {
     const existing = await prisma.phoneNumbers.findUnique({
@@ -62,11 +61,10 @@ phoneNumbers.post('/:ownerId', async (req, res) => {
       }
     })
 
-    // check if it exist
     if(existing){
 
       return res.status(404).send('You already have a phone number')
-      //return;
+      
     }
 
       await prisma.phoneNumbers.create({
@@ -105,11 +103,9 @@ phoneNumbers.post('/verify/send/:ownerId', async (req, res) => {
     const phone = existing?.contactNumber.startsWith('+')
     ? existing?.contactNumber : '+1' + existing?.contactNumber
 
-    console.log(phone, 'sent code')
     const verification = await client.verify.v2.services("VA7937e5f669dd205b29a3a78482ad9b64")
     .verifications
     .create({to: phone, channel: 'sms'})
-console.log(verification, 'verify')
 
     return res.status(201).send(verification)
   } catch (error) {
@@ -143,14 +139,12 @@ phoneNumbers.post('/verify/check/:ownerId', async (req, res) => {
     const phone = existing?.contactNumber.startsWith('+')
     ? existing?.contactNumber : '+1' + existing?.contactNumber
 
-    console.log(code, 'code from food')
 
     const verificationCheck = await client.verify.v2.services("VA7937e5f669dd205b29a3a78482ad9b64")
     .verificationChecks.create({
       to: phone,
       code: code
     })
-    console.log(verificationCheck, 'check')
     if(verificationCheck.status === 'approved'){
       await prisma.phoneNumbers.update({
         where: {
@@ -173,8 +167,6 @@ phoneNumbers.post('/verify/check/:ownerId', async (req, res) => {
 
 
 phoneNumbers.patch('/verify/:ownerId', async (req, res) => {
-  //const { verified } = req.body;
-  
   try {
     const existing = await prisma.phoneNumbers.findUnique({
       where: {
@@ -184,7 +176,6 @@ phoneNumbers.patch('/verify/:ownerId', async (req, res) => {
 
     if(existing?.verified === true){
       return res.status(404).send('This number is already verified')
-      //return;
     }
 
     await prisma.phoneNumbers.update({
@@ -213,7 +204,6 @@ phoneNumbers.patch('/verify/:ownerId', async (req, res) => {
   
       if(!existing){
         return res.status(404).send('Could not find the number')
-        //return;
       }
   
       await prisma.phoneNumbers.update({
@@ -221,7 +211,7 @@ phoneNumbers.patch('/verify/:ownerId', async (req, res) => {
           userId: Number(req.params.ownerId)
         },
         data: {
-          notifications 
+          notifications
         }
       })
       return res.status(201).send({notifications})
@@ -241,10 +231,8 @@ phoneNumbers.patch('/:ownerId', async (req, res) => {
       }
     })
 
-    // check if it exist
     if(!existing){
       return res.status(404).send('You have nothing to update')
-      //return;
     }
 
     const data: {
@@ -258,11 +246,6 @@ phoneNumbers.patch('/:ownerId', async (req, res) => {
       data.verified = false
       data.notifications = false
     }
-
-    // if something is clicked change the boolean value
-    // if(typeof verified === 'boolean'){
-    //   data.verified = verified
-    // }
 
 
     const status = await prisma.phoneNumbers.update({
