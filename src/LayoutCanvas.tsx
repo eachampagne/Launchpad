@@ -4,7 +4,7 @@ import WidgetFrame from "./WidgetFrame"
 import Calendar from './Calendar';
 import Email from './Email';
 import Timer from './Timer';
-
+import Link from './Link';
 
 import type { Layout, WidgetSettings } from '../types/LayoutTypes';
 
@@ -12,7 +12,8 @@ import type { Layout, WidgetSettings } from '../types/LayoutTypes';
 const widgetMap: Record<string, React.FC<{widgetId: number, settings: WidgetSettings | null}>>= {
   Calendar,
   Email,
-  Timer
+  Timer,
+  Link
 };
 
 
