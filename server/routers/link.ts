@@ -3,7 +3,7 @@ import { prisma } from '../database/prisma.js';
 
 const link = express.Router();
 
-link.patch('/url', async (req, res) => {
+link.patch('/url/:layoutElementId', async (req, res) => {
   // check auth
   const userId = req.user?.id;
 
@@ -12,9 +12,10 @@ link.patch('/url', async (req, res) => {
     return;
   }
 
-  const { layoutElementId, url }: { layoutElementId: number | undefined, url: string | undefined }  = req.body;
+  const layoutElementId = parseInt(req.params.layoutElementId);
+  const { url }: { url: string | undefined }  = req.body;
 
-  if (layoutElementId === undefined || url === undefined) {
+  if (isNaN(layoutElementId) || url === undefined) {
     // bad request
     return res.sendStatus(400);
   }

@@ -80,8 +80,7 @@ function Calendar({widgetId, settings}: {widgetId: number, settings: WidgetSetti
 
   const setDefaultCalendar = async (newDefaultId: string | null) => {
     try {
-      await axios.patch('/calendar/default', {
-        layoutElementId: widgetId,
+      await axios.patch(`/calendar/default/${widgetId}`, {
         defaultCalendar: newDefaultId
       })
     } catch (error) {
