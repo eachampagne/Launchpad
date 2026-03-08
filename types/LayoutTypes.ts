@@ -2,8 +2,13 @@ type CalendarSettings = {
   defaultCalendar: string
 };
 
+type LinkSettings = {
+  url: string
+}
+
 export type WidgetSettings = {
-  calendar: CalendarSettings | null
+  calendar: CalendarSettings | null,
+  link: LinkSettings | null
 };
 
 export type Layout = {

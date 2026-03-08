@@ -104,7 +104,8 @@ dashboard.get('/:id', async (req, res) => {
                 widget: true,
                 settings: {
                   include: {
-                    calendar: true
+                    calendar: true,
+                    link: true
                   }
                 }
               }
