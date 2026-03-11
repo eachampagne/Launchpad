@@ -120,7 +120,7 @@ function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, o
       <Listbox.Label fontSize='md' fontWeight='bold'>Select Theme</Listbox.Label>
       <Listbox.Content  maxH='300px' overflowY='auto' w='full' flexWrap='wrap'>
         {allThemesList.items.map((theme) => (
-          <Box border='1px solid' key={theme.id} borderRadius='sm' borderColor='grey' p='4' mb='3' flex='0 0 180px'>
+          <Box border='1px solid' key={theme.id} borderRadius='sm' borderColor='grey' p='4' mb='3' flex='0 0 180px' >
           <Listbox.Item item={theme} onClick={async () => {
             setCurrTheme(theme)
             setNavColorPick(theme.navColor)
@@ -132,10 +132,10 @@ function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, o
           }}>
             <Listbox.ItemText w='full'>
             <Box w='full'>
-              <Box display='flex' h='60px' w='250px' mb='5' borderRadius='xs' overflow='hidden'>
-              <Box flex='1' bg={theme.navColor} />
-              <Box flex='1' bg={theme.bgColor} />
-              <Box flex='1' bg={theme.font} />
+              <Box display='flex' h='60px' w='250px' mb='5' borderRadius='xs' >
+              <Box flex='1' bg={theme.navColor}  shadow='lg'/>
+              <Box flex='1' bg={theme.bgColor}  shadow='lg'/>
+              <Box flex='1' bg={theme.font} shadow='lg'/>
               </Box>
 
               <Box display='flex' w='full' justifyContent='space-between' gap='1'>
