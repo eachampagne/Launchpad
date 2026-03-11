@@ -10,6 +10,7 @@ import Theme from './Theme';
 import LayoutGallery from './LayoutGallery';
 import LayoutCanvas from './LayoutCanvas'
 import WidgetLibrary from "./WidgetLibrary";
+import type { Layout, Dashboard } from '../types/LayoutTypes';
 
 import type { Layout, Dashboard } from '../types/LayoutTypes';
 
