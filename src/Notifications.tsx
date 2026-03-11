@@ -323,6 +323,24 @@ const deleteNumber = async () => {
         </Box>
         </Box>
       )}
+
+      {ownerId === -2 && (
+        <Box>
+          <Flex justify='space-between' align='center' mb='3' w='100%'>
+          
+        <Text fontWeight="medium"> Enable Alerts </Text>
+        <Spacer />
+        <Switch.Root disabled colorPalette="blue" checked={checked}  onCheckedChange={(e) => updateNotifications(e.checked)}>
+          <Switch.HiddenInput />
+          <Switch.Control>
+            <Switch.Thumb />
+          </Switch.Control>
+          <Switch.Label />
+        </Switch.Root>
+        </Flex>
+        <Text position='center' fontWeight="medium"> This is just a demo. </Text>
+        </Box>
+      )}
     </Box>
 
 

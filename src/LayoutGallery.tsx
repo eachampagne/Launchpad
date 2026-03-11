@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Grid, Box } from "@chakra-ui/react"
+import { Grid, Box, Heading } from "@chakra-ui/react"
 
 import axios from 'axios';
 
@@ -31,7 +31,7 @@ function LayoutGallery({onSelect, selectedLayoutId}: Props) {
 
   return (
     <>
-      <h3>PUBLIC LAYOUTS</h3>
+      <Heading size="md" mb={4}>Public Layouts</Heading>
       <Grid  templateColumns="repeat(2, 1fr)" gap={3}>
        {layout.map((lay) => {
         const isSelected = lay.id === selectedLayoutId
