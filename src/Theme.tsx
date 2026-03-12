@@ -132,7 +132,7 @@ function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, o
           }}>
             <Listbox.ItemText w='full'>
             <Box w='full'>
-            <Box display='flex' h='60px' w='250px' mb='5' borderRadius='xs' overflow='visible'
+            <Box display='flex' h='60px' w='250px' mb='5' borderRadius='xs' overflow='visible' className={currTheme.id === theme.id ? 'selected' : ''}
               css={{
                 '&:hover .color-swatch-1, &.selected .color-swatch-1': { filter: `drop-shadow(0 0 12px ${theme.navColor})` },
                 '&:hover .color-swatch-2, &.selected .color-swatch-2': { filter: `drop-shadow(0 0 12px ${theme.bgColor})` },
