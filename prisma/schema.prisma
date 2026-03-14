@@ -85,19 +85,12 @@ model LayoutElement {
   id       Int    @id @default(autoincrement())
   layout   Layout @relation(fields: [layoutId], references: [id])
   layoutId Int
-  widget   Widget @relation(fields: [widgetId], references: [id])
   widgetId Int
   posX     Int
   posY     Int
   sizeX    Int
   sizeY    Int
   settings   WidgetSettings?
-}
-
-model Widget {
-  id             Int             @id @default(autoincrement())
-  name           String
-  layoutElements LayoutElement[]
 }
 
 model Timer {
@@ -133,6 +126,7 @@ model WidgetSettings {
   layoutElement     LayoutElement   @relation(fields: [layoutElementId], references: [id])
   layoutElementId   Int             @unique
   calendar          CalendarSettings?
+  link              LinkSettings?
 }
 
 model CalendarSettings {
@@ -140,4 +134,11 @@ model CalendarSettings {
   widgetSettings    WidgetSettings  @relation(fields: [widgetSettingsId], references: [id])
   widgetSettingsId  Int             @unique
   defaultCalendar   String?
+}
+
+model LinkSettings {
+  id                Int             @id @default(autoincrement())
+  widgetSettings    WidgetSettings  @relation(fields: [widgetSettingsId], references: [id])
+  widgetSettingsId  Int             @unique
+  url               String?
 }

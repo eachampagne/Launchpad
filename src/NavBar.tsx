@@ -8,7 +8,8 @@ import { useContext } from 'react';
 import { UserContext } from './UserContext';
 import { IoLogOutOutline } from "react-icons/io5";
 
-import rocketLogoURL from './assets/Launchpad_Logo_rocket.png';
+import rocketLogoURL from './assets/Launchpad_Logo_2_DARK.png';
+import changeTextColor from './utilities/color';
 
 interface MyProps {
   pages: Array<string>,
@@ -22,13 +23,13 @@ function NavBar (props: MyProps) {
   const renderLoginInfo = () => {
     if (user.id === -1) { // not logged in
       return (
-        <Button colorPalette="gray" variant="ghost" height="25px" mt="12px" mr="8px" p="1" asChild><a href="/login/federated/google" color={props.textColor}>Sign in</a></Button>
+        <Button colorPalette='white' variant="ghost" height="25px" mt="12px" mr="8px" p="1" asChild><a href="/login/federated/google" color={props.textColor}>Sign in</a></Button>
       );
     } else { // logged in
       return (
         <Flex align="center">
           <Text mt="12px" >{user.name}</Text>
-          <Button colorPalette="white" variant="ghost" height="25px" mt="12px" ml="8px" p="1" onClick={() => {handleLogout()}} color={props.textColor} >{<IoLogOutOutline />}</Button>
+          <Button colorPalette="white" variant="ghost" height="25px" mt="12px" ml="8px" p="1" onClick={() => {handleLogout()}} color={props.textColor ?? "black"} >{<IoLogOutOutline />}</Button>
         </Flex>
       );
     }
@@ -36,17 +37,17 @@ function NavBar (props: MyProps) {
 
   return (
     <div style={{position: "sticky", top: "0", zIndex: "200"}}>
-      <Container as="div" w="100%" h="45px" backgroundColor={props.navColor ?? "gray.emphasized"} margin="0" maxWidth="none" paddingLeft="16" paddingRight="16" color={props.textColor}>
+      <Container as="div" w="100%" h="45px" backgroundColor={props.navColor ?? "gray.emphasized"} margin="0" maxWidth="none" paddingLeft="16" paddingRight="16" color={props.textColor ?? "black"}>
         {/* TODO: Make this responsive for mobile and turn into a collapsible thing */}
         <AbsoluteCenter>
           <Image height="1.5rem" mr="1" src={rocketLogoURL}/>
-          <Heading>LaunchPad</Heading>
+          <Heading color={changeTextColor(props.textColor)}>LaunchPad</Heading>
           <LinkOverlay href="/" />
         </AbsoluteCenter>
         <Flex width="100%">
           <For each={props.pages}>
             {(page) => (
-              <Button colorPalette="gray" variant="ghost" height="25px" mt="12px" mr="8px" p="1" asChild><Link to={`/${page === "Home" ? '' : page}`} color={props.textColor} >{page}</Link></Button>
+              <Button colorPalette="gray" variant="ghost" height="25px" mt="12px" mr="8px" p="1" asChild><Link to={`/${page === "Home" ? '' : page}`} color={props.textColor ?? "black"} >{page}</Link></Button>
             )}
           </For>
           <Spacer />

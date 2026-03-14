@@ -161,7 +161,7 @@ router.get('/list', async (req, res) => {
   }
 });
 
-router.patch('/default', async (req, res) => {
+router.patch('/default/:layoutElementId', async (req, res) => {
   // check auth
   const userId = req.user?.id;
 
@@ -170,9 +170,10 @@ router.patch('/default', async (req, res) => {
     return;
   }
 
-  const { layoutElementId, defaultCalendar }: { layoutElementId: number | undefined, defaultCalendar: string | undefined }  = req.body;
+  const layoutElementId = parseInt(req.params.layoutElementId);
+  const { defaultCalendar }: { defaultCalendar: string | undefined }  = req.body;
 
-  if (layoutElementId === undefined || defaultCalendar === undefined) {
+  if (isNaN(layoutElementId) || defaultCalendar === undefined) {
     // bad request
     return res.sendStatus(400);
   }

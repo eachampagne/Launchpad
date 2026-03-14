@@ -3,7 +3,7 @@ import { ScrollArea, Container, For, Spinner, HStack, AbsoluteCenter, Text, Head
 // ! This is currently the demo from the Chakra-UI page, and should be replaced. It is being used while laying out the site.
 const ChangeLogScroll = ({changelog}: {changelog: {number: number, merged: boolean, mergedAt: string, title: string}[]}) => (
   <ScrollArea.Root height="15rem" maxW="lg">
-    <Container textAlign="center" p="3" backgroundColor="gray.emphasized"> Changelog </Container>
+    <Container textAlign="center" p="3" backgroundColor="#dba022" color="black"> Changelog </Container>
     <ScrollArea.Viewport>
       <ScrollArea.Content spaceY="0" textStyle="sm">
         <For

@@ -9,19 +9,29 @@ type ClientUser = {
   primaryDashId: number | null
 }
 
+type Theme = {
+  id: number
+  navColor: string
+  bgColor: string
+  font: string
+}
+
 export const UserContext = createContext({
   user: {id: -1, name: 'Not signed in', primaryDashId: null} as ClientUser,
   activeDash: -1,
   handleLogout: () => {},
   handleLoginDemo: () => {},
   setActiveDash: (n: number) => {},
-  getPrimaryDash: () => {}
+  getPrimaryDash: () => {},
+  currentTheme: null as Theme | null,
+  setCurrentTheme: (theme: Theme) => {}
 });
 
 function UserProvider ({children}: {children?: React.ReactNode}) {
   const navigate = useNavigate();
   const [user, setUser] = useState({id: -1} as ClientUser);
   const [activeDash, setActiveDash] = useState(-1);
+  const [currentTheme, setCurrentTheme] = useState<Theme | null>(null);
 
   const handleLogout = async () => {
     try {
@@ -91,7 +101,9 @@ function UserProvider ({children}: {children?: React.ReactNode}) {
       handleLogout,
       handleLoginDemo,
       setActiveDash,
-      getPrimaryDash
+      getPrimaryDash,
+      currentTheme,
+      setCurrentTheme
     }}>
       {children}
     </UserContext>

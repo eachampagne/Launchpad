@@ -5,10 +5,10 @@ import { decode } from 'html-entities';
 import { AbsoluteCenter, Button, Flex, For, Heading, Icon, LinkBox, LinkOverlay, ScrollArea, Spinner, Stack, Text } from '@chakra-ui/react';
 import { LuMail } from 'react-icons/lu';
 
-import { AuthStatus } from '../types/WidgetStatus.ts';
-import type { EmailObject } from '../types/Email.ts';
-import type { WidgetSettings } from '../types/LayoutTypes.ts';
-import { UserContext } from './UserContext';
+import { AuthStatus } from '../../types/WidgetStatus.ts';
+import type { EmailObject } from '../../types/Email.ts';
+import type { WidgetSettings } from '../../types/LayoutTypes.ts';
+import { UserContext } from './../UserContext';
 
 function Email ({widgetId, settings}: {widgetId: number, settings: WidgetSettings | null}) {
   const { user } = useContext(UserContext);

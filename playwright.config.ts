@@ -75,7 +75,7 @@ export default defineConfig({
     /* We run build first to generate the 'tsout-server' folder, then start it */
     command: 'npm run build && npm run start',
     url: 'http://localhost:8000',
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: true,
     stdout: 'pipe',
     stderr: 'pipe',
     timeout: 180 * 1000, // Building takes longer, so we give it 3 minutes

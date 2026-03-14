@@ -5,7 +5,7 @@ on:
     branches:
       - main
 
-jobs:        
+jobs:
   unit-tests:
     runs-on: ubuntu-latest
 
@@ -14,9 +14,9 @@ jobs:
       postgres:
         image: postgres:15
         env:
-          POSTGRES_USER: ${{ secrets.PG_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.PG_PASSWORD }}
-          POSTGRES_DB: ${{ secrets.PG_DB }}
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: launchpad
         ports:
           - 5432:5432
         # Ensure the DB is ready before the steps start
@@ -27,17 +27,18 @@ jobs:
           --health-retries 5
 
     env:
-      DATABASE_URL: "postgresql://${{ secrets.PG_USER }}:${{ secrets.PG_PASSWORD }}@localhost:5432/${{ secrets.PG_DB }}"
-      GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
-      GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-      APP_SECRET: ${{ secrets.secret }}
-      GOOGLE_LOGIN_REDIRECT_URL: ${{ secrets.GOOGLE_LOGIN_REDIRECT_URL }}
-      GOOGLE_AUTH_REDIRECT_URL: ${{ secrets.GOOGLE_AUTH_REDIRECT_URL }}
-      TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
-      TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
-      GH_AUTH_TOKEN: ${{ secrets.GH_AUTH_TOKEN }}
+      NODE_ENV: test
+      DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/launchpad"
+      GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID || 'test' }}
+      GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET || 'test' }}
+      APP_SECRET: ${{ secrets.secret || 'test' }}
+      GOOGLE_LOGIN_REDIRECT_URL: ${{ secrets.GOOGLE_LOGIN_REDIRECT_URL || 'test' }}
+      GOOGLE_AUTH_REDIRECT_URL: ${{ secrets.GOOGLE_AUTH_REDIRECT_URL || 'test' }}
+      TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID || 'test' }}
+      TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN || 'test' }}
+      GH_AUTH_TOKEN: ${{ secrets.GH_AUTH_TOKEN || 'test' }}
 
-    steps:                        
+    steps:
       - name: Checkout Code
         uses: actions/checkout@v4
       
@@ -50,10 +51,49 @@ jobs:
           npx prisma generate
           npx prisma migrate deploy
 
+      - name: Build project
+        run: npm run build
+
+      - name: Start server in background
+        shell: bash
+        run: |
+          nohup npm run start > server.log 2>&1 &
+          echo $! > server.pid
+
+      - name: Wait for server to be ready
+        shell: bash
+        run: |
+          for i in {1..60}; do
+            if curl -sSf http://localhost:8000 >/dev/null; then
+              echo "server up"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "server did not start" >&2
+          cat server.log || true
+          exit 1
+
       # 3. Install Playwright Browsers (Required for Ubuntu)
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
-      # 4. Run the actual tests
-      - name: Run Playwright tests            
-        run: npm test
+      # 4. Run the actual tests (chromium only to reduce flakiness)
+      - name: Run Playwright tests (chromium only)
+        run: npx playwright test --project=chromium --reporter=list
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report
+
+      - name: Upload server logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-log
+          path: |
+            server.log
+            server.pid

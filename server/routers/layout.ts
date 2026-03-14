@@ -13,11 +13,7 @@ layout.get('/public', async (req, res) => {
         public: true
       },
       include: {
-        layoutElements: {
-          include: {
-            widget: true
-          }
-        }
+        layoutElements: true
       }
     })
     //console.log('layouts from DB:', layout);
@@ -43,10 +39,7 @@ layout.get('/:layoutId', async (req, res) => {
       where: { id: layoutId },
       //include all layout elms
       include: {
-        layoutElements: {
-          //for layout elms include widget
-          include: { widget: true }
-        }
+        layoutElements: true
       }
     });
     //check if layout exist first
@@ -70,9 +63,7 @@ layout.post('/:layoutId/copy', async (req, res) => {
     const sourceLayout = await prisma.layout.findUnique({
       where: { id: layoutId },
       include: {
-        layoutElements: {
-          include: { widget: true }
-        }
+        layoutElements: true
       }
     });
 

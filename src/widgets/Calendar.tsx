@@ -6,10 +6,10 @@ import { AbsoluteCenter, Button, Container, Flex, For, Heading, HStack, Icon, Li
 import { LuCalendarDays } from 'react-icons/lu';
 
 
-import type { AllDayTime, PartDayTime, Event, CalendarObject } from '../types/Calendar.ts';
-import type { WidgetSettings } from '../types/LayoutTypes.ts';
-import { AuthStatus } from '../types/WidgetStatus.ts';
-import { UserContext } from './UserContext';
+import type { AllDayTime, PartDayTime, Event, CalendarObject } from '../../types/Calendar.ts';
+import type { WidgetSettings } from '../../types/LayoutTypes.ts';
+import { AuthStatus } from '../../types/WidgetStatus.ts';
+import { UserContext } from './../UserContext';
 
 function Calendar({widgetId, settings}: {widgetId: number, settings: WidgetSettings | null}) {
   const { user } = useContext(UserContext);
@@ -19,7 +19,7 @@ function Calendar({widgetId, settings}: {widgetId: number, settings: WidgetSetti
   const [calendars, setCalendars] = useState([] as CalendarObject[]);
   const [activeCalendarId, setActiveCalendarId] = useState(settings?.calendar?.defaultCalendar || '');
   const [isLoadingEvents, setIsLoadingEvents] = useState(false);
-
+  
   const getEvents = async (calendarId = '') => {
     try {
       const query = calendarId ? `?calendarId=${encodeURIComponent(calendarId)}` : ''; //apparently one of the Google calendars has a pound sign
@@ -80,8 +80,7 @@ function Calendar({widgetId, settings}: {widgetId: number, settings: WidgetSetti
 
   const setDefaultCalendar = async (newDefaultId: string | null) => {
     try {
-      await axios.patch('/calendar/default', {
-        layoutElementId: widgetId,
+      await axios.patch(`/calendar/default/${widgetId}`, {
         defaultCalendar: newDefaultId
       })
     } catch (error) {

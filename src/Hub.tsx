@@ -41,7 +41,7 @@ const createDraft = (): ScheduleDraft => ({
   period: "AM",
   saved: false,
 });
-
+// TEST COMMENT
 export default function Hub(
  // TODO will be changed when App component is completed
 ) {
@@ -223,7 +223,7 @@ export default function Hub(
 
   return (
     <>
-      <NavBar pages={["Home", "Dashboard"]} />{" "}
+      <NavBar pages={["Home", "Dashboard"]} navColor="#dba022"/>{" "}
       {/*empty string will take user to Home page*/}
       <Flex minH="100vh" justify="center">
         <Box w="100%" maxW="1800px" p={6}>

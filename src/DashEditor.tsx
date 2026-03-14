@@ -10,7 +10,6 @@ import Theme from './Theme';
 import LayoutGallery from './LayoutGallery';
 import LayoutCanvas from './LayoutCanvas'
 import WidgetLibrary from "./WidgetLibrary";
-
 import type { Layout, Dashboard } from '../types/LayoutTypes';
 
 const gridCols = 19;
@@ -24,7 +23,8 @@ const snapSize = 60;
 function DashEditor() {
   const { activeDash: dashboardId, user: { id: ownerId } } = useContext(UserContext);
   const [dashboard, setDashboard] = useState<Dashboard | null>(null);
-
+  const { currentTheme } = useContext(UserContext);
+  console.log(currentTheme, 'HELELLEOO CAN THIS THING WORK ')
 
   const [newName, setNewName] = useState('');
   const [renaming, setRenaming] = useState(false);
@@ -171,7 +171,7 @@ function DashEditor() {
             border="1px solid"
             borderColor="gray.500"
             borderRadius="xl"
-            bg="white"
+            bg={currentTheme?.bgColor || "white"} // this is the background of the grid
             color="gray.800"
             overflow="hidden"
           >

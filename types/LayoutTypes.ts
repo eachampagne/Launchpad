@@ -2,8 +2,13 @@ type CalendarSettings = {
   defaultCalendar: string
 };
 
+type LinkSettings = {
+  url: string
+}
+
 export type WidgetSettings = {
-  calendar: CalendarSettings | null
+  calendar: CalendarSettings | null,
+  link: LinkSettings | null
 };
 
 export type Layout = {
@@ -18,9 +23,7 @@ export type LayoutElement = {
   posY: number;
   sizeX: number;
   sizeY: number;
-  widget: {
-    name: string
-  },
+  widgetId: number,
   settings: WidgetSettings | null
 };
 

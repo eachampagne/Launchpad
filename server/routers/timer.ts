@@ -3,10 +3,18 @@ import express from 'express';
 import { prisma } from '../database/prisma.js';
 
 import "dotenv/config";
-import twilio from 'twilio'
+import twilio, { Twilio } from 'twilio'
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
-const client = twilio(accountSid, authToken);
+
+let client: Twilio | undefined;
+
+if (process.env.NODE_ENV !== "test") {
+    if (!accountSid || !authToken) {
+      throw new Error("Missing Twilio environment variables");
+    }
+    client = twilio(accountSid, authToken);
+}
 
 const timerLookup: {[key: string]: NodeJS.Timeout} = {};
 
@@ -28,14 +36,22 @@ const timerCallback = async (userId: number) => {
       console.log(userNumber, userId, 'TIMER TESTING')
       if(userNumber){
         if(userNumber.verified === true && userNumber.notifications === true){
-          try {await client.messages.create({
-            body: "Timer is up!",
-            from: "+18336574381",
-            to: userNumber.contactNumber,
-          });
-        } catch (error) {
-          console.error(error, 'something went wrong when sending message with timer ending')
-        }
+          if (!client) {
+            console.info("Twilio disabled (test mode), skipping SMS.");
+          } else {
+            try {
+              await client.messages.create({
+                body: "Timer is up!",
+                from: "+18336574381",
+                to: userNumber.contactNumber,
+              });
+            } catch (error) {
+              console.error(
+                error,
+                "something went wrong when sending message with timer ending",
+              );
+            }
+          }
         }
       }
 

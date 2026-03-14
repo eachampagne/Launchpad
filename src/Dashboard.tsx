@@ -53,6 +53,7 @@ export default function Dashboard () {
     settingTheme()
   }, [themeId])
 
+
   useEffect(() => {
     axios.get(`/dashboard/${dashboardId}`)
     .then((res) => {
@@ -75,7 +76,7 @@ export default function Dashboard () {
     <Box bg={themeObject.bgColor}  color="gray.800" minH='100vh' w='100%' >
       <NavBar pages={["Home", "Hub"]} textColor={textColor} navColor={themeObject.navColor}/>
       <h2>{dashboard.name}</h2>
-      <Link to='/edit'>Edit</Link>
+      <Link to='/edit' >Edit</Link>
       <LayoutCanvas
       layout={dashboard.layout}
       editable={false}>
