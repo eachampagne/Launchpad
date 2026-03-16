@@ -51,7 +51,7 @@ layout.get('/:layoutId', async (req, res) => {
   } catch (error) {
     res.status(500).send({'Could not load layout:': error})
   }
-
+})
 
 //CREATE: This route will copy a public layout
 layout.post('/:layoutId/copy', async (req, res) => {
@@ -96,7 +96,6 @@ layout.post('/:layoutId/copy', async (req, res) => {
     res.status(500).send({'Could not copy layout': error})
   }
 })
-});
 
 // TODO:
 // Layout + Elm
