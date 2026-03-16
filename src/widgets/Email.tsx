@@ -2,8 +2,8 @@ import { useState, useEffect, useContext } from 'react';
 import axios, { AxiosError } from 'axios';
 import { decode } from 'html-entities';
 
-import { AbsoluteCenter, Button, Flex, For, Heading, Icon, LinkBox, LinkOverlay, ScrollArea, Spinner, Stack, Text } from '@chakra-ui/react';
-import { LuMail } from 'react-icons/lu';
+import { AbsoluteCenter, Button, Flex, For, Heading, Icon, LinkBox, LinkOverlay, ScrollArea, Spacer, Spinner, Stack, Text } from '@chakra-ui/react';
+import { LuMail, LuRefreshCw } from 'react-icons/lu';
 
 import { AuthStatus } from '../../types/WidgetStatus.ts';
 import type { EmailObject } from '../../types/Email.ts';
@@ -41,6 +41,19 @@ function Email ({widgetId, settings}: {widgetId: number, settings: WidgetSetting
       }
     }
   };
+
+  const renderRefresh = () => {
+    switch (authStatus) {
+      case AuthStatus.Authorized:
+        return (
+          <Icon size="lg" marginLeft="0.5rem" onClick={getEmails} cursor="pointer">
+            <LuRefreshCw/>
+          </Icon>
+        );
+      default:
+        return null;
+    }
+  }
 
   const renderEmails = () => {
     switch(authStatus) {
@@ -102,6 +115,8 @@ function Email ({widgetId, settings}: {widgetId: number, settings: WidgetSetting
         <Heading>
           Email
         </Heading>
+        <Spacer />
+        {renderRefresh()}
       </Flex>
       {renderEmails()}
     </Flex>

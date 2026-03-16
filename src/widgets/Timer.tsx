@@ -189,6 +189,15 @@ function Timer({widgetId, settings}: {widgetId: number, settings: WidgetSettings
     checkServer();
   }
 
+  const handleUnmount = () => {
+    // clear timeouts/intervals before unmounting
+    if (timerTimeout !== null) {
+      clearTimeout(timerTimeout);
+      setTimerTimeout(null);
+    }
+    stopTicking();
+  };
+
   const toggleMute = () => {
     audioElement.muted = !muted; // do this before setting the state instead of waiting for the state to update asynchronously
     setMuted(m => !m);
@@ -220,9 +229,17 @@ function Timer({widgetId, settings}: {widgetId: number, settings: WidgetSettings
     checkServer();
   }, [user]);
 
+  useEffect(() => {
+    // cleanup - don't ring if the widget is offscreen (navigated to a different page, deleted widget, etc)
+    return () => {
+      handleUnmount();
+    };
+    // needs to create a new cleanup process when timerTimeout changes to prevent thinking timerTimeout is still null due to closure
+  }, [timerTimeout]);
+
   const renderVolumeControl = () => {
       return (
-        <Icon size="lg" marginLeft="0.5rem" onClick={toggleMute}>
+        <Icon size="lg" marginLeft="0.5rem" onClick={toggleMute} cursor="pointer">
           {muted ? <LuVolumeOff/> : <LuVolume2/>}
         </Icon>
       );
