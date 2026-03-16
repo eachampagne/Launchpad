@@ -143,24 +143,44 @@ dashboard.post('/', async (req, res) => {
   const { ownerId, name } = req.body;
 
   try {
-      //Load layout id = 1 as default since seed create layout.
-      const defaultLayout = await prisma.layout.findUnique({
+    // auth would go here
+      //Load layout id = 1 as default since seed create layout(temp)
+    const defaultLayout = await prisma.layout.findUnique({
       where: { id: 1 },
       include: {
         layoutElements: true
       }
     });
-    console.log(defaultLayout)
 
+    //Check if default layout exist
     if (!defaultLayout) {
       return res.status(500).send("Default layout missing");
     }
-    // auth would go here
+    //Create new private layout
+    const newLayout = await prisma.layout.create({
+      data: {
+        ownerId,
+        public: false,
+        gridSize: defaultLayout.gridSize
+      }
+    });
+    //Copy layout elements
+    await prisma.layoutElement.createMany({
+      data: defaultLayout.layoutElements.map(el => ({
+        layoutId: newLayout.id,
+        widgetId: el.widgetId,
+        posX: el.posX,
+        posY: el.posY,
+        sizeX: el.sizeX,
+        sizeY: el.sizeY
+      }))
+    });
 
     if (!ownerId) {
       return res.status(401).json({ error: "Unauthorized" });
     }
 
+    //Dashboard creation
     const dashboard = await prisma.dashboard.create({
       data: {
         name,
@@ -180,13 +200,17 @@ dashboard.post('/', async (req, res) => {
           },
         },
 
-        layoutId: newLayout.id
-
-
+        layout: {
+          connect: { id: newLayout.id }
+        }
       },
       include: {
         theme: true,
-        layout: true,
+        layout: {
+          include: {
+            layoutElements: true
+          }
+        }
       },
     });
 
