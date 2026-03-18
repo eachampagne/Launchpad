@@ -298,8 +298,18 @@ function WidgetFrame({widgetId, posX, posY, sizeX, sizeY, minWidth, minHeight, m
   // convert certain props from grid squares to pixels
   const minHeightPx = minHeight * snapSize;
   const minWidthPx = minWidth * snapSize;
-  const maxHeightPx = maxHeight ? maxHeight * snapSize : undefined;
-  const maxWidthPx = maxWidth ? maxWidth * snapSize : undefined;
+
+  let maxHeightPx: number | undefined, maxWidthPx: number | undefined;
+
+  // check that maxes exist and are >= mins
+  // if a max is < the corresponding min, discard the max
+  if (maxHeight && maxHeight > minHeight) {
+    maxHeightPx = maxHeight * snapSize;
+  }
+  if (maxWidth && maxWidth > minWidth) {
+    maxWidthPx = maxWidth * snapSize;
+  }
+
   const boundingHeightPx = boundingHeight * snapSize;
   const boundingWidthPx = boundingWidth * snapSize;
 
@@ -307,16 +317,96 @@ function WidgetFrame({widgetId, posX, posY, sizeX, sizeY, minWidth, minHeight, m
   const resize = (side: Side, delta: number) => {
     switch (side) {
       case Side.Top:
-        setTop((t) => bottom - (t + delta) < minHeightPx ? bottom - minHeightPx : t + delta);
+        setTop((t) => {
+          let newTop: number;
+          if (bottom - (t + delta) < minHeightPx) {
+            // constrain to minHeight
+            newTop = bottom - minHeightPx;
+          } else if (maxHeightPx && bottom - (t + delta) > maxHeightPx) {
+            // constrain to maxHeight, if exists
+            newTop = bottom - maxHeightPx;
+          } else {
+            newTop = t + delta;
+          }
+
+          // constrain to boundaries
+          if (newTop < 0) {
+            newTop = 0;
+          } else if (newTop > boundingHeightPx) { // should be impossible
+            newTop = boundingHeightPx;
+          }
+
+          return newTop;
+        });
         break;
       case Side.Bottom:
-        setBottom((b) => (b + delta) - top < minHeightPx ? top + minHeightPx : b + delta);
+        setBottom((b) => {
+          let newBottom: number;
+          if ((b + delta) - top < minHeightPx) {
+            // constrain to minHeight
+            newBottom = top + minHeightPx;
+          } else if (maxHeightPx && (b + delta) - top > maxHeightPx) {
+            // constrain to maxHeight, if exists
+            newBottom = top + maxHeightPx;
+          } else {
+            newBottom = b + delta;
+          }
+
+          // constrain to boundaries
+          if (newBottom < 0) { // should be impossible
+            newBottom = 0;
+          } else if (newBottom > boundingHeightPx) {
+            newBottom = boundingHeightPx;
+          }
+
+          return newBottom;
+        });
         break;
       case Side.Left:
-        setLeft((l) => right - (l + delta) < minWidthPx ? right - minWidthPx : l + delta);
+        setLeft((l) => {
+          let newLeft: number;
+          if (right - (l + delta) < minWidthPx) {
+            // constrain to minWidth
+            newLeft = right - minWidthPx;
+          } else if (maxWidthPx && right - (l + delta) > maxWidthPx) {
+            // constrain to maxWidth, if exists
+            newLeft = right - maxWidthPx;
+          } else {
+            newLeft = l + delta;
+          }
+
+          // constrain to boundaries
+          if (newLeft < 0) {
+            newLeft = 0;
+          } else if (newLeft > boundingWidthPx) { // should be impossible
+            newLeft = boundingWidthPx;
+          }
+
+          return newLeft;
+        });
         break;
       case Side.Right:
-        setRight((r) => (r + delta) - left < minWidthPx ? left + minWidthPx : r + delta);
+        setRight((r) => {
+          let newRight: number;
+          if ((r + delta) - left < minWidthPx) {
+            // constrain to minWidth
+            newRight = left + minWidthPx;
+          } else if (maxWidthPx && (r + delta) - left > maxWidthPx) {
+            // constrain to maxWidth, if exists
+            newRight = left + maxWidthPx;
+          } else {
+            newRight = r + delta;
+          }
+
+          // constrain to boundaries
+          if (newRight < 0) { // should be impossible
+            newRight = 0;
+          } else if (newRight > boundingWidthPx) {
+            newRight = boundingWidthPx;
+          }
+
+          return newRight;
+        });
         break;
     }
   };
