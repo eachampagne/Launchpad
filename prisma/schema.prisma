@@ -139,7 +139,7 @@ model CalendarSettings {
   defaultCalendar   String?
 }
 
-<<<<<<< HEAD
+
 model PublicThemes {
   id                Int             @id @default(autoincrement())
   theme             Theme           @relation(fields: [themeId], references: [id])
@@ -147,11 +147,11 @@ model PublicThemes {
   owner             User            @relation(fields: [ownerId], references: [id])
   ownerId           Int
 }
-=======
+
 model LinkSettings {
   id                Int             @id @default(autoincrement())
   widgetSettings    WidgetSettings  @relation(fields: [widgetSettingsId], references: [id])
   widgetSettingsId  Int             @unique
   url               String?
->>>>>>> 256f0d5807d085f16ce1275655c02c9ba7deab9e
+
 }

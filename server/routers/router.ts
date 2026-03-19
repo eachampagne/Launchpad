@@ -14,12 +14,12 @@ import dashboard from './dashboard.js';
 import schedule from './schedule.js';
 import accounts from './accounts.js';
 import github from './github.js';
-<<<<<<< HEAD
+
 import publicThemes from './publicThemes.js';
-=======
+
 import link from './link.js';
 import aiChat from './ai.js';
->>>>>>> 256f0d5807d085f16ce1275655c02c9ba7deab9e
+
 
 const router = express.Router();
 
@@ -34,12 +34,11 @@ router.use('/timer', timer);
 router.use('/notifications', phoneNumbers);
 router.use('/accounts', accounts);
 router.use('/github', github);
-<<<<<<< HEAD
+
 router.use('/publicThemes', publicThemes);
-=======
+
 router.use('/link', link);
 router.use('/ai', aiChat);
->>>>>>> 256f0d5807d085f16ce1275655c02c9ba7deab9e
 
 // router.post('/create', async (req, res) => {
 //   const { name }: { name: string} = req.body;
