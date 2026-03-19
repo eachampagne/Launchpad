@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
-import { Box, Flex, Input, IconButton, Text, VStack } from '@chakra-ui/react';
+import { Box, Flex, Input, IconButton, Text, VStack, Heading, Spacer, Icon} from '@chakra-ui/react';
 import type { WidgetSettings } from '../../types/LayoutTypes';
+
+import { LuBot } from "react-icons/lu";
 
 type Message = {
   role: 'user' | 'model';
@@ -46,17 +48,26 @@ function AiChat({ widgetId, settings }: { widgetId: number; settings: WidgetSett
 
   return (
     <Flex direction="column" height="100%" width="100%" p={2} gap={2}>
+      <Flex align="center" marginBottom="0.5rem">
+        {" "}
+        {/* Inner flex box means icon is vertically centered against text */}
+        <Icon size="lg" marginRight="0.5rem">
+          <LuBot />
+        </Icon>
+        <Heading>AI Chat</Heading>
+        <Spacer />
+      </Flex>
       <VStack flex={1} overflowY="auto" align="stretch" gap={1} fontSize="xs">
         {messages.length === 0 && (
-          <Text color="gray.400" fontSize="xs" textAlign="center" mt={2}>
+          <Text color="inherit" fontSize="xs" textAlign="center" mt={2}>
             Ask Gemini anything...
           </Text>
         )}
         {messages.map((msg, i) => (
           <Box
             key={i}
-            alignSelf={msg.role === 'user' ? 'flex-end' : 'flex-start'}
-            bg={msg.role === 'user' ? 'orange.100' : 'gray.100'}
+            alignSelf={msg.role === "user" ? "flex-end" : "flex-start"}
+            bg={msg.role === "user" ? "orange.100" : "gray.100"}
             color="gray.800"
             px={2}
             py={1}
@@ -68,7 +79,15 @@ function AiChat({ widgetId, settings }: { widgetId: number; settings: WidgetSett
           </Box>
         ))}
         {loading && (
-          <Box alignSelf="flex-start" bg="gray.100" px={2} py={1} borderRadius="md" color="gray.500" fontSize="xs">
+          <Box
+            alignSelf="flex-start"
+            bg="gray.100"
+            px={2}
+            py={1}
+            borderRadius="md"
+            color="gray.500"
+            fontSize="xs"
+          >
             Thinking...
           </Box>
         )}
@@ -79,11 +98,13 @@ function AiChat({ widgetId, settings }: { widgetId: number; settings: WidgetSett
         <Input
           size="xs"
           value={input}
-          onChange={e => setInput(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && sendMessage()}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
           placeholder="Message Gemini..."
           borderRadius="md"
           flex={1}
+          borderColor={'whiteAlpha.800'}
+          css={{ "&::placeholder": { color: "inherit" } }}
         />
         <IconButton
           size="xs"
