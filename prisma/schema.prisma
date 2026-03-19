@@ -24,6 +24,7 @@ model User {
   Timer              Timer?
   phoneNumber        PhoneNumbers?
   dashboardSchedules DashboardSchedule[]
+  publicThemes PublicThemes[]
 }
 
 model GoogleToken {
@@ -69,6 +70,8 @@ model Theme {
   navColor String
   bgColor  String
   font     String
+  name     String?
+  publicThemes PublicThemes[]
 }
 
 model Layout {
@@ -140,4 +143,13 @@ model CalendarSettings {
   widgetSettings    WidgetSettings  @relation(fields: [widgetSettingsId], references: [id])
   widgetSettingsId  Int             @unique
   defaultCalendar   String?
+}
+
+model PublicThemes {
+  id                Int             @id @default(autoincrement())
+  theme             Theme           @relation(fields: [themeId], references: [id])
+  themeId           Int
+  owner             User            @relation(fields: [ownerId], references: [id])
+  ownerId           Int
+  
 }

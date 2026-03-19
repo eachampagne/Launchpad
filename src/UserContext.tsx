@@ -14,6 +14,7 @@ type Theme = {
   navColor: string
   bgColor: string
   font: string
+  name: string
 }
 
 export const UserContext = createContext({

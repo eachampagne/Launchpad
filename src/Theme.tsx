@@ -9,7 +9,7 @@ import { UserContext } from './UserContext';
 
 
 function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, ownerId: number}, ownerId: number, dashboardId : number}) {
-  const [themesList, setThemesList] = useState([] as {id: number, navColor: string, bgColor: string, font: string}[]);
+  const [themesList, setThemesList] = useState([] as {id: number, navColor: string, bgColor: string, font: string, name: string}[]);
 
   // const [form, setForm] = useState({navColor: 'white', bgColor: 'white', font: 'ariel'});
   const [color, setColor] = useState('test')

@@ -89,6 +89,53 @@ theme.patch('/', async (req, res) => {
 
 })
 
+// PATCH for public themes
+
+theme.patch('/:ownerId', async (req, res) => {
+  const ownerId = Number(req.params.ownerId)
+  
+
+  try {
+    // find the theme by the id
+    const existing = await prisma.theme.findFirst({
+      where: {
+        id: ownerId
+      }
+    })
+  
+    if(!existing){
+      return res.status(404).send('Could not find the number')
+    }
+    
+
+    // if(existing.ownerId !== ownerId){
+    //   return res.status(403).send('You do not own this theme');
+    // }
+
+
+
+    const publicTheme = await prisma.theme.update({
+      where: {
+        id: existing.id
+      }, 
+      data: {
+        public: !existing.public
+      }
+    })
+    // if we find it, change the public status to its opposite
+    
+    
+    return res.status(201).send({theme : publicTheme})
+  } catch (error) {
+    return res.status(500).send({'Could not verify': error})
+    }
+})
+
+
+
+
+
+
 // DELETE a theme
 theme.delete('/delete/:ownerId', async (req, res) => {
   const { themeId } = req.body
