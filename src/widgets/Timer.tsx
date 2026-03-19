@@ -4,11 +4,11 @@ import axios, { AxiosError } from 'axios';
 import { Button, For, Flex, Heading, HStack, Icon, Text } from '@chakra-ui/react';
 import { LuTimer, LuVolume2, LuVolumeOff } from 'react-icons/lu';
 
-import type { WidgetSettings } from '../types/LayoutTypes.ts';
-import { TimerStatus } from '../types/WidgetStatus';
-import { UserContext } from './UserContext';
+import type { WidgetSettings } from '../../types/LayoutTypes.ts';
+import { TimerStatus } from '../../types/WidgetStatus.ts';
+import { UserContext } from '../UserContext.tsx';
 
-import soundUrl from './assets/triangle.mp3';
+import soundUrl from './../assets/triangle.mp3';
 const audioElement = new Audio(soundUrl); // defined here so it doesn't keep getting recreated every rerender
 // constantly recreating it is bad performance wise, but also means its muted/unmuted status doesn't persist
 
@@ -189,6 +189,15 @@ function Timer({widgetId, settings}: {widgetId: number, settings: WidgetSettings
     checkServer();
   }
 
+  const handleUnmount = () => {
+    // clear timeouts/intervals before unmounting
+    if (timerTimeout !== null) {
+      clearTimeout(timerTimeout);
+      setTimerTimeout(null);
+    }
+    stopTicking();
+  };
+
   const toggleMute = () => {
     audioElement.muted = !muted; // do this before setting the state instead of waiting for the state to update asynchronously
     setMuted(m => !m);
@@ -220,9 +229,17 @@ function Timer({widgetId, settings}: {widgetId: number, settings: WidgetSettings
     checkServer();
   }, [user]);
 
+  useEffect(() => {
+    // cleanup - don't ring if the widget is offscreen (navigated to a different page, deleted widget, etc)
+    return () => {
+      handleUnmount();
+    };
+    // needs to create a new cleanup process when timerTimeout changes to prevent thinking timerTimeout is still null due to closure
+  }, [timerTimeout]);
+
   const renderVolumeControl = () => {
       return (
-        <Icon size="lg" marginLeft="0.5rem" onClick={toggleMute}>
+        <Icon size="lg" marginLeft="0.5rem" onClick={toggleMute} cursor="pointer">
           {muted ? <LuVolumeOff/> : <LuVolume2/>}
         </Icon>
       );

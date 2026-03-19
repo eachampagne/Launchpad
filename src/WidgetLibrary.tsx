@@ -1,26 +1,10 @@
-import { useEffect, useState } from "react";
 import { Box, Button, VStack, Heading } from "@chakra-ui/react";
 import axios from "axios";
 
-type Widget = {
-  id: number;
-  name: string;
-};
-
+import WidgetMap from "./widgets";
 
 function WidgetLibrary({ layoutId, onWidgetAdded }: {layoutId: number; onWidgetAdded: () => void;}) {
-  const [widgets, setWidgets] = useState<Widget[]>([]);
-
-  // Fetch widgets from backend
-  useEffect(() => {
-    axios.get("/widget")
-      .then((res) => {
-        setWidgets(res.data);
-      })
-      .catch((err) => {
-        console.error("Failed to load widgets:", err);
-      });
-  }, []);
+  const widgets = Object.values(WidgetMap);
 
   // Add widget to layout
   const addWidget = async (widgetId: number) => {

@@ -1,22 +1,9 @@
 import axios from 'axios'
 import { Box } from "@chakra-ui/react";
 import WidgetFrame from "./WidgetFrame"
-import Calendar from './Calendar';
-import Email from './Email';
-import Timer from './Timer';
+import widgetMap from './widgets';
 
-
-import type { Layout, WidgetSettings } from '../types/LayoutTypes';
-
-
-const widgetMap: Record<string, React.FC<{widgetId: number, settings: WidgetSettings | null}>>= {
-  Calendar,
-  Email,
-  Timer
-};
-
-
-
+import type { Layout } from '../types/LayoutTypes';
 
 const gridCols = 19;
 const gridRows = 12;
@@ -67,7 +54,7 @@ const LayoutCanvas = function({layout, editable=false, onLayoutChange}: { layout
       ` :  "none"}
     >
       {layout.layoutElements.map((element) => {
-      const WidgetComp = widgetMap[element.widget.name];
+      const WidgetComp = widgetMap[element.widgetId]?.component;
       if(!WidgetComp){
         return null
       }
@@ -82,6 +69,8 @@ const LayoutCanvas = function({layout, editable=false, onLayoutChange}: { layout
         sizeY={element.sizeY}
         minWidth={1}
         minHeight={1}
+        boundingWidth={gridCols}
+        boundingHeight={gridRows}
         color='#e5e7eb'
         snapSize={snapSize}
         handleResizeOrMove={handleResize}

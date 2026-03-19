@@ -101,10 +101,10 @@ dashboard.get('/:id', async (req, res) => {
           include : {
             layoutElements : {
               include : {
-                widget: true,
                 settings: {
                   include: {
-                    calendar: true
+                    calendar: true,
+                    link: true
                   }
                 }
               }
@@ -144,11 +144,43 @@ dashboard.post('/', async (req, res) => {
 
   try {
     // auth would go here
+      //Load layout id = 1 as default since seed create layout(temp)
+    const defaultLayout = await prisma.layout.findUnique({
+      where: { id: 1 },
+      include: {
+        layoutElements: true
+      }
+    });
+
+    //Check if default layout exist
+    if (!defaultLayout) {
+      return res.status(500).send("Default layout missing");
+    }
+    //Create new private layout
+    const newLayout = await prisma.layout.create({
+      data: {
+        ownerId,
+        public: false,
+        gridSize: defaultLayout.gridSize
+      }
+    });
+    //Copy layout elements
+    await prisma.layoutElement.createMany({
+      data: defaultLayout.layoutElements.map(el => ({
+        layoutId: newLayout.id,
+        widgetId: el.widgetId,
+        posX: el.posX,
+        posY: el.posY,
+        sizeX: el.sizeX,
+        sizeY: el.sizeY
+      }))
+    });
 
     if (!ownerId) {
       return res.status(401).json({ error: "Unauthorized" });
     }
 
+    //Dashboard creation
     const dashboard = await prisma.dashboard.create({
       data: {
         name,
@@ -169,17 +201,16 @@ dashboard.post('/', async (req, res) => {
         },
 
         layout: {
-          create: {
-            owner: {
-              connect: { id: ownerId },
-            },
-            gridSize: "12x12",
-          },
-        },
+          connect: { id: newLayout.id }
+        }
       },
       include: {
         theme: true,
-        layout: true,
+        layout: {
+          include: {
+            layoutElements: true
+          }
+        }
       },
     });
 
@@ -267,9 +298,7 @@ dashboard.post('/:dashboardId/layout/:layoutId', async (req, res) => {
     const sourceLayout = await prisma.layout.findUnique({
       where: { id: layoutId },
       include: {
-        layoutElements: {
-          include: { widget: true }
-        }
+        layoutElements: true
       }
     });
 
@@ -304,10 +333,7 @@ dashboard.post('/:dashboardId/layout/:layoutId', async (req, res) => {
       include : {
         layout: {
           include : {
-            layoutElements : {
-              include : { widget: true }
-
-            }
+            layoutElements : true
           }
         }
       }

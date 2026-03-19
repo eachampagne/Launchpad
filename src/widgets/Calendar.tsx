@@ -2,14 +2,14 @@ import { useState, useEffect, useContext, type ChangeEvent } from 'react';
 
 import axios, { AxiosError } from 'axios';
 
-import { AbsoluteCenter, Button, Container, Flex, For, Heading, HStack, Icon, LinkBox, LinkOverlay, NativeSelect, ScrollArea, Spinner, Text, VStack } from '@chakra-ui/react';
-import { LuCalendarDays } from 'react-icons/lu';
+import { AbsoluteCenter, Button, Container, Flex, For, Heading, HStack, Icon, LinkBox, LinkOverlay, NativeSelect, ScrollArea, Spacer, Spinner, Text, VStack } from '@chakra-ui/react';
+import { LuCalendarDays, LuRefreshCw } from 'react-icons/lu';
 
 
-import type { AllDayTime, PartDayTime, Event, CalendarObject } from '../types/Calendar.ts';
-import type { WidgetSettings } from '../types/LayoutTypes.ts';
-import { AuthStatus } from '../types/WidgetStatus.ts';
-import { UserContext } from './UserContext';
+import type { AllDayTime, PartDayTime, Event, CalendarObject } from '../../types/Calendar.ts';
+import type { WidgetSettings } from '../../types/LayoutTypes.ts';
+import { AuthStatus } from '../../types/WidgetStatus.ts';
+import { UserContext } from './../UserContext';
 
 function Calendar({widgetId, settings}: {widgetId: number, settings: WidgetSettings | null}) {
   const { user } = useContext(UserContext);
@@ -80,8 +80,7 @@ function Calendar({widgetId, settings}: {widgetId: number, settings: WidgetSetti
 
   const setDefaultCalendar = async (newDefaultId: string | null) => {
     try {
-      await axios.patch('/calendar/default', {
-        layoutElementId: widgetId,
+      await axios.patch(`/calendar/default/${widgetId}`, {
         defaultCalendar: newDefaultId
       })
     } catch (error) {
@@ -132,6 +131,19 @@ function Calendar({widgetId, settings}: {widgetId: number, settings: WidgetSetti
       return [dateString, null];
     }
   };
+
+  const renderRefresh = () => {
+    switch (authStatus) {
+      case AuthStatus.Authorized:
+        return (
+          <Icon size="lg" marginLeft="0.5rem" onClick={() => getEvents(activeCalendarId)} cursor="pointer">
+            <LuRefreshCw/>
+          </Icon>
+        );
+      default:
+        return null;
+    }
+  }
 
   const renderCalendarList = () => {
     if (authStatus === AuthStatus.Authorized) {
@@ -243,6 +255,8 @@ function Calendar({widgetId, settings}: {widgetId: number, settings: WidgetSetti
         <Heading>
           Calendar
         </Heading>
+        <Spacer />
+        {renderRefresh()}
       </Flex>
       {renderCalendarList()}
       {renderEvents()}

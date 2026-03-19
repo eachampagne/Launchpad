@@ -15,13 +15,6 @@ async function main() {
     }
   });
 
-  await prisma.widget.createMany({
-    data: [
-      { name: 'Calendar' },
-      { name: 'Email' }
-    ]
-  });
-
   await prisma.layout.createMany({
     data: [
       { public: true, ownerId: 1, gridSize: 'medium' },
