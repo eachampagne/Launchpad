@@ -4,6 +4,15 @@ import { prisma } from '../database/prisma.js';
 
 const layout = express.Router();
 
+//Reusable layout elm type
+type LayoutElementInput = {
+  widgetId: number;
+  posX: number;
+  posY: number;
+  sizeX: number;
+  sizeY: number;
+};
+
 //READ: This should get all public layouts.
 layout.get('/public', async (req, res) => {
   //console.log(' GET /layout/public hit');
@@ -23,6 +32,30 @@ layout.get('/public', async (req, res) => {
   }
 
 })
+
+layout.get('/private', async (req, res) => {
+
+  const userId = 1; //Add Auth 
+
+  try {
+
+    const layouts = await prisma.layout.findMany({
+      where: {
+        ownerId: userId,
+        public: false
+      },
+      include: {
+        layoutElements: true
+      }
+    });
+
+    res.status(200).send(layouts);
+
+  } catch (error) {
+    res.status(500).send({"Could not fetch private layouts": error});
+  }
+
+});
 
 //READ: This route will load one layout by id.
 
@@ -57,7 +90,11 @@ layout.get('/:layoutId', async (req, res) => {
 layout.post('/private', async (req, res) => {
 
   const userId = 1; // replace with auth later
-  const { gridSize, layoutElements } = req.body;
+
+  const { gridSize, layoutElements }: {
+  gridSize: string;
+  layoutElements: LayoutElementInput[];
+} = req.body;
 
   try {
 
