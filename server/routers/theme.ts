@@ -91,15 +91,15 @@ theme.patch('/', async (req, res) => {
 
 // PATCH for public themes
 
-theme.patch('/:ownerId', async (req, res) => {
-  const ownerId = Number(req.params.ownerId)
+theme.patch('/:themeId', async (req, res) => {
+  const themeId = Number(req.params.themeId)
   
 
   try {
     // find the theme by the id
     const existing = await prisma.theme.findFirst({
       where: {
-        id: ownerId
+        id: themeId
       }
     })
   
@@ -112,18 +112,15 @@ theme.patch('/:ownerId', async (req, res) => {
     //   return res.status(403).send('You do not own this theme');
     // }
 
-
-
     const publicTheme = await prisma.theme.update({
       where: {
         id: existing.id
-      }, 
+      },
       data: {
         public: !existing.public
       }
     })
     // if we find it, change the public status to its opposite
-    
     
     return res.status(201).send({theme : publicTheme})
   } catch (error) {

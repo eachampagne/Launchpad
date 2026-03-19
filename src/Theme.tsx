@@ -98,6 +98,16 @@ function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, o
     }
   }
 
+  // make the theme public
+  const makePublicTheme = async () => {
+    try {
+      await axios.patch(`/theme/${currTheme.id}`)
+      console.log(currTheme)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   useEffect(() => {
     // if the owner is provided
     if(dashboard.ownerId){
@@ -173,7 +183,7 @@ function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, o
             e.stopPropagation()
             deleteTheme({themeId: theme.id})
             }}>{<IoTrashSharp />}</Button>
-          
+          <Button size='2xs' variant='ghost' colorPalette='red' onPointerDown={makePublicTheme}>Make them public</Button>
         </Box>
           ))}
       </Listbox.Content>
