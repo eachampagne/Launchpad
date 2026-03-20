@@ -32,13 +32,11 @@ layout.get('/public', async (req, res) => {
   }
 
 })
-
+//READ: Fetches layouts belonging to the user
 layout.get('/private', async (req, res) => {
 
-  const userId = 1; //Add Auth 
-
+  const userId = 1; //Add Auth
   try {
-
     const layouts = await prisma.layout.findMany({
       where: {
         ownerId: userId,
@@ -48,9 +46,7 @@ layout.get('/private', async (req, res) => {
         layoutElements: true
       }
     });
-
     res.status(200).send(layouts);
-
   } catch (error) {
     res.status(500).send({"Could not fetch private layouts": error});
   }
@@ -61,11 +57,11 @@ layout.get('/private', async (req, res) => {
 
 // TODO: 
 // If you aren't the user that created it, or if it isn't public, don't load it.
-
 layout.get('/:layoutId', async (req, res) => {
   //grab layout id
   //needed to be converted to number
   const layoutId = Number(req.params.layoutId);
+   const userId = 1; // replace with auth
   try {
     //query db to find one layout w/ layoutId
     const layout = await prisma.layout.findUnique({
@@ -78,6 +74,10 @@ layout.get('/:layoutId', async (req, res) => {
     //check if layout exist first
     if(!layout){
       return res.status(404).send('Could find layout');
+    }
+    // only allow if layout is public or owned by user
+    if (!layout.public && layout.ownerId !== userId) {
+      return res.status(403).send('Not authorized');
     }
     //return layout
     res.status(200).send(layout)
