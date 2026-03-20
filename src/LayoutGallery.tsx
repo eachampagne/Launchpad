@@ -13,7 +13,7 @@ type Props = {
 };
 
 function LayoutGallery({onSelect, selectedLayoutId}: Props) {
-  const [layout, setLayout] = useState<Layout[]>([]);
+  //const [layout, setLayout] = useState<Layout[]>([]);
   const [publicLayouts, setPublicLayouts] = useState<Layout[]>([]);
   const [privateLayouts, setPrivateLayouts] = useState<Layout[]>([]);
 
@@ -37,12 +37,14 @@ function LayoutGallery({onSelect, selectedLayoutId}: Props) {
 
   return (
     <>
-      <Heading size="md" mb={4}>Public Layouts</Heading>
-      <Grid  templateColumns="repeat(2, 1fr)" gap={3}>
-       {layout.map((lay) => {
-        const isSelected = lay.id === selectedLayoutId
+      <Heading size="md" mb={4}>
+        Public Layouts
+      </Heading>
+      <Grid templateColumns="repeat(2, 1fr)" gap={3}>
+        {publicLayouts.map((lay) => {
+          //const isSelected = lay.id === selectedLayoutId
+          return(
 
-        return(
           <Box
             key={lay.id}
             p={3}
@@ -50,17 +52,40 @@ function LayoutGallery({onSelect, selectedLayoutId}: Props) {
             borderRadius="md"
             cursor="pointer"
             color="gray.800"
-            borderColor={isSelected ? "orange.400" : "gray.300"}
-            bg={isSelected ? "orange.50" : "white"}
-            _hover={{ borderColor: "orange.300" }}
+            borderColor={
+              lay.id === selectedLayoutId ? "orange.400" : "gray.300"
+            }
+            bg={lay.id === selectedLayoutId ? "orange.50" : "white"}
+            //_hover={{ borderColor: "orange.300" }}
             onClick={() => onSelect(lay.id)}
           >
-          <p><b>Layout #{lay.id}</b></p>
+            <p>
+              <b>Layout #{lay.id}</b>
+            </p>
           </Box>
-        )
-       })}
+        )})}
       </Grid>
-
+      <Heading size="md" mt={6} mb={4}>
+        My Private Layouts
+      </Heading>
+      <Grid templateColumns="repeat(2, 1fr)" gap={3}>
+        {privateLayouts.map((lay) => (
+          <Box
+            key={lay.id}
+            p={3}
+            borderWidth="2px"
+            borderRadius="md"
+            cursor="pointer"
+            borderColor={lay.id === selectedLayoutId ? "blue.400" : "gray.300"}
+            bg={lay.id === selectedLayoutId ? "blue.50" : "white"}
+            onClick={() => onSelect(lay.id)}
+          >
+            <p>
+              <b>My Layout #{lay.id}</b>
+            </p>
+          </Box>
+        ))}
+      </Grid>
     </>
   );
 }
