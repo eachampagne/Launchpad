@@ -140,5 +140,6 @@ model LinkSettings {
   id                Int             @id @default(autoincrement())
   widgetSettings    WidgetSettings  @relation(fields: [widgetSettingsId], references: [id])
   widgetSettingsId  Int             @unique
-  url               String?
+  url               String
+  displayText       String?
 }

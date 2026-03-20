@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 
 import { Button, Container, Flex, Heading, HStack, Icon, Input, Link, LinkOverlay, Popover, Portal } from '@chakra-ui/react';
 import { LuExternalLink, LuLink, LuPencil, LuUnlink } from 'react-icons/lu';
@@ -17,11 +17,14 @@ function LinkWidget ({widgetId, settings}: {widgetId: number, settings: WidgetSe
       const response = await axios.get(`/link/${widgetId}`);
       setLinkUrl(response.data);
     } catch (error) {
+      if ((error as AxiosError).status === 404) {
+        setLinkUrl('');
+      }
       console.error('Failed to refresh url:', error);
     }
   };
 
-  const handleSubmitNewLink = async (newLink: string | null) => {
+  const handleSubmitNewLink = async (newLink: string) => {
     try {
       await axios.patch(`/link/${widgetId}`, {
         url: newLink
@@ -32,6 +35,15 @@ function LinkWidget ({widgetId, settings}: {widgetId: number, settings: WidgetSe
       refreshLink();
     } catch (error) {
       console.error('Failed to set link', error);
+    }
+  };
+
+  const handleBreakLink = async () => {
+    try {
+      await axios.delete(`/link/${widgetId}`);
+      refreshLink();
+    } catch (error) {
+      console.error('Failed to delete link', error);
     }
   };
 
@@ -61,7 +73,7 @@ function LinkWidget ({widgetId, settings}: {widgetId: number, settings: WidgetSe
               <HStack>
                 <Icon size="md" marginRight="0.5rem" cursor="pointer" onClick={(event) => {
                   event.stopPropagation();
-                  handleSubmitNewLink(null);
+                  handleBreakLink();
                   setNewLink('');
                 }}>
                   <LuUnlink/>

@@ -4,6 +4,7 @@ type CalendarSettings = {
 
 type LinkSettings = {
   url: string
+  displayText?: string
 }
 
 export type WidgetSettings = {
