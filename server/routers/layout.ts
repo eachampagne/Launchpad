@@ -35,11 +35,14 @@ layout.get('/public', async (req, res) => {
 //READ: Fetches layouts belonging to the user
 layout.get('/private', async (req, res) => {
 
-  const userId = 1; //Add Auth
+  if (!req.user) {
+    return res.sendStatus(401); // Not authenticated
+  }
   try {
     const layouts = await prisma.layout.findMany({
       where: {
-        ownerId: userId,
+        ownerId: req.user.id, // only fetch layouts for logged-in user,
+        //user only sees their own private layouts
         public: false
       },
       include: {
@@ -61,7 +64,9 @@ layout.get('/:layoutId', async (req, res) => {
   //grab layout id
   //needed to be converted to number
   const layoutId = Number(req.params.layoutId);
-   const userId = 1; // replace with auth
+   if (!req.user) {
+    return res.sendStatus(401); // Not authenticated
+  }
   try {
     //query db to find one layout w/ layoutId
     const layout = await prisma.layout.findUnique({
@@ -76,7 +81,7 @@ layout.get('/:layoutId', async (req, res) => {
       return res.status(404).send('Could find layout');
     }
     // only allow if layout is public or owned by user
-    if (!layout.public && layout.ownerId !== userId) {
+    if (!layout.public && layout.ownerId !== req.user.id) {
       return res.status(403).send('Not authorized');
     }
     //return layout
@@ -89,7 +94,9 @@ layout.get('/:layoutId', async (req, res) => {
 //CREATE: This route will create a private layout
 layout.post('/private', async (req, res) => {
 
-  const userId = 1; // replace with auth later
+  if (!req.user) {
+    return res.sendStatus(401); // Not authenticated
+  }
 
   const { gridSize, layoutElements }: {
   gridSize: string;
@@ -99,7 +106,7 @@ layout.post('/private', async (req, res) => {
   try {
     const newLayout = await prisma.layout.create({
       data: {
-        ownerId: userId,
+        ownerId: req.user.id,
         public: false,
         gridSize,
 
@@ -127,7 +134,9 @@ layout.post('/private', async (req, res) => {
 layout.post('/:layoutId/copy', async (req, res) => {
   //needed to be converted to number
   const layoutId = Number(req.params.layoutId);
-  const userId = 1; //TODO: add auth
+  if (!req.user) {
+    return res.sendStatus(401); // Not authenticated
+  }
   try {
     //query db to find one layout w/ layoutId
     const sourceLayout = await prisma.layout.findUnique({
@@ -144,7 +153,7 @@ layout.post('/:layoutId/copy', async (req, res) => {
     //create private copy of layout
     const newLayout = await prisma.layout.create({
       data: {
-        ownerId: userId,
+        ownerId: req.user.id,
         public: false,
         gridSize: sourceLayout.gridSize
       }
