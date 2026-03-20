@@ -14,19 +14,25 @@ type Props = {
 
 function LayoutGallery({onSelect, selectedLayoutId}: Props) {
   const [layout, setLayout] = useState<Layout[]>([]);
+  const [publicLayouts, setPublicLayouts] = useState<Layout[]>([]);
+  const [privateLayouts, setPrivateLayouts] = useState<Layout[]>([]);
 
-  //when component is mounted fetch layouts
+  //when component is mounted fetch both private and public layouts
   useEffect(() => {
-    //GET to backend endpoint
-    axios.get('/layout/public')
-    .then((res) => {
-      //update state of layouts to be actual layout data
-      setLayout(res.data);
+  const fetchLayouts = async () => {
+    try {
+      //Variable for grabbing public and private layouts
+      const publicRes = await axios.get('/layout/public');
+      const privateRes = await axios.get('/layout/private');
 
-    }).catch((err) => {
-      console.log("Couldn't find any layouts:", err);
-    });
-  }, [])
+      setPublicLayouts(publicRes.data);
+      setPrivateLayouts(privateRes.data);
+    } catch (err) {
+      console.error("Couldn't fetch layouts:", err);
+    }
+  };
+  fetchLayouts();
+}, []);
 
 
   return (

@@ -97,7 +97,6 @@ layout.post('/private', async (req, res) => {
 } = req.body;
 
   try {
-
     const newLayout = await prisma.layout.create({
       data: {
         ownerId: userId,
@@ -113,19 +112,15 @@ layout.post('/private', async (req, res) => {
             sizeY: el.sizeY
           }))
         }
-
       },
       include: {
         layoutElements: true
       }
     });
-
     res.status(201).send(newLayout);
-
   } catch (error) {
     res.status(500).send({"Could not create layout": error });
   }
-
 });
 
 //CREATE: This route will copy a public layout
