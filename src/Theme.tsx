@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext} from 'react';
-import { parseColor } from "@chakra-ui/react"
+import { parseColor } from '@chakra-ui/react'
 import Color from './ColorPicker';
 import axios from 'axios';
 import { Box, Button, Text, Listbox, createListCollection } from "@chakra-ui/react"
@@ -239,20 +239,21 @@ function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, o
       </Listbox.Root>
     } */}
 
-    <Box display="flex" alignItems="center" justifyContent="space-between" mb="3">
-      <Text fontSize="10px" fontWeight="500" color="whiteAlpha.400" letterSpacing="0.12em" textTransform="uppercase" > Themes </Text>
+    {/* Changing the display of the cards and only allow 4 at a time */}
+    <Box display='flex' alignItems='center' justifyContent='space-between' mb='3'>
+      <Text fontSize='10px' fontWeight='500' color='whiteAlpha.400' letterSpacing='0.12em' textTransform='uppercase' > Themes </Text>
       {/* making the themes show only 4 at a time - conditional rendering*/}
       {Math.ceil(themesList.length / 4) > 1 && (
-        <Text fontSize="10px" color="whiteAlpha.300">{page + 1} / {Math.ceil(themesList.length / 4)}</Text>
+        <Text fontSize='10px' color='whiteAlpha.300'>{page + 1} / {Math.ceil(themesList.length / 4)}</Text>
       )}
     </Box>
 
     {/* two cards side by side only */}
-    <Box display="grid" gridTemplateColumns="1fr 1fr" gap="2" mb="3">
+    <Box display='grid' gridTemplateColumns='1fr 1fr' gap='2' mb='3'>
       {themesList.slice(page * 4, (page + 1) * 4).map((theme) => (
         // bringing back the functionality for each theme card
-        <Box key={theme.id} borderRadius="14px" border={currTheme.id === theme.id ? `1px solid ${theme.navColor}88` : '0.5px solid rgba(255,255,255,0.08)'}
-        bg="rgba(255,255,255,0.03)" position="relative" cursor="pointer" transition="all 0.18s" onClick={async () => {
+        <Box key={theme.id} borderRadius='14px' border={currTheme.id === theme.id ? `1px solid ${theme.navColor}88` : '0.5px solid rgba(255,255,255,0.08)'}
+        bg='rgba(255,255,255,0.03)' position='relative' cursor='pointer' transition='all 0.18s' onClick={async () => {
             setCurrTheme(theme)
             setNavColorPick(theme.navColor)
             setBgColorPick(theme.bgColor)
@@ -263,32 +264,32 @@ function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, o
           }}
           _hover={{ transform: 'translateY(-1px)', borderColor: 'rgba(255,255,255,0.18)' }}>
           {/* displaying the colors side by side */}
-          <Box display="flex" h="52px" borderRadius="13px 13px 0 0" overflow="hidden">
-            <Box flex="1" bg={theme.navColor} />
-            <Box flex="1" bg={theme.bgColor} />
-            <Box flex="1" bg={theme.font} />
+          <Box display='flex' h='52px' borderRadius='13px 13px 0 0' overflow='hidden'>
+            <Box flex='1' bg={theme.navColor} />
+            <Box flex='1' bg={theme.bgColor} />
+            <Box flex='1' bg={theme.font} />
           </Box>
 
-          {/* labeling the color for what they are */}
-          <Box display="flex" borderBottom="0.5px solid rgba(255,255,255,0.06)">
+          {/* title of the color - nav, bg, widget */}
+          <Box display='flex' borderBottom='0.5px solid rgba(255,255,255,0.06)'>
             {colors.map((title, i) => (
-              <Box key={title} flex="1" textAlign="center" py="1" fontSize="9px" color="whiteAlpha.400" letterSpacing="0.06em" borderRight={i < 2 ? '0.5px solid rgba(255,255,255,0.06)' : 'none'}>
+              <Box key={title} flex='1' textAlign='center' py='1' fontSize='9px' color='whiteAlpha.400' letterSpacing='0.06em' borderRight={i < 2 ? '0.5px solid rgba(255,255,255,0.06)' : 'none'}>
               {title}
               </Box>
             ))}
           </Box>
 
-        {/* the badges and theme titles */}
-        <Box px="2.5" pt="2" pb="1.5">
-          <Text fontSize="12px" fontWeight="500" color="whiteAlpha.900" mb="1.5" maxLines={1}>
+        {/* for the public / active / and public maker button */}
+        <Box px='2.5' pt='2' pb='1.5'>
+          <Text fontSize='12px' fontWeight='500' color='whiteAlpha.900' mb='1.5' maxLines={1}>
               {theme.name}
             </Text>
-          <Box display="flex" alignItems="center" justifyContent="space-between">
-            <Box display="flex" gap="1.5">
+          <Box display='flex' alignItems='center' justifyContent='space-between'>
+            <Box display='flex' gap='1.5'>
             {currTheme.id === theme.id && (
-                  <Box bg="rgba(56,189,248,0.15)" color="#38bdf8"
-                    fontSize="8px" fontWeight="500" px="1.5" py="0.5"
-                    borderRadius="20px" >
+                  <Box bg='rgba(56,189,248,0.15)' color='#38bdf8'
+                    fontSize='8px' fontWeight='500' px='1.5' py='0.5'
+                    borderRadius='20px' >
                     active
                   </Box>
                 )}
@@ -296,16 +297,16 @@ function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, o
                   bg={theme.public ? 'rgba(34,197,94,0.12)' : 'rgba(255,255,255,0.05)'}
                   color={theme.public ? '#4ade80' : 'whiteAlpha.400'}
                   border={theme.public ? 'none' : '0.5px solid rgba(255,255,255,0.1)'}
-                  fontSize="8px" fontWeight="500" px="1.5" py="0.5"
-                  borderRadius="20px" >
+                  fontSize='8px' fontWeight='500' px='1.5' py='0.5'
+                  borderRadius='20px' >
                   {theme.public ? 'public' : 'private'}
                 </Box>
             </Box>
-            <Box display="flex" gap="1" onClick={(e) => e.stopPropagation()}>
+            <Box display='flex' gap='1' onClick={(e) => e.stopPropagation()}>
                 <Button
-                  size="2xs" variant="ghost" minW="22px" h="22px" p="0"
-                  borderRadius="6px" color="whiteAlpha.400"
-                  border="0.5px solid rgba(255,255,255,0.08)"
+                  size='2xs' variant='ghost' minW='22px' h='22px' p='0'
+                  borderRadius='6px' color='whiteAlpha.400'
+                  border='0.5px solid rgba(255,255,255,0.08)'
                   _hover={{ color: 'whiteAlpha.800', bg: 'whiteAlpha.100' }}
                   onPointerDown={async (e) => {
                     e.preventDefault(); e.stopPropagation()
@@ -322,10 +323,10 @@ function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, o
                   {theme.public ? <IoPeopleSharp /> : <IoPeopleOutline /> }
                 </Button>
                 <Button
-                  size="2xs" variant="ghost" minW="22px" h="22px" p="0"
-                  borderRadius="6px" color="#f87171"
-                  bg="rgba(248,113,113,0.08)"
-                  border="0.5px solid rgba(248,113,113,0.2)"
+                  size='2xs' variant='ghost' minW='22px' h='22px' p='0'
+                  borderRadius='6px' color='#f87171'
+                  bg='rgba(248,113,113,0.08)'
+                  border='0.5px solid rgba(248,113,113,0.2)'
                   _hover={{ opacity: 0.75 }}
                   onPointerDown={async (e) => {
                     e.preventDefault(); e.stopPropagation()
@@ -345,10 +346,10 @@ function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, o
 
     {/* conditional rendering for more than 4 themes so that a page selection pops up */}
       {Math.ceil(themesList.length / 4) > 1 && (
-      <Box display="flex" alignItems="center" justifyContent="center" gap="1.5" mb="3">
+      <Box display='flex' alignItems='center' justifyContent='center' gap='1.5' mb='3'>
         <Button
-          size="xs" variant="ghost" minW="28px" h="28px" p="0" borderRadius="7px"
-          color="whiteAlpha.500" border="0.5px solid rgba(255,255,255,0.08)"
+          size='xs' variant='ghost' minW='28px' h='28px' p='0' borderRadius='7px'
+          color='whiteAlpha.500' border='0.5px solid rgba(255,255,255,0.08)'
           disabled={page === 0}
           onClick={() => setPage((p) => Math.max(0, p - 1))}
           _hover={{ color: 'white', bg: 'whiteAlpha.100' }}
@@ -356,9 +357,9 @@ function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, o
 
         {Array.from({ length: Math.ceil(themesList.length / 4) }, (_, i) => (
           <Button
-            key={i} size="xs" variant="ghost"
-            minW="24px" h="24px" p="0" borderRadius="6px"
-            fontSize="10px"
+            key={i} size='xs' variant='ghost'
+            minW='24px' h='24px' p='0' borderRadius='6px'
+            fontSize='10px'
             color={i === page ? 'whiteAlpha.900' : 'whiteAlpha.400'}
             bg={i === page ? 'whiteAlpha.100' : 'transparent'}
             border={i === page ? '0.5px solid rgba(255,255,255,0.2)' : '0.5px solid transparent'}
@@ -368,8 +369,8 @@ function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, o
         ))}
 
         <Button
-          size="xs" variant="ghost" minW="28px" h="28px" p="0" borderRadius="7px"
-          color="whiteAlpha.500" border="0.5px solid rgba(255,255,255,0.08)"
+          size='xs' variant='ghost' minW='28px' h='28px' p='0' borderRadius='7px'
+          color='whiteAlpha.500' border='0.5px solid rgba(255,255,255,0.08)'
           disabled={page === Math.ceil(themesList.length / 4) - 1}
           onClick={() => setPage((p) => p + 1)}
           _hover={{ color: 'white', bg: 'whiteAlpha.100' }}
@@ -379,41 +380,68 @@ function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, o
 
 
 
+    <Text fontSize='10px' fontWeight='500' color='whiteAlpha.400' letterSpacing='0.12em' textTransform='uppercase' > Create a Theme </Text>
+    <Box borderRadius='14px' border='0.5px solid rgba(255,255,255,0.08)' bg='rgba(255,255,255,0.03)' overflow='hidden' mt='3'>
 
-    <Text fontSize='md' fontWeight='bold' >Create A Theme</Text>
-    <Box maxW='320px' border='1px solid' borderColor='gray' borderRadius='md' p='4' bg='rgba(255,255,255,0.02)' backdropFilter='blur(8px)'>
-      <Box display='flex' flexDirection='column' gap='3'>
-        {[
-          { label: 'Navigation', value: navColorPick, color: setNavColorPick },
-          { label: 'Background', value: bgColorPick, color: setBgColorPick },
-          { label: 'Widget', value: fontPick, color: setFontPick },
-        ].map(({ label, value, color }) => (
-          <Box key={label} display='flex' alignItems='center' justifyContent='space-between'>
-            <Text fontSize='13px' fontWeight='500' color='#94a3b8'>{label} </Text>
-            <Box display='flex' alignItems='center' gap='2'>
-              <Box w='22px' h='22px' borderRadius='6px' bg={value} border='1px solid rgba(255,255,255,0.15)' flexShrink={0} />
-              <Color value={value} onValueChange={colorPicker(color)} />
-            </Box>
-          </Box>
-        ))}
-      </Box>
-      <Box display='flex' gap='3' mt='3'>
-      <Button flex='1' variant='outline' borderColor='rgba(255,255,255,0.1)' color='#94a3b8' borderRadius='10px' onClick={createTheme}>{<IoAddCircleOutline />}Create</Button>
-      <Button flex='1' borderRadius='10px' background='linear-gradient(135deg, #6366f1, #8b5cf6)' color='white' border='none' boxShadow='0 4px 16px rgba(99,102,241,0.3)' _hover={{ opacity: 0.85 }} onClick={() => {
-        const updateThemeId = currTheme.id !== -1 ? currTheme.id : activeDash.id
-        if(updateThemeId !== -1){
-          updateTheme({
-            id: updateThemeId,
-            navColor: navColorPick,
-            bgColor: bgColorPick,
-            font: fontPick
+  {/* color stack */}
+  <Box display='flex' h='52px' borderRadius='13px 13px 0 0'>
+    <Box flex='1' bg={navColorPick} />
+    <Box flex='1' bg={bgColorPick} />
+    <Box flex='1' bg={fontPick} />
+  </Box>
 
-          })
-        } else {
-          console.error('Select a theme')
-        }
-      }}>{<IoPencilSharp/>}Update</Button>
+  {/* color labels */}
+  <Box display='flex' borderBottom='0.5px solid rgba(255,255,255,0.06)'>
+    {['Nav', 'Bg', 'Widget'].map((t, i) => (
+      <Box key={t} flex='1' textAlign='center' py='1' fontSize='9px'
+        color='whiteAlpha.400' letterSpacing='0.06em'
+        borderRight={i < 2 ? '0.5px solid rgba(255,255,255,0.06)' : 'none'}>
+        {t}
       </Box>
+    ))}
+  </Box>
+
+  <Box px='2.5' pt='2' pb='2.5'>
+    {[
+      { label: 'Navigation', value: navColorPick, setter: setNavColorPick },
+      { label: 'Background', value: bgColorPick, setter: setBgColorPick },
+      { label: 'Widget', value: fontPick, setter: setFontPick },
+    ].map(({ label, value, setter }) => (
+      <Box key={label} display='flex' alignItems='center' gap='2'
+        py='1.5' borderBottom='0.5px solid rgba(255,255,255,0.06)'>
+        <Text fontSize='11px' color='whiteAlpha.500' w='72px' flexShrink={0}>{label}</Text>
+
+        <Color value={value} onValueChange={colorPicker(setter)} />
+      </Box>
+    ))}
+
+    <Box display='flex' gap='2' mt='2.5'>
+      <Button flex='1' size='sm' variant='ghost'
+        color='whiteAlpha.400'
+        border='0.5px solid rgba(255,255,255,0.1)'
+        borderRadius='9px' fontSize='11px'
+        _hover={{ bg: 'whiteAlpha.100' }}
+        onClick={createTheme}
+      >
+        + Create
+      </Button>
+      <Button flex='1' size='sm'
+        bg='rgba(99,102,241,0.2)' color='#818cf8'
+        border='0.5px solid rgba(99,102,241,0.35)'
+        borderRadius='9px' fontSize='11px'
+        _hover={{ opacity: 0.8 }}
+        onClick={() => {
+          const updateThemeId = currTheme.id !== -1 ? currTheme.id : activeDash.id
+          if(updateThemeId !== -1){
+            updateTheme({ id: updateThemeId, navColor: navColorPick, bgColor: bgColorPick, font: fontPick })
+          }
+        }}
+      >
+      <IoPencilSharp /> Update
+      </Button>
+    </Box>
+  </Box>
+
       </Box>
       
     </Box>
