@@ -4,8 +4,31 @@ import { prisma } from '../database/prisma.js';
 
 const theme = express.Router();
 
+
+// all themes of user
+theme.get('/owner/:ownerId', async (req, res) => {
+  //const { ownerId } = JSON.parse(req.params);
+  try {
+    const themes = await prisma.theme.findMany({
+      where: {
+        ownerId: Number(req.params.ownerId)
+      }
+    })
+    if(themes){
+      res.status(200).send(themes);
+    } else {
+      res.sendStatus(404);
+    }
+  } catch (error){
+    console.error('You already have this theme', error);
+    res.sendStatus(500);
+  }
+})
+
+
+
 // find one theme
-theme.get('/theme/:themeId', async (req, res) => {
+theme.get('/:themeId', async (req, res) => {
   try {
     const currentTheme = await prisma.theme.findUnique({
       where: {
@@ -24,25 +47,6 @@ theme.get('/theme/:themeId', async (req, res) => {
   }
 })
 
-// all themes of user
-theme.get('/:ownerId', async (req, res) => {
-  //const { ownerId } = JSON.parse(req.params);
-  try {
-    const themes = await prisma.theme.findMany({
-      where: {
-        ownerId: Number(req.params.ownerId)
-      }
-    })
-    if(themes){
-      res.status(200).send(themes);
-    } else {
-      res.sendStatus(404);
-    }
-  } catch (error){
-    console.error('You already have this theme', error);
-    res.sendStatus(500);
-  }
-})
 
 // POST - Creating a new theme
 theme.post('/', async (req, res) => {
@@ -67,6 +71,7 @@ theme.post('/', async (req, res) => {
 
 // PUT/PATCH - Updates the theme that is current selected
 theme.patch('/', async (req, res) => {
+  console.log('PATCH / hit, body:', req.body)
   const { id, public: isPublic, navColor, bgColor, font, ownerId} = req.body
   try {
     await prisma.theme.update({
@@ -89,13 +94,57 @@ theme.patch('/', async (req, res) => {
 
 })
 
+// PATCH for public themes
+
+theme.patch('/:themeId', async (req, res) => {
+  const themeId = Number(req.params.themeId)
+  
+
+  try {
+    // find the theme by the id
+    const existing = await prisma.theme.findFirst({
+      where: {
+        id: themeId
+      }
+    })
+  
+    if(!existing){
+      return res.status(404).send('Could not find the number')
+    }
+    
+
+    // if(existing.ownerId !== ownerId){
+    //   return res.status(403).send('You do not own this theme');
+    // }
+
+    const publicTheme = await prisma.theme.update({
+      where: {
+        id: existing.id
+      },
+      data: {
+        public: !existing.public
+      }
+    })
+    // if we find it, change the public status to its opposite
+    
+    return res.status(201).send({theme : publicTheme})
+  } catch (error) {
+    return res.status(500).send({'Could not verify': error})
+    }
+})
+
+
+
+
+
+
 // DELETE a theme
 theme.delete('/delete/:ownerId', async (req, res) => {
   const { themeId } = req.body
   try {
     await prisma.theme.delete({
       where: {
-        ownerId: Number(req.params.ownerId),
+        
         id: themeId
       }
     })

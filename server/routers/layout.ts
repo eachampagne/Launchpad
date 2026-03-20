@@ -154,17 +154,26 @@ layout.patch('/:elementId', async (req, res) => {
 
 layout.delete('/:elementId', async (req, res) => {
   const elementId = Number(req.params.elementId);
-
-    try {
-      await prisma.layoutElement.delete({
-        where: {id: elementId}
-      })
-
-      res.sendStatus(201);
+  try {
+    // Delete child records first to avoid foreign key constraint errors
+    const widgetSettings = await prisma.widgetSettings.findUnique({
+      where: { layoutElementId: elementId }
+    });
+    if (widgetSettings) {
+      await prisma.linkSettings.deleteMany({
+        where: { widgetSettingsId: widgetSettings.id }
+      });
+      await prisma.widgetSettings.delete({
+        where: { layoutElementId: elementId }
+      });
+    }
+    await prisma.layoutElement.delete({
+      where: { id: elementId }
+    });
+    res.sendStatus(200);
   } catch (error) {
-      res.status(500).send({'There was a problem during the deletion of a layout element:': error})
+    res.status(500).send({ 'There was a problem during the deletion of a layout element:': error });
   }
-
 });
 
 export default layout;

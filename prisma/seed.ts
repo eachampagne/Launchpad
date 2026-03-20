@@ -36,9 +36,9 @@ async function main() {
 
   await prisma.theme.createMany({
     data: [
-      { public: true, ownerId: 1, navColor: '#0000FF', bgColor: '#00FFFF', font: "Constantia" },
-      { public: true, ownerId: 1, navColor: '#FF0000', bgColor: '#FF00FF', font: "Constantia" },
-      { public: true, ownerId: 1, navColor: '#00FF00', bgColor: '#FFFF00', font: "Constantia" }
+      { public: true, ownerId: 1, navColor: '#0000FF', bgColor: '#00FFFF', font: "Constantia" , name: undefined},
+      { public: true, ownerId: 1, navColor: '#FF0000', bgColor: '#FF00FF', font: "Constantia" , name: undefined},
+      { public: true, ownerId: 1, navColor: '#00FF00', bgColor: '#FFFF00', font: "Constantia" , name: undefined}
     ]
   });
 
