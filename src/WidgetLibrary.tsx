@@ -3,10 +3,9 @@ import axios from "axios";
 
 import WidgetMap from "./widgets";
 
-function WidgetLibrary({ layoutId, onWidgetAdded }: {layoutId: number; onWidgetAdded: () => void;}) {
+function WidgetLibrary({ layoutId, onWidgetAdded }: { layoutId: number; onWidgetAdded: () => void }) {
   const widgets = Object.values(WidgetMap);
 
-  // Add widget to layout
   const addWidget = async (widgetId: number) => {
     try {
       await axios.post(`/layout/${layoutId}/element`, {
@@ -18,8 +17,6 @@ function WidgetLibrary({ layoutId, onWidgetAdded }: {layoutId: number; onWidgetA
           sizeY: 2,
         },
       });
-
-      // Reload dashboard after adding
       onWidgetAdded();
     } catch (error) {
       console.error("Failed to add widget:", error);
