@@ -197,6 +197,7 @@ function DashEditor() {
               <LayoutGallery
                 onSelect={setSelectedLayoutId}
                 selectedLayoutId={selectedLayoutId}
+                currentLayoutId={dashboard.layout.id}
               />
             </Box>
 

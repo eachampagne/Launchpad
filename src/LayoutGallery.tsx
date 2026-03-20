@@ -10,9 +10,10 @@ import type { Layout } from '../types/LayoutTypes';
 type Props = {
   onSelect: (layoutId: number) => void;
   selectedLayoutId: number;
+  currentLayoutId: number;
 };
 
-function LayoutGallery({onSelect, selectedLayoutId}: Props) {
+function LayoutGallery({onSelect, selectedLayoutId, currentLayoutId}: Props) {
   //const [layout, setLayout] = useState<Layout[]>([]);
   const [publicLayouts, setPublicLayouts] = useState<Layout[]>([]);
   const [privateLayouts, setPrivateLayouts] = useState<Layout[]>([]);
@@ -25,14 +26,17 @@ function LayoutGallery({onSelect, selectedLayoutId}: Props) {
       const publicRes = await axios.get('/layout/public');
       const privateRes = await axios.get('/layout/private');
 
-      setPublicLayouts(publicRes.data);
-      setPrivateLayouts(privateRes.data);
+        // Filter out private layouts that match the applied dashboard layout
+      const filteredPrivate = privateRes.data
+        .filter((layout: Layout) => layout.id !== currentLayoutId).slice(-4);
+          setPublicLayouts(publicRes.data);
+         setPrivateLayouts(filteredPrivate);
     } catch (err) {
       console.error("Couldn't fetch layouts:", err);
     }
   };
-  fetchLayouts();
-}, []);
+  fetchLayouts()
+}, [currentLayoutId]);
 
 
   return (

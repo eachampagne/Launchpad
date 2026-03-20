@@ -292,9 +292,13 @@ dashboard.patch('/:id', async (req, res) => {
 dashboard.post('/:dashboardId/layout/:layoutId', async (req, res) => {
   const dashboardId = Number(req.params.dashboardId)
   const layoutId = Number(req.params.layoutId);
-  const userId = 1; //TODO: add auth
+  if (!req.user) {
+    return res.sendStatus(401); // not authenticated
+  }
+
+  const userId = req.user.id;
   try {
-    //Fetch public layout
+    //Fetch public layout source layout (public or user's own private layout)
     const sourceLayout = await prisma.layout.findUnique({
       where: { id: layoutId },
       include: {
@@ -302,47 +306,39 @@ dashboard.post('/:dashboardId/layout/:layoutId', async (req, res) => {
       }
     });
 
-    if(!sourceLayout || !sourceLayout.public){
-      console.log(sourceLayout)
+    if(!sourceLayout || (!sourceLayout.public && sourceLayout.ownerId !== userId)){
       return res.status(404).send('Layout is not public or does not exist');
     }
-    //Create private copy of layout
-    const newLayout = await prisma.layout.create({
+
+    // ALWAYS create a fresh private copy
+    const layoutToUse = await prisma.layout.create({
       data: {
         ownerId: userId,
         public: false,
-        gridSize: sourceLayout.gridSize
-      }
+        gridSize: sourceLayout.gridSize,
+        layoutElements: {
+          create: sourceLayout.layoutElements.map(el => ({
+            widgetId: el.widgetId,
+            posX: el.posX,
+            posY: el.posY,
+            sizeX: el.sizeX,
+            sizeY: el.sizeY,
+          })),
+        },
+      },
+      include: { layoutElements: true },
     });
-    //Duplicate layout elements
-    //This doesn't duplicate any widget specific settings but I think that's ok - if you're using someone else's layouts, you wouldn't be checking *their* calendar, for instance
-    await prisma.layoutElement.createMany({
-      data: sourceLayout.layoutElements.map(el =>({
-        layoutId: newLayout.id,
-        widgetId: el.widgetId,
-        posX: el.posX,
-        posY: el.posY,
-        sizeX: el.sizeX,
-        sizeY: el.sizeY
-      }))
-    })
-    //Attach to dash
-    const dashboard = await prisma.dashboard.update({
-      where: {id: dashboardId},
-      data: { layoutId: newLayout.id},
-      include : {
-        layout: {
-          include : {
-            layoutElements : true
-          }
-        }
-      }
-
-    })
-    //Return updated dash
-    res.status(200).send(dashboard)
+    // Attach the private layout to the dashboard
+    const updatedDashboard = await prisma.dashboard.update({
+      where: { id: dashboardId },
+      data: { layoutId: layoutToUse.id },
+      include: { layout: { include: { layoutElements: true } } }, // <-- MUST include layout elements
+    });
+  
+    res.status(200).send(updatedDashboard);
   } catch (error) {
-    res.status(500).send({'Could not apply layout': error})
+    console.error('Could not apply layout:', error);
+    res.status(500).send({ 'Could not apply layout': error });
   }
 })
 
