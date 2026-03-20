@@ -12,9 +12,9 @@ function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, o
 
   // const [form, setForm] = useState({navColor: 'white', bgColor: 'white', font: 'ariel'});
   const [color, setColor] = useState('test')
-  const [navColorPick, setNavColorPick] = useState('#ff0000');
-  const [bgColorPick, setBgColorPick] = useState('#ff0000');
-  const [fontPick, setFontPick] = useState('#ff0000');
+  const [navColorPick, setNavColorPick] = useState('#da9606');
+  const [bgColorPick, setBgColorPick] = useState('#dbd826');
+  const [fontPick, setFontPick] = useState('rgb(48, 33, 33)');
   const [activeDash, setActiveDash] = useState({id: -1, navColor: 'string', bgColor: 'string', font: 'string', name: 'string', public: false});
   const [currTheme, setCurrTheme] = useState(activeDash);
   const [publicStatus, setPublicStatus] = useState(currTheme.public);
