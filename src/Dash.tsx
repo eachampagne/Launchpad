@@ -4,23 +4,27 @@ import { AbsoluteCenter, Box, Button, Center, Container, Flex, Grid, GridItem, H
 import { LuCheck, LuPencil } from "react-icons/lu";
 
 import NavBar from "./NavBar";
+import Theme from './Theme';
+import LayoutGallery from './LayoutGallery';
 import LayoutCanvas from './LayoutCanvas';
+import WidgetLibrary from "./WidgetLibrary";
 import { UserContext } from './UserContext';
 
 import changeTextColor from './utilities/color.ts'
 import type { ThemeObject } from '../types/Calendar';
-import type { Dashboard } from '../types/LayoutTypes';
+import type { Layout, Dashboard } from '../types/LayoutTypes';
 
 export default function Dashboard () {
-  const { activeDash } = useContext(UserContext);
+  const { activeDash, user: { id: ownerId } } = useContext(UserContext);
 
-  const [loading, setLoading] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [themeId, setThemeId] = useState(-1);
   const [dashboard, setDashboard] = useState<Dashboard | null>(null);
   const [theme, setTheme] = useState({} as ThemeObject);
   const [newName, setNewName] = useState('');
   const [renaming, setRenaming] = useState(false);
+  const [selectedLayoutId, setSelectedLayoutId] = useState(-1);//(-1 = nothing selected)
+  const [selectedLayout, setSelectedLayout] = useState<Layout | null>(null)
 
   const handleChangeNewName = (event: ChangeEvent) => {
     const target = event.target as unknown as HTMLInputElement; // whyyyyy
@@ -39,7 +43,6 @@ export default function Dashboard () {
     }
 
     try {
-      setLoading(true)
       const response = await axios.get(`/dashboard/${activeDash}`);
       // originally, the /dashboard/:id route didn't include the theme data, so omit the theme from the dashboard state var
       const { theme, ...dashboard } = response.data;
@@ -47,10 +50,8 @@ export default function Dashboard () {
       setNewName(dashboard.name);
       setTheme(theme);
       setThemeId(dashboard.themeId);
-      setLoading(false);
     } catch (error) {
       console.error('Failed to get dashboard:', error);
-      setLoading(false);
     }
   };
 
@@ -72,6 +73,22 @@ export default function Dashboard () {
     }
   };
 
+  //Will create a clone of applied layout
+  const applyLayout = async (layoutId: number) => {
+    try {
+      //Update dashboard
+      const response = await axios.post(`/dashboard/${activeDash}/layout/${layoutId}`)
+      console.log('Dashboard updated:', response.data)
+      //Reload dash
+      //loadDashboard();
+      // the post request doesn't include the theme
+      const dashboard = response.data;
+      setDashboard(dashboard)
+    } catch (error) {
+      console.error('Failed to use layout:', error);
+    }
+  }
+
   const renameDashboard = async () => {
     if (newName === dashboard?.name) {
       setRenaming(false);
@@ -90,6 +107,20 @@ export default function Dashboard () {
   useEffect(() => {
     loadDashboard();
   }, [activeDash]);
+
+  useEffect(() => {
+    if(selectedLayoutId === -1){
+      return;
+    }
+
+    axios.get(`/layout/${selectedLayoutId}`)
+    .then((res) => {
+      setSelectedLayout(res.data);
+
+    }).catch((err) => {
+      console.error('Could not find your layout:', err);
+    });
+  }, [selectedLayoutId]);
 
   const renderEditButton = () => {
     return (
@@ -160,12 +191,13 @@ export default function Dashboard () {
     return (
       <Grid
         templateRows={{xlDown: "repeat(2, 1fr)", '2xl': "repeat(1, 1fr)"}}
-        templateColumns={{lgDown: "repeat(2, 1fr)", xl: "repeat(3, 1fr)", '2xl': "repeat(4, 1fr)"}}
+        templateColumns={{lgDown: "repeat(2, 1fr)", xl: "repeat(2, 1fr)", '2xl': "repeat(3, 1fr)"}}
       >
         <GridItem
-          colSpan={2}
+          colSpan={{lgDown: 2, xl: 1, '2xl': 1}}
           rowSpan={{lgDown: 1, xl: 2, '2xl': 1}}
           order={{xlDown: 1, '2xl': 2}}
+          minWidth={`${19*60}px`}
         >
           <LayoutCanvas
             layout={dashboard.layout}
@@ -176,22 +208,50 @@ export default function Dashboard () {
           colSpan={1}
           rowSpan={1}
           order={{xlDown: 2, '2xl': 1}}
+          bgColor="black"
         >
-          <Container bgColor="blue" w="100%" h="100%"/>
+          <Theme
+            dashboardId={activeDash}
+            dashboard={dashboard}
+            ownerId={ownerId}
+          />
         </GridItem>
         <GridItem
           colSpan={1}
           rowSpan={1}
           order={3}
+          bgColor="black"
         >
-          <Container bgColor="green" w="100%" h="100%"/>
+          <Box mt={4}>
+            <LayoutGallery
+              onSelect={setSelectedLayoutId}
+              selectedLayoutId={selectedLayoutId}
+            />
+          </Box>
+
+          {selectedLayout && (
+            <Box mt={4}>
+              {/* <h4>LAYOUT PREVIEW</h4>
+              <p>SELECTED LAYOUT #{selectedLayoutId}</p>
+              <p>GRID SIZE: {selectedLayout.gridSize}</p> */}
+              <button onClick={() => applyLayout(selectedLayout.id)}>
+                APPLY SELECTED LAYOUT
+              </button>
+            </Box>
+          )}
+          {dashboard.layout && (
+            <WidgetLibrary
+              layoutId={dashboard.layout.id}
+              onWidgetAdded={loadDashboard}
+            />
+          )}
         </GridItem>
       </Grid>
     );
   };
 
   // early return for loading state, guards against null dashboard
-  if (!dashboard || loading) {
+  if (!dashboard) {
     return (
       <Box width="full" position="relative" p="0" m="0">
         <NavBar pages={['Home', 'Hub']} />
