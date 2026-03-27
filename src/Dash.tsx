@@ -270,28 +270,29 @@ export default function Dashboard () {
   const renderContent = () => {
     if (!dashboard) return null;
 
-    let secondaryThemeStyles, themeBlockStyles, layoutBlockStyles, gridStyles, canvasBlockStyles;
+    let settingsHeight;
+    let themeBlockStyles, layoutBlockStyles, gridStyles, canvasBlockStyles;
 
     if (editMode) {
       switch (settingsOrientation) {
         case SettingsPosition.BothSides:
+          settingsHeight = canvasHeight;
           gridStyles = { display: "grid", gridTemplateColumns: `repeat(3, fit-content(${canvasWidth}px))`, gridTemplateRows: `repeat(1, fit-content(${canvasHeight}px))`, gap: `${spacing}px` };
           canvasBlockStyles = { gridColumn: 2 };
-          secondaryThemeStyles = {display: "none"};
           themeBlockStyles = {gridColumn: 1, gridRow: 1, maxWidth: `${settingsWidth}px`};
           layoutBlockStyles = {gridColumn: 3, gridRow: 1, maxWidth: `${settingsWidth}px`};
           break;
         case SettingsPosition.RightSide:
-          gridStyles = { display: "grid", gridTemplateColumns: `repeat(2, fit-content(${canvasWidth}px))`, gridTemplateRows: `repeat(1, fit-content(${canvasHeight}px))`, gap: `${spacing}px` };
-          canvasBlockStyles = { gridColumn: 1 };
-          secondaryThemeStyles = {};
-          themeBlockStyles = {display: "none"};
-          layoutBlockStyles = {gridColumn: 2, gridRow: 1, maxWidth: `${settingsWidth}px`};
+          settingsHeight = Math.ceil((canvasHeight - spacing) / 2);
+          gridStyles = { display: "grid", gridTemplateColumns: `repeat(2, fit-content(${canvasWidth}px))`, gridTemplateRows: `repeat(2, fit-content(${(canvasHeight - spacing) / 2}px))`, gap: `${spacing}px` };
+          canvasBlockStyles = { gridColumn: 1, gridRowStart: 1, gridRowEnd: "span 2" };
+          themeBlockStyles = { gridColumn: 2, gridRow: 1, maxWidth: `${settingsWidth}px`, maxHeight: `${settingsHeight}px`};
+          layoutBlockStyles = {gridColumn: 2, gridRow: 2, maxWidth: `${settingsWidth}px`, maxHeight: `${settingsHeight}px`};
           break;
         case SettingsPosition.Below:
+          settingsHeight = 400; // arbitrary - just doesn't need to be huge or anything
           gridStyles = { display: "grid", gridTemplateColumns: `repeat(2, fit-content(${canvasWidth}px))`, gridTemplateRows: `repeat(2, fit-content(${canvasHeight}px))`, gap: `${spacing}px` };
           canvasBlockStyles = { gridColumnStart: 1, gridColumnEnd: "span 2" };
-          secondaryThemeStyles = {display: "none"};
           themeBlockStyles = {gridColumn: 1, gridRow: 2, maxWidth: `${settingsWidth}px`};
           layoutBlockStyles = {gridColumn: 2, gridRow: 2, maxWidth: `${settingsWidth}px`};
           break;
@@ -299,9 +300,9 @@ export default function Dashboard () {
     } else {
       gridStyles = { display: "grid", gridTemplateColumns: `repeat(1, fit-content(${canvasWidth}px))`, gridTemplateRows: `repeat(1, fit-content(${canvasHeight}px))`, gap: `${spacing}px` };
       canvasBlockStyles = { gridColumn: 1 };
-      secondaryThemeStyles = {display: "none"};
       themeBlockStyles = {display: "none"};
       layoutBlockStyles = {display: "none"};
+      settingsHeight = 400; // doesn't matter
     }
 
     // I had a problem with the Chakra Grid component so I'm using the vanilla grid instead. It gives more direct control.
@@ -311,7 +312,7 @@ export default function Dashboard () {
           {renderCanvas()}
         </div>
         <div style={themeBlockStyles}>
-          <Box width={`${settingsWidth}px`} height={`${canvasHeight}px`} borderWidth="1px" borderRadius="md" p={4} borderColor="white">
+          <Box width={`${settingsWidth}px`} height={`${settingsHeight}px`} borderWidth="1px" borderRadius="md" p={4} borderColor="white">
             <ScrollArea.Root>
               <ScrollArea.Viewport>
                 <ScrollArea.Content >
@@ -324,13 +325,10 @@ export default function Dashboard () {
           </Box>
         </div>
         <div style={layoutBlockStyles}>
-          <Box width={`${settingsWidth}px`} height={`${canvasHeight}px`} borderWidth="1px" borderRadius="md" p={4} borderColor="white">
+          <Box width={`${settingsWidth}px`} height={`${settingsHeight}px`} borderWidth="1px" borderRadius="md" p={4} borderColor="white">
             <ScrollArea.Root>
               <ScrollArea.Viewport>
                 <ScrollArea.Content >
-                  <div style={secondaryThemeStyles}>
-                    {renderThemeSettings()}
-                  </div>
                   {renderLayoutSettings()}
                 </ScrollArea.Content>
               </ScrollArea.Viewport>
