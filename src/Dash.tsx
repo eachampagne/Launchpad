@@ -14,6 +14,10 @@ import changeTextColor from './utilities/color.ts'
 import type { ThemeObject } from '../types/Calendar';
 import type { Layout, Dashboard } from '../types/LayoutTypes';
 
+/**
+ * This enum is used to choose how to lay out the menus in edit mode, depending on screen size.
+ * Each enum member corresponds to one arrangement.
+ */
 enum SettingsPosition {
   BothSides = 'BOTH_SIDES',
   RightSide = 'RIGHT_SIDE',
@@ -21,7 +25,9 @@ enum SettingsPosition {
 }
 
 export default function Dashboard () {
-  const { activeDash, user: { id: ownerId } } = useContext(UserContext);
+  /**
+   * LOCAL VARIABLES (some of which must be declared before some functions are)
+   */
 
   // TODO: these should probably be stored in the dashboard object or something
   const columns = 19;
@@ -37,12 +43,18 @@ export default function Dashboard () {
   const twoSidebarBreakpoint = canvasWidth + 2 * (spacing + settingsWidth);
 
   // the media queries need to be declared before the first invocation of checkBreakpoints()
+  // if we ever have variably-sized dashboards, these will need to be recreated when the dashboard changes
   const belowQuery = window.matchMedia(`(width < ${oneSidebarBreakpoint}px)`);
   const twoSidebarQuery = window.matchMedia(`(width >= ${twoSidebarBreakpoint}px)`);
 
-  belowQuery.addEventListener('change', () => setSettingsOrientation(checkBreakpoints()));
-  twoSidebarQuery.addEventListener('change', () => setSettingsOrientation(checkBreakpoints()));
+  /**
+   * CONTEXT VARIABLES
+   */
+  const { activeDash, user: { id: ownerId } } = useContext(UserContext);
 
+  /**
+   * STATE VARIABLES
+   */
   const [editMode, setEditMode] = useState(false);
   const [dashboard, setDashboard] = useState<Dashboard | null>(null);
   const [theme, setTheme] = useState({} as ThemeObject);
@@ -52,16 +64,32 @@ export default function Dashboard () {
   const [selectedLayout, setSelectedLayout] = useState<Layout | null>(null);
   const [settingsOrientation, setSettingsOrientation] = useState(checkBreakpoints());
 
+  /**
+   * EVENT HANDLERS
+   */
+
+  // handles typing in the dashboard name input
   const handleChangeNewName = (event: ChangeEvent) => {
     const target = event.target as unknown as HTMLInputElement; // whyyyyy
     setNewName(target.value);
   };
 
+  // handles clicking the cancel button in the name editor
   const handleCancelRename = () => {
     setRenaming(false);
     setNewName(dashboard?.name || '');
   }
 
+  // handles changing the settings layout when the screen size crosses a breakpoint
+  const handleMediaChange = () => {
+    setSettingsOrientation(checkBreakpoints())
+  };
+
+  /**
+   * MISCELLANEOUS FUNCTIONS
+   */
+
+  // checks the media queries to set the correct settings orientation
   function checkBreakpoints () {
     if (twoSidebarQuery.matches) {
       return SettingsPosition.BothSides;
@@ -72,6 +100,7 @@ export default function Dashboard () {
     }
   }
 
+  // loads a dashboard, including its theme
   const loadDashboard = async () => {
     // not a real dash
     if (activeDash === -1) {
@@ -90,6 +119,12 @@ export default function Dashboard () {
     }
   };
 
+  // passed into the theme component, used to update the client when
+  // switching or editing a theme.
+  // Currently this just delegates to loadDashboard(), but we may in the 
+  // future add a backend route that allows looking up just the theme
+  // associated with a given dashboard rather than having to fetch the 
+  // entire dashboard again.
   const refreshTheme = async () => {
     loadDashboard();
 
@@ -131,6 +166,7 @@ export default function Dashboard () {
     }
   }
 
+  // sends the request to rename the current dashboard
   const renameDashboard = async () => {
     if (newName === dashboard?.name) {
       setRenaming(false);
@@ -146,10 +182,29 @@ export default function Dashboard () {
     }
   };
 
+  /**
+   * EFFECTS
+   */
+
+  // adds the media change listeners on mount and removes them on dismount
+  useEffect(() => {
+    // add event listeners to media queries after all relevant functions are defined
+    belowQuery.addEventListener('change', handleMediaChange);
+    twoSidebarQuery.addEventListener('change', handleMediaChange);
+
+    // cleanup function: remove event listeners before unmounting
+    return () => {
+      belowQuery.removeEventListener('change', handleMediaChange);
+      twoSidebarQuery.removeEventListener('change', handleMediaChange);
+    };
+  }, [belowQuery, twoSidebarQuery, handleMediaChange]);
+
+  // loads a new dashboard when the dashboard id changes
   useEffect(() => {
     loadDashboard();
   }, [activeDash]);
 
+  // fetches a new layout when the layout id changes
   useEffect(() => {
     if(selectedLayoutId === -1){
       return;
@@ -164,6 +219,11 @@ export default function Dashboard () {
     });
   }, [selectedLayoutId]);
 
+  /**
+   * RENDER FUNCTIONS (split out parts of the full component into more easily understandable chunks)
+   */
+
+  // renders the edit/done button in the top right corner
   const renderEditButton = () => {
     return (
       <IconButton onClick={() => setEditMode(e => !e)} position="absolute" right="20px" top="20px">
@@ -172,6 +232,7 @@ export default function Dashboard () {
     );
   };
 
+  // renders the name of the dashboard at the top, which can be changed while in edit mode
   const renderName = () => {
     if (!dashboard) return null;
 
@@ -214,6 +275,7 @@ export default function Dashboard () {
     }
   }
 
+  // renders the layout canvas
   const renderCanvas = () => {
     if (!dashboard) return null;
 
@@ -227,6 +289,7 @@ export default function Dashboard () {
     );
   };
 
+  // renders the theme settings (theme library, theme editor, etc)
   const renderThemeSettings = () => {
     if (!dashboard) return null;
 
@@ -241,6 +304,7 @@ export default function Dashboard () {
 
   };
 
+  // renders the layout settings (public layouts, widget library, etc)
   const renderLayoutSettings = () => {
     if (!dashboard) return null;
 
@@ -273,6 +337,8 @@ export default function Dashboard () {
     );
   };
 
+  // renders the grid containing the layout canvas and the theme and layout panels
+  // in a configuration determined by the screen size and edit mode
   const renderContent = () => {
     if (!dashboard) return null;
 
@@ -347,10 +413,14 @@ export default function Dashboard () {
     );
   };
 
+  /**
+   * THE COMPONENT OUTPUT
+   */
+
   // early return for loading state, guards against null dashboard
   if (!dashboard) {
     return (
-      <Box width="full" position="relative" p="0" m="0">
+      <Box width="full" minH="100vh" position="relative" p="0" m="0">
         <NavBar pages={['Home', 'Hub']} />
         <AbsoluteCenter>
           <Spinner color="blue.500" animationDuration="0.8s"/>
@@ -359,7 +429,7 @@ export default function Dashboard () {
     );
   }
 
-
+  // normal return
   return (
     <Box minH="100vh" bg={theme.bgColor}>
       <NavBar pages={['Home', 'Hub']} textColor={changeTextColor(theme.bgColor)} navColor={theme.navColor}/>
