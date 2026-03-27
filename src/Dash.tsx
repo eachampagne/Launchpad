@@ -275,21 +275,21 @@ export default function Dashboard () {
     if (editMode) {
       switch (settingsOrientation) {
         case SettingsPosition.BothSides:
-          gridStyles = { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gridTemplateRows: "repeat(1, 1fr)" };
+          gridStyles = { display: "grid", gridTemplateColumns: `repeat(3, fit-content(${canvasWidth}px))`, gridTemplateRows: `repeat(1, fit-content(${canvasHeight}px))`, gap: `${spacing}px` };
           canvasBlockStyles = { gridColumn: 2 };
           secondaryThemeStyles = {display: "none"};
           themeBlockStyles = {gridColumn: 1, gridRow: 1, maxWidth: `${settingsWidth}px`};
           layoutBlockStyles = {gridColumn: 3, gridRow: 1, maxWidth: `${settingsWidth}px`};
           break;
         case SettingsPosition.RightSide:
-          gridStyles = { display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gridTemplateRows: "repeat(1, 1fr)" };
+          gridStyles = { display: "grid", gridTemplateColumns: `repeat(2, fit-content(${canvasWidth}px))`, gridTemplateRows: `repeat(1, fit-content(${canvasHeight}px))`, gap: `${spacing}px` };
           canvasBlockStyles = { gridColumn: 1 };
           secondaryThemeStyles = {};
           themeBlockStyles = {display: "none"};
           layoutBlockStyles = {gridColumn: 2, gridRow: 1, maxWidth: `${settingsWidth}px`};
           break;
         case SettingsPosition.Below:
-          gridStyles = { display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gridTemplateRows: "repeat(2, 1fr)" };
+          gridStyles = { display: "grid", gridTemplateColumns: `repeat(2, fit-content(${canvasWidth}px))`, gridTemplateRows: `repeat(2, fit-content(${canvasHeight}px))`, gap: `${spacing}px` };
           canvasBlockStyles = { gridColumnStart: 1, gridColumnEnd: "span 2" };
           secondaryThemeStyles = {display: "none"};
           themeBlockStyles = {gridColumn: 1, gridRow: 2, maxWidth: `${settingsWidth}px`};
@@ -297,7 +297,7 @@ export default function Dashboard () {
           break;
       }
     } else {
-      gridStyles = { display: "grid", gridTemplateColumns: "repeat(1, 1fr)", gridTemplateRows: "repeat(1, 1fr)" };
+      gridStyles = { display: "grid", gridTemplateColumns: `repeat(1, fit-content(${canvasWidth}px))`, gridTemplateRows: `repeat(1, fit-content(${canvasHeight}px))`, gap: `${spacing}px` };
       canvasBlockStyles = { gridColumn: 1 };
       secondaryThemeStyles = {display: "none"};
       themeBlockStyles = {display: "none"};
@@ -311,29 +311,33 @@ export default function Dashboard () {
           {renderCanvas()}
         </div>
         <div style={themeBlockStyles}>
-          <ScrollArea.Root width={`${settingsWidth}px`} height={`${canvasHeight}px`}>
-            <ScrollArea.Viewport>
-              <ScrollArea.Content >
-                {renderThemeSettings()}
-              </ScrollArea.Content>
-            </ScrollArea.Viewport>
-            <ScrollArea.Scrollbar orientation="vertical" />
-            <ScrollArea.Corner />
-          </ScrollArea.Root>
+          <Box width={`${settingsWidth}px`} height={`${canvasHeight}px`} borderWidth="1px" borderRadius="md" p={4} borderColor="white">
+            <ScrollArea.Root>
+              <ScrollArea.Viewport>
+                <ScrollArea.Content >
+                  {renderThemeSettings()}
+                </ScrollArea.Content>
+              </ScrollArea.Viewport>
+              <ScrollArea.Scrollbar orientation="vertical" />
+              <ScrollArea.Corner />
+            </ScrollArea.Root>
+          </Box>
         </div>
         <div style={layoutBlockStyles}>
-          <ScrollArea.Root width={`${settingsWidth}px`} height={`${canvasHeight}px`}>
-            <ScrollArea.Viewport>
-              <ScrollArea.Content >
-                <div style={secondaryThemeStyles}>
-                  {renderThemeSettings()}
-                </div>
-                {renderLayoutSettings()}
-              </ScrollArea.Content>
-            </ScrollArea.Viewport>
-            <ScrollArea.Scrollbar orientation="vertical" />
-            <ScrollArea.Corner />
-          </ScrollArea.Root>
+          <Box width={`${settingsWidth}px`} height={`${canvasHeight}px`} borderWidth="1px" borderRadius="md" p={4} borderColor="white">
+            <ScrollArea.Root>
+              <ScrollArea.Viewport>
+                <ScrollArea.Content >
+                  <div style={secondaryThemeStyles}>
+                    {renderThemeSettings()}
+                  </div>
+                  {renderLayoutSettings()}
+                </ScrollArea.Content>
+              </ScrollArea.Viewport>
+              <ScrollArea.Scrollbar orientation="vertical" />
+              <ScrollArea.Corner />
+            </ScrollArea.Root>
+          </Box>
         </div>
       </div>
     );
