@@ -67,7 +67,7 @@ theme.get('/:themeId', async (req, res) => {
 
 // POST - Creating a new theme
 theme.post('/', async (req, res) => {
-  const { public: isPublic, navColor, bgColor, font, ownerId} = req.body as {public: boolean, navColor: string, bgColor: string, font: string, ownerId: number}
+  const { public: isPublic, navColor, bgColor, font, ownerId, name} = req.body as {public: boolean, navColor: string, bgColor: string, font: string, ownerId: number, name?: string}
   try {
     await prisma.theme.create({
       data: {
@@ -75,7 +75,8 @@ theme.post('/', async (req, res) => {
       navColor,
       bgColor,
       font,
-      ownerId: ownerId
+      ownerId: ownerId,
+      name: name ?? 'default'
       }
     })
     res.sendStatus(201);
@@ -89,7 +90,7 @@ theme.post('/', async (req, res) => {
 // PUT/PATCH - Updates the theme that is current selected
 theme.patch('/', async (req, res) => {
   console.log('PATCH / hit, body:', req.body)
-  const { id, public: isPublic, navColor, bgColor, font, ownerId} = req.body
+  const { id, public: isPublic, navColor, bgColor, font, ownerId, name} = req.body
   try {
     await prisma.theme.update({
       where: {
@@ -100,7 +101,8 @@ theme.patch('/', async (req, res) => {
       navColor,
       bgColor,
       font,
-      ownerId: Number(ownerId)
+      ownerId: Number(ownerId),
+      name: name ?? 'default'
       }
     })
     res.sendStatus(201);
@@ -171,6 +173,19 @@ theme.delete('/delete/:ownerId', async (req, res) => {
     res.sendStatus(500);
   }
 })
+
+
+// for now there is no duplicate name restraint
+// GET the name - it can go with the theme anyway
+
+
+
+
+// POST the name
+
+
+
+// PATCH the name
 
 
 export default theme;
