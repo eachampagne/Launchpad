@@ -44,7 +44,6 @@ export default function Dashboard () {
   twoSidebarQuery.addEventListener('change', () => setSettingsOrientation(checkBreakpoints()));
 
   const [editMode, setEditMode] = useState(false);
-  const [themeId, setThemeId] = useState(-1);
   const [dashboard, setDashboard] = useState<Dashboard | null>(null);
   const [theme, setTheme] = useState({} as ThemeObject);
   const [newName, setNewName] = useState('');
@@ -86,7 +85,6 @@ export default function Dashboard () {
       setDashboard(dashboard);
       setNewName(dashboard.name);
       setTheme(theme);
-      setThemeId(dashboard.themeId);
     } catch (error) {
       console.error('Failed to get dashboard:', error);
     }
@@ -98,6 +96,7 @@ export default function Dashboard () {
     // the following doesn't work because it uses the old themeId
     // well, maybe it works for editing a theme, but not for changing them
     // it would be nice to look up the current theme associated with a specific dashboard
+    // we don't have a route for that at the moment
 
     // // not a real theme
     // if (themeId === -1) {
@@ -346,80 +345,6 @@ export default function Dashboard () {
         </div>
       </div>
     );
-
-    // if (!editMode) {
-    //   return renderCanvas();
-    // }
-
-    // switch (settingsOrientation) {
-    //   case SettingsPosition.BothSides:
-    //     return (
-    //       <Flex height={`${rows*snapSize}px`}>
-    //         <ScrollArea.Root width={`${settingsWidth}px`} mr={`${spacing}px`}>
-    //           <ScrollArea.Viewport>
-    //             <ScrollArea.Content >
-    //               {renderThemeSettings()}
-    //             </ScrollArea.Content>
-    //           </ScrollArea.Viewport>
-    //           <ScrollArea.Scrollbar orientation="vertical" />
-    //           <ScrollArea.Corner />
-    //         </ScrollArea.Root>
-    //         {renderCanvas()}
-    //         <ScrollArea.Root width={`${settingsWidth}px`} ml={`${spacing}px`}>
-    //           <ScrollArea.Viewport>
-    //             <ScrollArea.Content >
-    //               {renderLayoutSettings()}
-    //             </ScrollArea.Content>
-    //           </ScrollArea.Viewport>
-    //           <ScrollArea.Scrollbar orientation="vertical" />
-    //           <ScrollArea.Corner />
-    //         </ScrollArea.Root>
-    //       </Flex>
-    //     );
-    //   case SettingsPosition.RightSide:
-    //     return (
-    //       <Flex height={`${rows*snapSize}px`}>
-    //         {renderCanvas()}
-    //         <ScrollArea.Root width={`${settingsWidth}px`}>
-    //           <ScrollArea.Viewport>
-    //             <ScrollArea.Content >
-    //               {renderThemeSettings()}
-    //               {renderLayoutSettings()}
-    //             </ScrollArea.Content>
-    //           </ScrollArea.Viewport>
-    //           <ScrollArea.Scrollbar orientation="vertical" />
-    //           <ScrollArea.Corner />
-    //         </ScrollArea.Root>
-    //       </Flex>
-
-    //     );
-    //   case SettingsPosition.Below:
-    //     return (
-    //       <>
-    //         {renderCanvas()}
-    //         <Flex mt={`${spacing}px`} gap={spacing} width={`${canvasWidth}px`}>
-    //           <ScrollArea.Root>
-    //             <ScrollArea.Viewport>
-    //               <ScrollArea.Content >
-    //                 {renderThemeSettings()}
-    //               </ScrollArea.Content>
-    //             </ScrollArea.Viewport>
-    //             <ScrollArea.Scrollbar orientation="vertical" />
-    //             <ScrollArea.Corner />
-    //           </ScrollArea.Root>
-    //           <ScrollArea.Root>
-    //             <ScrollArea.Viewport>
-    //               <ScrollArea.Content >
-    //                 {renderLayoutSettings()}
-    //               </ScrollArea.Content>
-    //             </ScrollArea.Viewport>
-    //             <ScrollArea.Scrollbar orientation="vertical" />
-    //             <ScrollArea.Corner />
-    //           </ScrollArea.Root>
-    //         </Flex>
-    //       </>
-    //     );
-    // }
   };
 
   // early return for loading state, guards against null dashboard
