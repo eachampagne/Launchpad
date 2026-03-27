@@ -29,8 +29,9 @@ export default function Dashboard () {
   const snapSize = 60;
 
   const canvasWidth = columns * snapSize;
-  const settingsWidth = 520;
-  const spacing = 0;
+  const canvasHeight = rows * snapSize;
+  const settingsWidth = 400;
+  const spacing = 20;
 
   const oneSidebarBreakpoint = canvasWidth + spacing + settingsWidth;
   const twoSidebarBreakpoint = canvasWidth + 2 * (spacing + settingsWidth);
@@ -269,79 +270,147 @@ export default function Dashboard () {
   const renderContent = () => {
     if (!dashboard) return null;
 
-    if (!editMode) {
-      return renderCanvas();
+    let secondaryThemeStyles, themeBlockStyles, layoutBlockStyles, gridStyles, canvasBlockStyles;
+
+    if (editMode) {
+      switch (settingsOrientation) {
+        case SettingsPosition.BothSides:
+          gridStyles = { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gridTemplateRows: "repeat(1, 1fr)" };
+          canvasBlockStyles = { gridColumn: 2 };
+          secondaryThemeStyles = {display: "none"};
+          themeBlockStyles = {gridColumn: 1, gridRow: 1, maxWidth: `${settingsWidth}px`};
+          layoutBlockStyles = {gridColumn: 3, gridRow: 1, maxWidth: `${settingsWidth}px`};
+          break;
+        case SettingsPosition.RightSide:
+          gridStyles = { display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gridTemplateRows: "repeat(1, 1fr)" };
+          canvasBlockStyles = { gridColumn: 1 };
+          secondaryThemeStyles = {};
+          themeBlockStyles = {display: "none"};
+          layoutBlockStyles = {gridColumn: 2, gridRow: 1, maxWidth: `${settingsWidth}px`};
+          break;
+        case SettingsPosition.Below:
+          gridStyles = { display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gridTemplateRows: "repeat(2, 1fr)" };
+          canvasBlockStyles = { gridColumnStart: 1, gridColumnEnd: "span 2" };
+          secondaryThemeStyles = {display: "none"};
+          themeBlockStyles = {gridColumn: 1, gridRow: 2, maxWidth: `${settingsWidth}px`};
+          layoutBlockStyles = {gridColumn: 2, gridRow: 2, maxWidth: `${settingsWidth}px`};
+          break;
+      }
+    } else {
+      gridStyles = { display: "grid", gridTemplateColumns: "repeat(1, 1fr)", gridTemplateRows: "repeat(1, 1fr)" };
+      canvasBlockStyles = { gridColumn: 1 };
+      secondaryThemeStyles = {display: "none"};
+      themeBlockStyles = {display: "none"};
+      layoutBlockStyles = {display: "none"};
     }
 
-    switch (settingsOrientation) {
-      case SettingsPosition.BothSides:
-        return (
-          <Flex height={`${rows*snapSize}px`}>
-            <ScrollArea.Root>
-              <ScrollArea.Viewport>
-                <ScrollArea.Content >
+    // I had a problem with the Chakra Grid component so I'm using the vanilla grid instead. It gives more direct control.
+    return (
+      <div style={gridStyles}>
+        <div style={canvasBlockStyles}>
+          {renderCanvas()}
+        </div>
+        <div style={themeBlockStyles}>
+          <ScrollArea.Root width={`${settingsWidth}px`} height={`${canvasHeight}px`}>
+            <ScrollArea.Viewport>
+              <ScrollArea.Content >
+                {renderThemeSettings()}
+              </ScrollArea.Content>
+            </ScrollArea.Viewport>
+            <ScrollArea.Scrollbar orientation="vertical" />
+            <ScrollArea.Corner />
+          </ScrollArea.Root>
+        </div>
+        <div style={layoutBlockStyles}>
+          <ScrollArea.Root width={`${settingsWidth}px`} height={`${canvasHeight}px`}>
+            <ScrollArea.Viewport>
+              <ScrollArea.Content >
+                <div style={secondaryThemeStyles}>
                   {renderThemeSettings()}
-                </ScrollArea.Content>
-              </ScrollArea.Viewport>
-              <ScrollArea.Scrollbar orientation="vertical" />
-              <ScrollArea.Corner />
-            </ScrollArea.Root>
-            {renderCanvas()}
-            <ScrollArea.Root>
-              <ScrollArea.Viewport>
-                <ScrollArea.Content >
-                  {renderLayoutSettings()}
-                </ScrollArea.Content>
-              </ScrollArea.Viewport>
-              <ScrollArea.Scrollbar orientation="vertical" />
-              <ScrollArea.Corner />
-            </ScrollArea.Root>
-          </Flex>
-        );
-      case SettingsPosition.RightSide:
-        return (
-          <Flex height={`${rows*snapSize}px`}>
-            {renderCanvas()}
-            <ScrollArea.Root>
-              <ScrollArea.Viewport>
-                <ScrollArea.Content >
-                  {renderThemeSettings()}
-                  {renderLayoutSettings()}
-                </ScrollArea.Content>
-              </ScrollArea.Viewport>
-              <ScrollArea.Scrollbar orientation="vertical" />
-              <ScrollArea.Corner />
-            </ScrollArea.Root>
-          </Flex>
+                </div>
+                {renderLayoutSettings()}
+              </ScrollArea.Content>
+            </ScrollArea.Viewport>
+            <ScrollArea.Scrollbar orientation="vertical" />
+            <ScrollArea.Corner />
+          </ScrollArea.Root>
+        </div>
+      </div>
+    );
 
-        );
-      case SettingsPosition.Below:
-        return (
-          <>
-            {renderCanvas()}
-            <Flex>
-              <ScrollArea.Root>
-                <ScrollArea.Viewport>
-                  <ScrollArea.Content >
-                    {renderThemeSettings()}
-                  </ScrollArea.Content>
-                </ScrollArea.Viewport>
-                <ScrollArea.Scrollbar orientation="vertical" />
-                <ScrollArea.Corner />
-              </ScrollArea.Root>
-              <ScrollArea.Root>
-                <ScrollArea.Viewport>
-                  <ScrollArea.Content >
-                    {renderLayoutSettings()}
-                  </ScrollArea.Content>
-                </ScrollArea.Viewport>
-                <ScrollArea.Scrollbar orientation="vertical" />
-                <ScrollArea.Corner />
-              </ScrollArea.Root>
-            </Flex>
-          </>
-        );
-    }
+    // if (!editMode) {
+    //   return renderCanvas();
+    // }
+
+    // switch (settingsOrientation) {
+    //   case SettingsPosition.BothSides:
+    //     return (
+    //       <Flex height={`${rows*snapSize}px`}>
+    //         <ScrollArea.Root width={`${settingsWidth}px`} mr={`${spacing}px`}>
+    //           <ScrollArea.Viewport>
+    //             <ScrollArea.Content >
+    //               {renderThemeSettings()}
+    //             </ScrollArea.Content>
+    //           </ScrollArea.Viewport>
+    //           <ScrollArea.Scrollbar orientation="vertical" />
+    //           <ScrollArea.Corner />
+    //         </ScrollArea.Root>
+    //         {renderCanvas()}
+    //         <ScrollArea.Root width={`${settingsWidth}px`} ml={`${spacing}px`}>
+    //           <ScrollArea.Viewport>
+    //             <ScrollArea.Content >
+    //               {renderLayoutSettings()}
+    //             </ScrollArea.Content>
+    //           </ScrollArea.Viewport>
+    //           <ScrollArea.Scrollbar orientation="vertical" />
+    //           <ScrollArea.Corner />
+    //         </ScrollArea.Root>
+    //       </Flex>
+    //     );
+    //   case SettingsPosition.RightSide:
+    //     return (
+    //       <Flex height={`${rows*snapSize}px`}>
+    //         {renderCanvas()}
+    //         <ScrollArea.Root width={`${settingsWidth}px`}>
+    //           <ScrollArea.Viewport>
+    //             <ScrollArea.Content >
+    //               {renderThemeSettings()}
+    //               {renderLayoutSettings()}
+    //             </ScrollArea.Content>
+    //           </ScrollArea.Viewport>
+    //           <ScrollArea.Scrollbar orientation="vertical" />
+    //           <ScrollArea.Corner />
+    //         </ScrollArea.Root>
+    //       </Flex>
+
+    //     );
+    //   case SettingsPosition.Below:
+    //     return (
+    //       <>
+    //         {renderCanvas()}
+    //         <Flex mt={`${spacing}px`} gap={spacing} width={`${canvasWidth}px`}>
+    //           <ScrollArea.Root>
+    //             <ScrollArea.Viewport>
+    //               <ScrollArea.Content >
+    //                 {renderThemeSettings()}
+    //               </ScrollArea.Content>
+    //             </ScrollArea.Viewport>
+    //             <ScrollArea.Scrollbar orientation="vertical" />
+    //             <ScrollArea.Corner />
+    //           </ScrollArea.Root>
+    //           <ScrollArea.Root>
+    //             <ScrollArea.Viewport>
+    //               <ScrollArea.Content >
+    //                 {renderLayoutSettings()}
+    //               </ScrollArea.Content>
+    //             </ScrollArea.Viewport>
+    //             <ScrollArea.Scrollbar orientation="vertical" />
+    //             <ScrollArea.Corner />
+    //           </ScrollArea.Root>
+    //         </Flex>
+    //       </>
+    //     );
+    // }
   };
 
   // early return for loading state, guards against null dashboard
