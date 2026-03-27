@@ -7,7 +7,7 @@ import { IoTrashSharp, IoPencilSharp, IoAddCircleOutline, IoPeopleSharp, IoPeopl
 import { UserContext } from './UserContext';
 
 
-function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, ownerId: number}, ownerId: number, dashboardId : number}) {
+function Theme ({dashboard, ownerId, dashboardId, refreshTheme}: {dashboard: { name: string, ownerId: number}, ownerId: number, dashboardId : number, refreshTheme: () => void}) {
   const [themesList, setThemesList] = useState([] as {id: number, navColor: string, bgColor: string, font: string, name: string, public: boolean}[]);
 
   // const [form, setForm] = useState({navColor: 'white', bgColor: 'white', font: 'ariel'});
@@ -82,6 +82,7 @@ function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, o
     await getTheDash()
     // adding the name to be reset so it does not keep the old name
     setThemeName('')
+    await refreshTheme();
     }catch (error) {
         console.error(error, 'something went wrong is getTheDash')
       }
@@ -381,6 +382,7 @@ function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, o
             setCurrentTheme(theme)
             setThemeName(theme.name) // pulling the name out from the card selected
             axios.patch(`/dashboard/${dashboardId}`, { themeId: theme.id })
+              .then(refreshTheme);
             //await getTheDash()
           }}
           _hover={{ transform: 'translateY(-1px)', borderColor: 'rgba(255,255,255,0.18)' }}>

@@ -111,7 +111,8 @@ dashboard.get('/:id', async (req, res) => {
 
             }
           }
-        }
+        },
+        theme: true
       }
     });
 

@@ -163,6 +163,9 @@ layout.delete('/:elementId', async (req, res) => {
       await prisma.linkSettings.deleteMany({
         where: { widgetSettingsId: widgetSettings.id }
       });
+      await prisma.calendarSettings.deleteMany({
+        where: { widgetSettingsId: widgetSettings.id }
+      });
       await prisma.widgetSettings.delete({
         where: { layoutElementId: elementId }
       });

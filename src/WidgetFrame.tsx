@@ -6,7 +6,8 @@ import { FiX } from "react-icons/fi";
 
 import './LiquidGlass.css';
 
-const handleThickness = 10;
+const handleThickness = 15;
+const margin = 5;
 
 enum Side {
   Top = 'TOP',
@@ -439,10 +440,10 @@ function WidgetFrame({widgetId, posX, posY, sizeX, sizeY, minWidth, minHeight, m
     <div
       className={`liquid-glass-card${editActive ? " edit-active" : ""}`}
       style={{
-        top: `${top}px`,
-        left: `${left}px`,
-        width: `${right - left}px`,
-        height: `${bottom - top}px`,
+        top: `${top + margin}px`,
+        left: `${left + margin}px`,
+        width: `${right - left - 2 * margin}px`,
+        height: `${bottom - top - 2 * margin}px`,
         userSelect: editActive ? "none" : "text",
         ["--glass-tint" as string]: tint,
       }}
