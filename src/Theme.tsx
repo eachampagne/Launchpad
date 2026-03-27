@@ -21,6 +21,7 @@ function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, o
   const [editingTheme, setEditingTheme] = useState(false);
   const [publicList, setPublicList] = useState([] as {id: number, navColor: string, bgColor: string, font: string, name: string, public: boolean}[])
   const [page, setPage] = useState(0);
+  const [themeName, setThemeName] = useState('');
   const { setCurrentTheme } = useContext(UserContext);
 
   const allThemes = async () => {
@@ -49,7 +50,8 @@ function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, o
         navColor: navColorPick,
         bgColor: bgColorPick,
         font: fontPick,
-        ownerId: ownerId
+        ownerId: ownerId,
+        name: themeName || 'default'
       })
       allThemes();
     } catch (error) {
@@ -78,6 +80,8 @@ function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, o
     await axios.patch(`/theme/`, {...data, ownerId: ownerId})
     await allThemes()
     await getTheDash()
+    // adding the name to be reset so it does not keep the old name
+    setThemeName('')
     }catch (error) {
         console.error(error, 'something went wrong is getTheDash')
       }
@@ -248,6 +252,7 @@ function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, o
                 </Box> */}
             </Box>
             <Box display='flex' gap='1' onClick={(e) => e.stopPropagation()}>
+              
                 <Button
                   size='sm' variant='ghost' minW='22px' h='22px' p='0'
                   borderRadius='6px' color='#ffffff'
@@ -368,6 +373,7 @@ function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, o
             setBgColorPick(theme.bgColor)
             setFontPick(theme.font)
             setCurrentTheme(theme)
+            setThemeName(theme.name) // pulling the name out from the card selected
             axios.patch(`/dashboard/${dashboardId}`, { themeId: theme.id })
             //await getTheDash()
           }}
@@ -509,7 +515,26 @@ function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, o
       </Box>
     ))}
   </Box>
-
+        <Box display='flex' alignItems='center' gap='2'
+        py='1.5' borderBottom='0.5px solid rgba(255,255,255,0.06)'>
+        <Text fontSize='11px' color='#ffffff' w='72px' flexShrink={0}>Name</Text>
+        <input
+          value={themeName}
+          onChange={(e) => setThemeName(e.target.value)}
+          maxLength={15}
+          placeholder='default'
+          style={{
+            background: 'transparent',
+            border: '0.5px solid rgba(255,255,255,0.1)',
+            borderRadius: '6px',
+            color: '#ffffff',
+            fontSize: '11px',
+            padding: '4px 8px',
+            width: '100%',
+            outline: 'none',
+          }}
+        />
+      </Box>
   <Box px='2.5' pt='2' pb='2.5'>
     {[
       { label: 'Navigation', value: navColorPick, setter: setNavColorPick },
@@ -542,7 +567,7 @@ function Theme ({dashboard, ownerId, dashboardId}: {dashboard: { name: string, o
         onClick={() => {
           const updateThemeId = currTheme.id !== -1 ? currTheme.id : activeDash.id
           if(updateThemeId !== -1){
-            updateTheme({ id: updateThemeId, navColor: navColorPick, bgColor: bgColorPick, font: fontPick })
+            updateTheme({ id: updateThemeId, navColor: navColorPick, bgColor: bgColorPick, font: fontPick, name: themeName || 'default' })
           }
         }}
       >
