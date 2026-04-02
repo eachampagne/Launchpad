@@ -8,6 +8,7 @@ import Theme from './Theme';
 import LayoutGallery from './LayoutGallery';
 import LayoutCanvas from './LayoutCanvas';
 import WidgetLibrary from "./WidgetLibrary";
+import SelectDashPopup from './SelectDashPopup.tsx';
 import { UserContext } from './UserContext';
 
 import changeTextColor from './utilities/color.ts'
@@ -437,8 +438,8 @@ export default function Dashboard () {
     return (
       <Box width="full" minH="100vh" position="relative" p="0" m="0">
         <NavBar pages={['Home', 'Hub']} />
-        <AbsoluteCenter>
-          <Spinner color="blue.500" animationDuration="0.8s"/>
+        <AbsoluteCenter width="full" height="full">
+          <SelectDashPopup />
         </AbsoluteCenter>
       </Box>
     );
