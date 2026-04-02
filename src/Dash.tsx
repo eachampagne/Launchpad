@@ -8,7 +8,7 @@ import Theme from './Theme';
 import LayoutGallery from './LayoutGallery';
 import LayoutCanvas from './LayoutCanvas';
 import WidgetLibrary from "./WidgetLibrary";
-import SelectDashPopup from './SelectDashPopup.tsx';
+import SelectDashMenu from './SelectDashMenu.tsx';
 import { UserContext } from './UserContext';
 
 import changeTextColor from './utilities/color.ts'
@@ -433,13 +433,22 @@ export default function Dashboard () {
    * THE COMPONENT OUTPUT
    */
 
-  // early return for loading state, guards against null dashboard
+  // early return - don't render anything except the navbar when not logged in to reduce flash before redirect
+  if (ownerId === -1) {
+    return (
+      <Box width="full" minH="100vh" position="relative" p="0" m="0">
+        <NavBar pages={[]} navColor="#dba022" />
+      </Box>
+    )
+  }
+
+  // if no dashboard, render the dashboard select menu
   if (!dashboard) {
     return (
       <Box width="full" minH="100vh" position="relative" p="0" m="0">
         <NavBar pages={['Home', 'Hub']} />
         <AbsoluteCenter width="full" height="full">
-          <SelectDashPopup />
+          <SelectDashMenu />
         </AbsoluteCenter>
       </Box>
     );

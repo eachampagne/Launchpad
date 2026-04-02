@@ -13,7 +13,7 @@ type Dashboard = {
   id: number;
 }
 
-function SelectDashPopup () {
+function SelectDashMenu () {
   const {setActiveDash, user: {id: userId}} = useContext(UserContext);
 
   const [loading, setLoading] = useState(false);
@@ -145,4 +145,4 @@ function SelectDashPopup () {
   );
 }
 
-export default SelectDashPopup;
+export default SelectDashMenu;
