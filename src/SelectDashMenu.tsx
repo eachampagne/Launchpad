@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext} from 'react';
 import axios from 'axios';
 
-import { Box, Button, Center, Flex, For, Heading, SimpleGrid, Spinner, Text } from '@chakra-ui/react';
+import { Box, Button, Center, Flex, For, Heading, ScrollArea, SimpleGrid, Spinner, Text } from '@chakra-ui/react';
 
 import { UserContext } from './UserContext';
 
@@ -63,42 +63,57 @@ function SelectDashMenu () {
     }
 
     return (
-      <Box
-        overflow="scroll"
-        border="1px solid"
-        borderColor="gray.600"
-        borderRadius="md"
-        p="12px"
-        mt="10px"
-      >
-        <SimpleGrid minChildWidth="300px" gap="40px">
-          <For
-            each={dashboards}
-            fallback={<Text>No dashboards available.</Text>}
-          >
-            {(dashboard) => (
-              // box styling from Hub page, thanks Jaylin
-              <Box
-                as="button"
-                cursor="pointer"
-                key={dashboard.id}
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                p={2}
-                h="120px"
-                border="1px solid"
-                borderColor="gray.600"
-                borderRadius="sm"
-                _hover={{ borderColor: "blue.500" }}
-                onClick={() => selectDash(dashboard.id)}
+      <ScrollArea.Root my="5px">
+        <ScrollArea.Viewport
+          css={{
+            "--scroll-shadow-size": "20px",
+            maskImage: "linear-gradient(#000, #000)",
+            "&[data-overflow-y]": {
+              maskImage:
+                "linear-gradient(#000,#000,transparent 0,#000 var(--scroll-shadow-size),#000 calc(100% - var(--scroll-shadow-size)),transparent)",
+              "&[data-at-top]": {
+                maskImage:
+                  "linear-gradient(180deg,#000 calc(100% - var(--scroll-shadow-size)),transparent)",
+              },
+              "&[data-at-bottom]": {
+                maskImage:
+                  "linear-gradient(0deg,#000 calc(100% - var(--scroll-shadow-size)),transparent)",
+              },
+            },
+          }}
+        >
+          <ScrollArea.Content p="20px">
+            <SimpleGrid minChildWidth="300px" gap="40px">
+              <For
+                each={dashboards}
+                fallback={<Text>No dashboards available.</Text>}
               >
-                <Text pointerEvents="none">{dashboard.name}</Text>
-              </Box>
-            )}
-          </For>
-        </SimpleGrid>
-      </Box>
+                {(dashboard) => (
+                  // box styling from Hub page, thanks Jaylin
+                  <Box
+                    as="button"
+                    cursor="pointer"
+                    key={dashboard.id}
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    p={2}
+                    h="120px"
+                    border="1px solid"
+                    borderColor="gray.600"
+                    borderRadius="sm"
+                    _hover={{ borderColor: "blue.500" }}
+                    onClick={() => selectDash(dashboard.id)}
+                    bgColor="black"
+                  >
+                    <Text pointerEvents="none">{dashboard.name}</Text>
+                  </Box>
+                )}
+              </For>
+            </SimpleGrid>
+          </ScrollArea.Content>
+        </ScrollArea.Viewport>
+      </ScrollArea.Root>
     );
   };
 
@@ -111,13 +126,11 @@ function SelectDashMenu () {
   return (
     <Flex
       w="80%"
-      border="1px solid"
-      borderColor="gray.600"
-      borderRadius="md"
-      height="80%"
+      maxHeight="80%"
       p="32px"
       overflow="scroll"
       direction="column"
+      className="glass-hub-box"
     >
       <Center>
         <Heading>No Dashboard Selected</Heading>
