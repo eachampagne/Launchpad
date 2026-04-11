@@ -1,7 +1,6 @@
-import { useState, useEffectEvent, useEffect, useContext } from 'react';
+import { useState, useEffectEvent, useEffect } from 'react';
 
 import { Container, For } from "@chakra-ui/react";
-import { UserContext } from './UserContext';
 import { FiX } from "react-icons/fi";
 
 import './LiquidGlass.css';
@@ -268,8 +267,7 @@ function WidgetFrame({widgetId, posX, posY, sizeX, sizeY, minWidth, minHeight, m
   const setLeft   = (f: (old: number) => number) => setEdges(e => ({ ...e, left:   f(e.left)   }));
   const setRight  = (f: (old: number) => number) => setEdges(e => ({ ...e, right:  f(e.right)  }));
 
-  const { currentTheme } = useContext(UserContext);
-  const tint = currentTheme?.font ? hexToGlassTint(currentTheme.font) : 'rgba(255,255,255,0)';
+  const tint = hexToGlassTint(color);
 
   const [hasSnapped, setHasSnapped] = useState(false);
 

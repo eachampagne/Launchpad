@@ -2,6 +2,7 @@ import axios from 'axios'
 import { Box } from "@chakra-ui/react";
 import WidgetFrame from "./WidgetFrame"
 import widgetMap from './widgets';
+import changeTextColor from './utilities/color.ts';
 
 import type { Layout } from '../types/LayoutTypes';
 
@@ -12,7 +13,7 @@ const snapSize = 60;
 
 
 
-const LayoutCanvas = function({layout, editable=false, widgetTextColor = "white", onLayoutChange}: { layout: Layout; editable?: boolean; widgetTextColor?: string; onLayoutChange?: () => void; }){
+const LayoutCanvas = function({layout, editable=false, widgetColor = "#FFFFFF", onLayoutChange}: { layout: Layout; editable?: boolean; widgetColor?: string; onLayoutChange?: () => void; }){
 
   const handleResize = async ( elementId: number, posX: number, posY: number, sizeX: number, sizeY: number) => {
   try{
@@ -71,7 +72,7 @@ const LayoutCanvas = function({layout, editable=false, widgetTextColor = "white"
         minHeight={1}
         boundingWidth={gridCols}
         boundingHeight={gridRows}
-        color='#e5e7eb'
+        color={widgetColor}
         snapSize={snapSize}
         handleResizeOrMove={handleResize}
         onDelete={handleDelete}
@@ -80,7 +81,7 @@ const LayoutCanvas = function({layout, editable=false, widgetTextColor = "white"
           <WidgetComp
             widgetId={element.id}
             settings={element.settings}
-            textColor={widgetTextColor}
+            textColor={changeTextColor(widgetColor)}
           />
         </WidgetFrame>
         )

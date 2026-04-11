@@ -11,7 +11,7 @@ import WidgetLibrary from "./WidgetLibrary";
 import SelectDashMenu from './SelectDashMenu.tsx';
 import { UserContext } from './UserContext';
 
-import changeTextColor from './utilities/color.ts'
+import changeTextColor from './utilities/color.ts';
 import type { ThemeObject } from '../types/Calendar';
 import type { Layout, Dashboard } from '../types/LayoutTypes';
 
@@ -293,7 +293,7 @@ export default function Dashboard () {
         <LayoutCanvas
           layout={dashboard.layout}
           editable={editMode}
-          widgetTextColor={changeTextColor(theme.font)}
+          widgetColor={theme.font}
           onLayoutChange={loadDashboard}
         />
       </Box>
