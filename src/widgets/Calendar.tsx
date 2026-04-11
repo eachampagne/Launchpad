@@ -2,8 +2,8 @@ import { useState, useEffect, useContext, type ChangeEvent } from 'react';
 
 import axios, { AxiosError } from 'axios';
 
-import { AbsoluteCenter, Button, Container, Flex, For, Heading, HStack, Icon, LinkBox, LinkOverlay, NativeSelect, ScrollArea, Spinner, Text, VStack } from '@chakra-ui/react';
-import { LuCalendarDays } from 'react-icons/lu';
+import { AbsoluteCenter, Button, Container, Flex, For, Heading, HStack, Icon, LinkBox, LinkOverlay, NativeSelect, ScrollArea, Spacer, Spinner, Text, VStack } from '@chakra-ui/react';
+import { LuCalendarDays, LuRefreshCw } from 'react-icons/lu';
 
 
 import type { AllDayTime, PartDayTime, Event, CalendarObject } from '../../types/Calendar.ts';
@@ -132,6 +132,19 @@ function Calendar({widgetId, settings}: {widgetId: number, settings: WidgetSetti
     }
   };
 
+  const renderRefresh = () => {
+    switch (authStatus) {
+      case AuthStatus.Authorized:
+        return (
+          <Icon size="lg" marginLeft="0.5rem" onClick={() => getEvents(activeCalendarId)} cursor="pointer">
+            <LuRefreshCw/>
+          </Icon>
+        );
+      default:
+        return null;
+    }
+  }
+
   const renderCalendarList = () => {
     if (authStatus === AuthStatus.Authorized) {
       // the fallback in case the activeCalendarId is an empty string
@@ -242,6 +255,8 @@ function Calendar({widgetId, settings}: {widgetId: number, settings: WidgetSetti
         <Heading>
           Calendar
         </Heading>
+        <Spacer />
+        {renderRefresh()}
       </Flex>
       {renderCalendarList()}
       {renderEvents()}

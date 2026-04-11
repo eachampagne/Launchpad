@@ -191,6 +191,7 @@ function DashEditor() {
               dashboardId={dashboardId}
               dashboard={dashboard}
               ownerId={ownerId}
+              refreshTheme={() => {}}
             />
 
             <Box mt={4}>

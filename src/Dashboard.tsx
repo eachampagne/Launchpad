@@ -34,7 +34,7 @@ export default function Dashboard () {
   // find the theme that matches the theme id stuff
   const settingTheme = async () => {
     try {
-      const currentTheme = await axios.get(`/theme/theme/${themeId}`)
+      const currentTheme = await axios.get(`/theme/${themeId}`)
       console.log(currentTheme, 'currentTheme')
       if(!currentTheme){
         console.error('could not get theme')
