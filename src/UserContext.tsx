@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate, useLocation } from 'react-router';
 
 import axios from 'axios';
 
@@ -30,6 +30,7 @@ export const UserContext = createContext({
 
 function UserProvider ({children}: {children?: React.ReactNode}) {
   const navigate = useNavigate();
+  const location = useLocation();
   const [user, setUser] = useState({id: -1} as ClientUser);
   const [activeDash, setActiveDash] = useState(-1);
   const [currentTheme, setCurrentTheme] = useState<Theme | null>(null);
@@ -66,9 +67,15 @@ function UserProvider ({children}: {children?: React.ReactNode}) {
         // id the user has selected a primary dash, that's the first one that should be accessed
         if (response.data.primaryDashId) {
           setActiveDash(response.data.primaryDashId);
+        } else {
+          setActiveDash(-1);
         }
       } else {
         setUser({id: -1, name: 'Not signed in', primaryDashId: null} as ClientUser);
+        setActiveDash(-1);
+        if (location.pathname !== '/') { // redirect to homepage if not logged in
+          navigate('/');
+        }
       }
     } catch (error) {
       console.error('Failed to get user:', error);

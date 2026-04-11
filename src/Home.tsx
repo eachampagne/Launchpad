@@ -28,6 +28,13 @@ function Home () {
     fetchChangelog();
   }, []);
 
+  let navbarLinks: string[];
+  if (user.id === -1) {
+    navbarLinks = []; // can't go to hub or dashboard if not logged in
+  } else {
+    navbarLinks = ["Hub", "Dashboard"];
+  }
+
   const renderLogin = () => {
     if (user.id === -1) { // not logged in
       return (
@@ -64,7 +71,7 @@ function Home () {
   return (
     <>
       {/* Navbar */}
-      <NavBar pages={["Hub", "Dashboard"]} navColor='#dba022'/>
+      <NavBar pages={ navbarLinks } navColor='#dba022'/>
 
       
 

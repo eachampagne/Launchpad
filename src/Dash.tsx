@@ -1,6 +1,6 @@
-import { useState, useEffect, useContext, type ChangeEvent } from 'react';
+import { useState, useEffect, useContext, useCallback, type ChangeEvent } from 'react';
 import axios from 'axios';
-import { AbsoluteCenter, Box, Button, Center, Container, Flex, Grid, GridItem, Heading, Icon, IconButton, ScrollArea, Spinner, VStack } from "@chakra-ui/react";
+import { AbsoluteCenter, Box, Button, Center, Flex, Heading, Icon, IconButton, ScrollArea, VStack } from "@chakra-ui/react";
 import { LuCheck, LuPencil } from "react-icons/lu";
 
 import NavBar from "./NavBar";
@@ -8,6 +8,7 @@ import Theme from './Theme';
 import LayoutGallery from './LayoutGallery';
 import LayoutCanvas from './LayoutCanvas';
 import WidgetLibrary from "./WidgetLibrary";
+import SelectDashMenu from './SelectDashMenu.tsx';
 import { UserContext } from './UserContext';
 
 import changeTextColor from './utilities/color.ts'
@@ -47,6 +48,17 @@ export default function Dashboard () {
   const belowQuery = window.matchMedia(`(width < ${oneSidebarBreakpoint}px)`);
   const twoSidebarQuery = window.matchMedia(`(width >= ${twoSidebarBreakpoint}px)`);
 
+  // checks the media queries to set the correct settings orientation
+  const checkBreakpoints = useCallback(() => {
+    if (twoSidebarQuery.matches) {
+      return SettingsPosition.BothSides;
+    } else if (belowQuery.matches) {
+      return SettingsPosition.Below;
+    } else {
+      return SettingsPosition.RightSide;
+    }
+  }, [twoSidebarQuery, belowQuery]);
+
   /**
    * CONTEXT VARIABLES
    */
@@ -81,24 +93,13 @@ export default function Dashboard () {
   }
 
   // handles changing the settings layout when the screen size crosses a breakpoint
-  const handleMediaChange = () => {
+  const handleMediaChange = useCallback(() => {
     setSettingsOrientation(checkBreakpoints())
-  };
+  }, [checkBreakpoints]);
 
   /**
    * MISCELLANEOUS FUNCTIONS
    */
-
-  // checks the media queries to set the correct settings orientation
-  function checkBreakpoints () {
-    if (twoSidebarQuery.matches) {
-      return SettingsPosition.BothSides;
-    } else if (belowQuery.matches) {
-      return SettingsPosition.Below;
-    } else {
-      return SettingsPosition.RightSide;
-    }
-  }
 
   // loads a dashboard, including its theme
   const loadDashboard = async () => {
@@ -433,13 +434,22 @@ export default function Dashboard () {
    * THE COMPONENT OUTPUT
    */
 
-  // early return for loading state, guards against null dashboard
+  // early return - don't render anything except the navbar when not logged in to reduce flash before redirect
+  if (ownerId === -1) {
+    return (
+      <Box width="full" minH="100vh" position="relative" p="0" m="0">
+        <NavBar pages={[]} navColor="#dba022" />
+      </Box>
+    )
+  }
+
+  // if no dashboard, render the dashboard select menu
   if (!dashboard) {
     return (
       <Box width="full" minH="100vh" position="relative" p="0" m="0">
         <NavBar pages={['Home', 'Hub']} />
-        <AbsoluteCenter>
-          <Spinner color="blue.500" animationDuration="0.8s"/>
+        <AbsoluteCenter width="full" height="full">
+          <SelectDashMenu />
         </AbsoluteCenter>
       </Box>
     );
