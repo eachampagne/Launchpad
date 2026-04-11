@@ -15,7 +15,7 @@ account.get('/', async (req, res) => {
 
   // demo account has no linked accounts
   if (id === demoId) {
-    return res.status(200).send([]);
+    return res.status(200).send({isDemo: true, accounts: []});
   }
 
   const google = await prisma.googleToken.findFirst({where: {accountId: id}});
@@ -41,7 +41,7 @@ account.get('/', async (req, res) => {
       }
     ];
 
-    res.status(200).send(accounts);
+    res.status(200).send({isDemo: false, accounts});
   } catch (error) {
     console.error('Failed to find account information:', error);
     res.sendStatus(500);
