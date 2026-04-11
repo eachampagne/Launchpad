@@ -80,8 +80,9 @@ function LayoutGallery({onSelect, selectedLayoutId, currentLayoutId}: Props) {
             borderWidth="2px"
             borderRadius="md"
             cursor="pointer"
-            borderColor={lay.id === selectedLayoutId ? "blue.400" : "gray.300"}
-            bg={lay.id === selectedLayoutId ? "blue.50" : "white"}
+            color="gray.800"
+            borderColor={lay.id === selectedLayoutId ? "orange.400" : "gray.300"}
+            bg={lay.id === selectedLayoutId ? "orange.50" : "white"}
             onClick={() => onSelect(lay.id)}
           >
             <p>
