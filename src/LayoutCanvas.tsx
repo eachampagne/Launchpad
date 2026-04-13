@@ -41,8 +41,8 @@ const LayoutCanvas = function({layout, editable=false, onLayoutChange}: { layout
       //Anchors absolute widgets position="relative"
       //Defines grid bounds
       position="relative"
-      width="100%"
-      height="100%"
+      width={`${gridCols * snapSize}px`}
+      height={`${gridRows * snapSize}px`}
       border="none"
       //overflow="hidden"
       backgroundColor="transparent"
