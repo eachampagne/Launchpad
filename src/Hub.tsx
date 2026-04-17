@@ -222,6 +222,15 @@ export default function Hub(
     navigate("/dashboard", { replace: true })
   };
 
+  // early return - don't render most of the hub elements if user is not logged in to prevent a flash before the redirect
+  // still render the navbar though
+  if (ownerId === -1) {
+    return (
+      <Box width="full" minH="100vh" position="relative" p="0" m="0">
+        <NavBar pages={[]} navColor="#dba022" />
+      </Box>
+    )
+  }
 
   return (
     <>

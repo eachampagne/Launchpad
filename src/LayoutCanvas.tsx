@@ -38,55 +38,53 @@ const LayoutCanvas = function({layout, editable=false, onLayoutChange}: { layout
 
   return (
     <Box
-    //Anchors absolute widgets
-    position="relative"
-    //Defines grid bounds
-    width={`${gridCols * snapSize}px`}
-    height={`${gridRows * snapSize}px`}
-    border={editable ? "2px solid #e5e7eb" : "none"}
-    backgroundColor="transparent"
-    //Snaps grid to units
-    backgroundSize={`${snapSize}px ${snapSize}px`}
-    //Actual grid lines
-    backgroundImage={editable? `
-        linear-gradient(to right, #e5e7eb 1px, transparent 2px),
-        linear-gradient(to bottom, #e5e7eb 1px, transparent 2px)
-      ` :  "none"}
+      //Anchors absolute widgets position="relative"
+      //Defines grid bounds
+      position="relative"
+      width={`${gridCols * snapSize}px`}
+      height={`${gridRows * snapSize}px`}
+      border="none"
+      //overflow="hidden"
+      backgroundColor="transparent"
+      //Snaps grid to units
+      backgroundSize={`calc(100% / ${gridCols}) calc(100% / ${gridRows})`}
+      //Actual grid lines
+      backgroundImage={editable ? `
+          linear-gradient(rgba(255, 255, 255, 0.91) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.91) 1px, transparent 1px)
+          `: "none"
+      }
     >
       {layout.layoutElements.map((element) => {
-      const WidgetComp = widgetMap[element.widgetId]?.component;
-      if(!WidgetComp){
-        return null
-      }
+        const WidgetComp = widgetMap[element.widgetId]?.component;
+        if (!WidgetComp) {
+          return null;
+        }
 
-      return (
-        <WidgetFrame
-        key={element.id}
-        widgetId={element.id}
-        posX ={element.posX}
-        posY={element.posY}
-        sizeX={element.sizeX}
-        sizeY={element.sizeY}
-        minWidth={1}
-        minHeight={1}
-        boundingWidth={gridCols}
-        boundingHeight={gridRows}
-        color='#e5e7eb'
-        snapSize={snapSize}
-        handleResizeOrMove={handleResize}
-        onDelete={handleDelete}
-        editActive={editable}
-        >
-          <WidgetComp
+        return (
+          <WidgetFrame
+            key={element.id}
             widgetId={element.id}
-            settings={element.settings}
-          />
-        </WidgetFrame>
-        )
+            posX={element.posX}
+            posY={element.posY}
+            sizeX={element.sizeX}
+            sizeY={element.sizeY}
+            minWidth={1}
+            minHeight={1}
+            boundingWidth={gridCols}
+            boundingHeight={gridRows}
+            color="#e5e7eb"
+            snapSize={snapSize}
+            handleResizeOrMove={handleResize}
+            onDelete={handleDelete}
+            editActive={editable}
+          >
+            <WidgetComp widgetId={element.id} settings={element.settings} />
+          </WidgetFrame>
+        );
       })}
-
     </Box>
-  )
+  );
 }
 
 export default LayoutCanvas

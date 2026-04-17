@@ -4,6 +4,15 @@ import { prisma } from '../database/prisma.js';
 
 const layout = express.Router();
 
+//Reusable layout elm type
+type LayoutElementInput = {
+  widgetId: number;
+  posX: number;
+  posY: number;
+  sizeX: number;
+  sizeY: number;
+};
+
 //READ: This should get all public layouts.
 layout.get('/public', async (req, res) => {
   //console.log(' GET /layout/public hit');
@@ -23,16 +32,41 @@ layout.get('/public', async (req, res) => {
   }
 
 })
+//READ: Fetches layouts belonging to the user
+layout.get('/private', async (req, res) => {
+
+  if (!req.user) {
+    return res.sendStatus(401); // Not authenticated
+  }
+  try {
+    const layouts = await prisma.layout.findMany({
+      where: {
+        ownerId: req.user.id, // only fetch layouts for logged-in user,
+        //user only sees their own private layouts
+        public: false
+      },
+      include: {
+        layoutElements: true
+      }
+    });
+    res.status(200).send(layouts);
+  } catch (error) {
+    res.status(500).send({"Could not fetch private layouts": error});
+  }
+
+});
 
 //READ: This route will load one layout by id.
 
 // TODO: 
 // If you aren't the user that created it, or if it isn't public, don't load it.
-
 layout.get('/:layoutId', async (req, res) => {
   //grab layout id
   //needed to be converted to number
   const layoutId = Number(req.params.layoutId);
+   if (!req.user) {
+    return res.sendStatus(401); // Not authenticated
+  }
   try {
     //query db to find one layout w/ layoutId
     const layout = await prisma.layout.findUnique({
@@ -46,12 +80,55 @@ layout.get('/:layoutId', async (req, res) => {
     if(!layout){
       return res.status(404).send('Could find layout');
     }
+    // only allow if layout is public or owned by user
+    if (!layout.public && layout.ownerId !== req.user.id) {
+      return res.status(403).send('Not authorized');
+    }
     //return layout
     res.status(200).send(layout)
   } catch (error) {
     res.status(500).send({'Could not load layout:': error})
   }
 })
+
+//CREATE: This route will create a private layout
+layout.post('/private', async (req, res) => {
+
+  if (!req.user) {
+    return res.sendStatus(401); // Not authenticated
+  }
+
+  const { gridSize, layoutElements }: {
+  gridSize: string;
+  layoutElements: LayoutElementInput[];
+} = req.body;
+
+  try {
+    const newLayout = await prisma.layout.create({
+      data: {
+        ownerId: req.user.id,
+        public: false,
+        gridSize,
+
+        layoutElements: {
+          create: layoutElements.map(el => ({
+            widgetId: el.widgetId,
+            posX: el.posX,
+            posY: el.posY,
+            sizeX: el.sizeX,
+            sizeY: el.sizeY
+          }))
+        }
+      },
+      include: {
+        layoutElements: true
+      }
+    });
+    res.status(201).send(newLayout);
+  } catch (error) {
+    res.status(500).send({"Could not create layout": error });
+  }
+});
 
 //CREATE: This route will copy a public layout
 layout.post('/:layoutId/copy', async (req, res) => {

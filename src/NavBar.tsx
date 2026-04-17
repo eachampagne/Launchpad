@@ -47,7 +47,7 @@ function NavBar (props: MyProps) {
         <Flex width="100%">
           <For each={props.pages}>
             {(page) => (
-              <Button colorPalette="gray" variant="ghost" height="25px" mt="12px" mr="8px" p="1" asChild><Link to={`/${page === "Home" ? '' : page}`} color={props.textColor ?? "black"} >{page}</Link></Button>
+              <Button colorPalette="gray" variant="ghost" height="25px" mt="12px" mr="8px" p="1" asChild><Link to={`/${page === "Home" ? '' : page.toLowerCase()}`} color={props.textColor ?? "black"} >{page}</Link></Button>
             )}
           </For>
           <Spacer />

@@ -1,4 +1,4 @@
-import { Box, Button, VStack, Heading } from "@chakra-ui/react";
+import { Box, Heading, IconButton, HStack, TooltipRoot, TooltipTrigger, TooltipContent} from "@chakra-ui/react";
 import axios from "axios";
 
 import WidgetMap from "./widgets";
@@ -29,16 +29,31 @@ function WidgetLibrary({ layoutId, onWidgetAdded }: { layoutId: number; onWidget
         Widget Library
       </Heading>
 
-      <VStack align="stretch">
-        {widgets.map((widget) => (
-          <Button
-            key={widget.id}
-            onClick={() => addWidget(widget.id)}
-          >
-            Add {widget.name}
-          </Button>
-        ))}
-      </VStack>
+      {/* Horizontal icon layout */}
+      <HStack gap={4} flexWrap="wrap">
+        {widgets.map((widget) => {
+          const Icon = widget.icon;
+
+          return (
+            <TooltipRoot key={widget.id}>
+              <TooltipTrigger asChild>
+              <IconButton
+                aria-label={`Add ${widget.name}`}
+                onClick={() => addWidget(widget.id)}
+                size="lg"
+                variant="outline"
+              >
+                 <Icon />
+               </IconButton>
+              </TooltipTrigger>
+
+              <TooltipContent>
+              Add {widget.name}
+              </TooltipContent>
+            </TooltipRoot>
+          );
+        })}
+      </HStack>
     </Box>
   );
 }
