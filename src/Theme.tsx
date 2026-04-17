@@ -5,7 +5,7 @@ import axios from 'axios';
 import { Box, Button, Text, Listbox, createListCollection } from "@chakra-ui/react"
 import { IoTrashSharp, IoPencilSharp, IoAddCircleOutline, IoPeopleSharp, IoPeopleOutline } from "react-icons/io5";
 
-function Theme ({dashboard, ownerId, dashboardId, refreshTheme}: {dashboard: { name: string, ownerId: number}, ownerId: number, dashboardId : number, refreshTheme: () => void}) {
+function Theme ({dashboard, ownerId, dashboardId, textColor="white", refreshTheme}: {dashboard: { name: string, ownerId: number}, ownerId: number, dashboardId : number, textColor?: string, refreshTheme: () => void}) {
   const [themesList, setThemesList] = useState([] as {id: number, navColor: string, bgColor: string, font: string, name: string, public: boolean}[]);
 
   // const [form, setForm] = useState({navColor: 'white', bgColor: 'white', font: 'ariel'});
@@ -190,13 +190,13 @@ function Theme ({dashboard, ownerId, dashboardId, refreshTheme}: {dashboard: { n
   }
 
   return (
-    <Box>
+    <Box color={textColor}>
       {/* temp space for public themes */}
       <Box display='flex' alignItems='center' justifyContent='space-between' mb='3'>
-      <Text fontSize='12px' fontWeight='500' color='#ffffff' letterSpacing='0.12em' textTransform='uppercase' > Public Themes </Text>
+      <Text fontSize='12px' fontWeight='500' color={textColor} letterSpacing='0.12em' textTransform='uppercase' > Public Themes </Text>
       {/* making the themes show only 4 at a time - conditional rendering*/}
       {Math.ceil(publicList.length / 4) > 1 && (
-        <Text fontSize='12px' color='#ffffff'>{page + 1} / {Math.ceil(themesList.length / 4)}</Text>
+        <Text fontSize='12px' color={textColor}>{page + 1} / {Math.ceil(themesList.length / 4)}</Text>
       )}
     </Box>
 
@@ -224,7 +224,7 @@ function Theme ({dashboard, ownerId, dashboardId, refreshTheme}: {dashboard: { n
           {/* title of the color - nav, bg, widget */}
           <Box display='flex' borderBottom='0.5px solid rgba(255,255,255,0.06)'>
             {colors.map((title, i) => (
-              <Box key={title} flex='1' textAlign='center' py='1' fontSize='9px' color='#ffffff' letterSpacing='0.06em' borderRight={i < 2 ? '0.5px solid rgba(255,255,255,0.06)' : 'none'}>
+              <Box key={title} flex='1' textAlign='center' py='1' fontSize='9px' color={textColor} letterSpacing='0.06em' borderRight={i < 2 ? '0.5px solid rgba(255,255,255,0.06)' : 'none'}>
               {title}
               </Box>
             ))}
@@ -232,7 +232,7 @@ function Theme ({dashboard, ownerId, dashboardId, refreshTheme}: {dashboard: { n
 
         {/* for the public / active / and public maker button */}
         <Box px='2.5' pt='2' pb='1.5'>
-          <Text fontSize='12px' fontWeight='500' color='#ffffff' mb='1.5' maxLines={1}>
+          <Text fontSize='12px' fontWeight='500' color={textColor} mb='1.5' maxLines={1}>
               {theme.name}
             </Text>
           <Box display='flex' alignItems='center' justifyContent='space-between'>
@@ -356,10 +356,10 @@ function Theme ({dashboard, ownerId, dashboardId, refreshTheme}: {dashboard: { n
 
     {/* Changing the display of the cards and only allow 4 at a time */}
     <Box display='flex' alignItems='center' justifyContent='space-between' mb='3'>
-      <Text fontSize='12px' fontWeight='500' color='#ffffff' letterSpacing='0.12em' textTransform='uppercase' > Themes </Text>
+      <Text fontSize='12px' fontWeight='500' color={textColor} letterSpacing='0.12em' textTransform='uppercase' > Themes </Text>
       {/* making the themes show only 4 at a time - conditional rendering*/}
       {Math.ceil(themesList.length / 4) > 1 && (
-        <Text fontSize='12px' color='#ffffff'>{page + 1} / {Math.ceil(themesList.length / 4)}</Text>
+        <Text fontSize='12px' color={textColor}>{page + 1} / {Math.ceil(themesList.length / 4)}</Text>
       )}
     </Box>
 
@@ -389,7 +389,7 @@ function Theme ({dashboard, ownerId, dashboardId, refreshTheme}: {dashboard: { n
           {/* title of the color - nav, bg, widget */}
           <Box display='flex' borderBottom='0.5px solid rgba(255,255,255,0.06)'>
             {colors.map((title, i) => (
-              <Box key={title} flex='1' textAlign='center' py='1' fontSize='9px' color='#ffffff' letterSpacing='0.06em' borderRight={i < 2 ? '0.5px solid rgba(255,255,255,0.06)' : 'none'}>
+              <Box key={title} flex='1' textAlign='center' py='1' fontSize='9px' color={textColor} letterSpacing='0.06em' borderRight={i < 2 ? '0.5px solid rgba(255,255,255,0.06)' : 'none'}>
               {title}
               </Box>
             ))}
@@ -397,7 +397,7 @@ function Theme ({dashboard, ownerId, dashboardId, refreshTheme}: {dashboard: { n
 
         {/* for the public / active / and public maker button */}
         <Box px='2.5' pt='2' pb='1.5'>
-          <Text fontSize='12px' fontWeight='500' color='#ffffff' mb='1.5' maxLines={1}>
+          <Text fontSize='12px' fontWeight='500' color={textColor} mb='1.5' maxLines={1}>
               {theme.name}
             </Text>
           <Box display='flex' alignItems='center' justifyContent='space-between'>
@@ -496,7 +496,7 @@ function Theme ({dashboard, ownerId, dashboardId, refreshTheme}: {dashboard: { n
 
 
 
-    <Text fontSize='12px' fontWeight='500' color='#ffffff' letterSpacing='0.12em' textTransform='uppercase' > Create a Theme </Text>
+    <Text fontSize='12px' fontWeight='500' color={textColor} letterSpacing='0.12em' textTransform='uppercase' > Create a Theme </Text>
     <Box borderRadius='14px' border='0.5px solid rgba(255,255,255,0.08)' bg='rgba(255,255,255,0.03)' overflow='hidden' mt='3'>
 
   {/* color stack */}
@@ -510,7 +510,7 @@ function Theme ({dashboard, ownerId, dashboardId, refreshTheme}: {dashboard: { n
   <Box display='flex' borderBottom='0.5px solid rgba(255,255,255,0.06)'>
     {['Nav', 'Bg', 'Widget'].map((t, i) => (
       <Box key={t} flex='1' textAlign='center' py='1' fontSize='9px'
-        color='#ffffff' letterSpacing='0.06em'
+        color={textColor} letterSpacing='0.06em'
         borderRight={i < 2 ? '0.5px solid rgba(255,255,255,0.06)' : 'none'}>
         {t}
       </Box>
@@ -518,7 +518,7 @@ function Theme ({dashboard, ownerId, dashboardId, refreshTheme}: {dashboard: { n
   </Box>
         <Box display='flex' alignItems='center' gap='2'
         py='1.5' borderBottom='0.5px solid rgba(255,255,255,0.06)'>
-        <Text fontSize='11px' color='#ffffff' w='72px' flexShrink={0}>Name</Text>
+        <Text fontSize='11px' color={textColor} w='72px' flexShrink={0}>Name</Text>
         <input
           value={themeName}
           onChange={(e) => setThemeName(e.target.value)}
@@ -545,7 +545,7 @@ function Theme ({dashboard, ownerId, dashboardId, refreshTheme}: {dashboard: { n
     ].map(({ label, value, setter }) => (
       <Box key={label} display='flex' alignItems='center' gap='2'
         py='1.5' borderBottom='0.5px solid rgba(255,255,255,0.06)'>
-        <Text fontSize='11px' color='#ffffff' w='72px' flexShrink={0}>{label}</Text>
+        <Text fontSize='11px' color={textColor} w='72px' flexShrink={0}>{label}</Text>
 
         <Color value={value} onValueChange={colorPicker(setter)} />
       </Box>

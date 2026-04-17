@@ -74,7 +74,7 @@ export default function Dashboard () {
 
   return (
     <Box bg={themeObject.bgColor}  color="gray.800" minH='100vh' w='100%' >
-      <NavBar pages={["Home", "Hub"]} textColor={textColor} navColor={themeObject.navColor}/>
+      <NavBar pages={["Home", "Hub"]} navColor={themeObject.navColor}/>
       <h2>{dashboard.name}</h2>
       <Link to='/edit' >Edit</Link>
       <LayoutCanvas
