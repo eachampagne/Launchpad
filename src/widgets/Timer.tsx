@@ -190,8 +190,8 @@ function Timer({widgetId, settings}: {widgetId: number, settings: WidgetSettings
     checkServer();
 
     toaster.create({
-    title: "Toast Title",
-    description: "Toast Description",
+    title: "Timer Finished!",
+    description: "Your timer is up!",
     })
   }
 
