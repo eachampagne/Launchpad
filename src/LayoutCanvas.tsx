@@ -73,7 +73,7 @@ const LayoutCanvas = function({layout, editable=false, onLayoutChange}: { layout
             minHeight={1}
             boundingWidth={gridCols}
             boundingHeight={gridRows}
-            color="#e5e7eb"
+            color=""
             snapSize={snapSize}
             handleResizeOrMove={handleResize}
             onDelete={handleDelete}
