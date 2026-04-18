@@ -31,7 +31,7 @@ function hexToGlassTint(hex: string): string {
     ctx.fillStyle = hex;
     ctx.fillRect(0, 0, 1, 1);
     const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
-    return `rgba(${r},${g},${b},0.18)`;
+    return `rgba(${r},${g},${b},1)`;
   } catch {
     return 'rgba(255,255,255,0)';
   }
@@ -268,8 +268,11 @@ function WidgetFrame({widgetId, posX, posY, sizeX, sizeY, minWidth, minHeight, m
   const setLeft   = (f: (old: number) => number) => setEdges(e => ({ ...e, left:   f(e.left)   }));
   const setRight  = (f: (old: number) => number) => setEdges(e => ({ ...e, right:  f(e.right)  }));
 
-  const { currentTheme } = useContext(UserContext);
-  const tint = currentTheme?.font ? hexToGlassTint(currentTheme.font) : 'rgba(255,255,255,0)';
+const { currentTheme } = useContext(UserContext);
+
+const tint = currentTheme?.font
+  ? hexToGlassTint(currentTheme.font)
+  : "rgba(255,255,255,0)";
 
   const [hasSnapped, setHasSnapped] = useState(false);
 
