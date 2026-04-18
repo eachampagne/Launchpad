@@ -7,7 +7,7 @@ import { LuExternalLink, LuLink, LuPencil, LuUnlink } from 'react-icons/lu';
 import type { WidgetSettings } from '../../types/LayoutTypes.ts';
 
 // can't conflict with Chakra Link...
-function LinkWidget ({widgetId, settings}: {widgetId: number, settings: WidgetSettings | null}) {
+function LinkWidget ({widgetId, textColor, settings}: {widgetId: number, textColor: string, settings: WidgetSettings | null}) {
   const [linkUrl, setLinkUrl] = useState(settings?.link?.url ?? '');
   const [displayText, setDisplayText] = useState(settings?.link?.displayText ?? '');
   const [newLink, setNewLink] = useState('');
@@ -153,7 +153,7 @@ function LinkWidget ({widgetId, settings}: {widgetId: number, settings: WidgetSe
   };
 
   return (
-    <Container p="0">
+    <Container p="0" color={textColor}>
       <Flex align="center" marginBottom="0.5rem"> {/* Inner flex box means icon is vertically centered against text */}
         <Icon size="lg" marginRight="0.5rem">
           <LuLink/>

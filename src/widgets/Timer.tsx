@@ -12,7 +12,7 @@ import soundUrl from './../assets/triangle.mp3';
 const audioElement = new Audio(soundUrl); // defined here so it doesn't keep getting recreated every rerender
 // constantly recreating it is bad performance wise, but also means its muted/unmuted status doesn't persist
 
-function Timer({widgetId, settings}: {widgetId: number, settings: WidgetSettings | null}) {
+function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: string, settings: WidgetSettings | null}) {
   const { user } = useContext(UserContext);
 
   // should you be able to use the timer just client side if you're logged out?
@@ -327,7 +327,7 @@ function Timer({widgetId, settings}: {widgetId: number, settings: WidgetSettings
   }
 
   return (
-    <Flex direction="column" height="100%">
+    <Flex direction="column" height="100%" color={textColor}>
       <Flex align="center" marginBottom="0.5rem">
         <Icon size="lg" marginRight="0.5rem">
           <LuTimer/> {/* Would the alarm clock be better? */}

@@ -3,16 +3,18 @@ import { Accordion, Button, Flex, For, Spacer, Text, VStack } from '@chakra-ui/r
 
 import axios from 'axios';
 
-import type { Permission, Account } from '../types/Accounts';
+import type { Account } from '../types/Accounts';
 
 function Accounts() {
   const [accounts, setAccounts] = useState([] as Account[]);
+  const [isDemo, setIsDemo] = useState(false);
 
   const refreshAccounts = async () => {
     try {
       const response = await axios.get('/accounts');
   
-      setAccounts(response.data);
+      setIsDemo(response.data.isDemo);
+      setAccounts(response.data.accounts);
     } catch (error) {
       // TODO: handle not signed in
       // if ((error as AxiosError).status === 401) {
@@ -26,6 +28,13 @@ function Accounts() {
   useEffect(() => {
     refreshAccounts();
   }, []);
+
+  // early return - display message for demo account
+  if (isDemo) {
+    return (
+      <Text>Linked accounts are unavailable in the demo.</Text>
+    );
+  }
 
   return (
     <Accordion.Root collapsible>

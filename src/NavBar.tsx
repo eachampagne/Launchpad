@@ -14,22 +14,25 @@ import changeTextColor from './utilities/color';
 interface MyProps {
   pages: Array<string>,
   navColor?: string,
-  textColor?: string
 }
 
 function NavBar (props: MyProps) {
   const { user, handleLogout } = useContext(UserContext);
 
+  const textColor = props.navColor ? changeTextColor(props.navColor) : "black";
+
+  const buttonColor = "gray";
+
   const renderLoginInfo = () => {
     if (user.id === -1) { // not logged in
       return (
-        <Button colorPalette='white' variant="ghost" height="25px" mt="12px" mr="8px" p="1" asChild><a href="/login/federated/google" color={props.textColor}>Sign in</a></Button>
+        <Button colorPalette={buttonColor} variant="ghost" height="25px" mt="12px" mr="8px" p="1" asChild><a  >Sign in</a></Button>
       );
     } else { // logged in
       return (
         <Flex align="center">
-          <Text mt="12px" >{user.name}</Text>
-          <Button colorPalette="white" variant="ghost" height="25px" mt="12px" ml="8px" p="1" onClick={() => {handleLogout()}} color={props.textColor ?? "black"} >{<IoLogOutOutline />}</Button>
+          <Text mt="12px" color={textColor}>{user.name}</Text>
+          <Button colorPalette={buttonColor} variant="ghost" height="25px" mt="12px" ml="8px" p="1" onClick={() => {handleLogout()}} color={textColor} _hover={{color: "white"}}>{<IoLogOutOutline  />}</Button>
         </Flex>
       );
     }
@@ -37,17 +40,17 @@ function NavBar (props: MyProps) {
 
   return (
     <div style={{position: "sticky", top: "0", zIndex: "200"}}>
-      <Container as="div" w="100%" h="45px" backgroundColor={props.navColor ?? "gray.emphasized"} margin="0" maxWidth="none" paddingLeft="16" paddingRight="16" color={props.textColor ?? "black"}>
+      <Container as="div" w="100%" h="45px" backgroundColor={props.navColor ?? "gray.emphasized"} margin="0" maxWidth="none" paddingLeft="16" paddingRight="16" color={textColor}>
         {/* TODO: Make this responsive for mobile and turn into a collapsible thing */}
         <AbsoluteCenter>
           <Image height="1.5rem" mr="1" src={rocketLogoURL}/>
-          <Heading color={changeTextColor(props.textColor)}>LaunchPad</Heading>
+          <Heading color={textColor}>LaunchPad</Heading>
           <LinkOverlay href="/" />
         </AbsoluteCenter>
         <Flex width="100%">
           <For each={props.pages}>
             {(page) => (
-              <Button colorPalette="gray" variant="ghost" height="25px" mt="12px" mr="8px" p="1" asChild><Link to={`/${page === "Home" ? '' : page.toLowerCase()}`} color={props.textColor ?? "black"} >{page}</Link></Button>
+              <Button colorPalette={buttonColor} variant="ghost" height="25px" mt="12px" mr="8px" p="1" color={textColor} _hover={{color: "white"}} asChild><Link to={`/${page === "Home" ? '' : page.toLowerCase()}`} >{page}</Link></Button>
             )}
           </For>
           <Spacer />

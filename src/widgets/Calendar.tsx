@@ -11,7 +11,7 @@ import type { WidgetSettings } from '../../types/LayoutTypes.ts';
 import { AuthStatus } from '../../types/WidgetStatus.ts';
 import { UserContext } from './../UserContext';
 
-function Calendar({widgetId, settings}: {widgetId: number, settings: WidgetSettings | null}) {
+function Calendar({widgetId, textColor, settings}: {widgetId: number, textColor: string, settings: WidgetSettings | null}) {
   const { user } = useContext(UserContext);
 
   const [authStatus, setAuthStatus] = useState(AuthStatus.SignedOut);
@@ -247,7 +247,7 @@ function Calendar({widgetId, settings}: {widgetId: number, settings: WidgetSetti
   };
 
   return (
-    <Flex direction="column" height="100%">
+    <Flex direction="column" height="100%" color={textColor}>
       <Flex align="center" marginBottom="0.5rem"> {/* Inner flex box means icon is vertically centered against text */}
         <Icon size="lg" marginRight="0.5rem">
           <LuCalendarDays/>

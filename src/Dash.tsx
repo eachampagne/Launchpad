@@ -11,7 +11,7 @@ import WidgetLibrary from "./WidgetLibrary";
 import SelectDashMenu from './SelectDashMenu.tsx';
 import { UserContext } from './UserContext';
 
-import changeTextColor from './utilities/color.ts'
+import changeTextColor from './utilities/color.ts';
 import type { ThemeObject } from '../types/Calendar';
 import type { Layout, Dashboard } from '../types/LayoutTypes';
 
@@ -241,7 +241,7 @@ export default function Dashboard () {
 
     if (!editMode) {
       return (
-        <Flex align="center" height={nameHeight}>
+        <Flex align="center" height={nameHeight} color={changeTextColor(theme.bgColor)}>
           <Heading>{dashboard.name}</Heading>
         </Flex>
       );
@@ -249,7 +249,7 @@ export default function Dashboard () {
 
     if (renaming) {
       return (
-        <Flex align="center" height={nameHeight}>
+        <Flex align="center" height={nameHeight} color={changeTextColor(theme.bgColor)}>
           <input
           onChange={handleChangeNewName}
           onKeyDown={(event) => {
@@ -274,7 +274,7 @@ export default function Dashboard () {
       );
     } else {
       return (
-        <Flex align="center" onClick={() => setRenaming(true)} height={nameHeight}>
+        <Flex align="center" onClick={() => setRenaming(true)} height={nameHeight} color={changeTextColor(theme.bgColor)}>
           <Heading >{dashboard.name}</Heading>
           <Icon>
             <LuPencil />
@@ -293,6 +293,7 @@ export default function Dashboard () {
         <LayoutCanvas
           layout={dashboard.layout}
           editable={editMode}
+          widgetColor={theme.font}
           onLayoutChange={loadDashboard}
         />
       </Box>
@@ -308,6 +309,7 @@ export default function Dashboard () {
         dashboardId={activeDash}
         dashboard={dashboard}
         ownerId={ownerId}
+        textColor={changeTextColor(theme.bgColor)}
         refreshTheme={refreshTheme}
       />
     );
@@ -320,7 +322,7 @@ export default function Dashboard () {
 
     return (
       <>
-        <Box mt={4}>
+        <Box mt={4} color={changeTextColor(theme.bgColor)}>
           <LayoutGallery
             onSelect={setSelectedLayoutId}
             selectedLayoutId={selectedLayoutId}
@@ -329,7 +331,7 @@ export default function Dashboard () {
         </Box>
 
         {selectedLayout && (
-          <Box mt={4}>
+          <Box mt={4} color={changeTextColor(theme.bgColor)}>
             {/* <h4>LAYOUT PREVIEW</h4>
             <p>SELECTED LAYOUT #{selectedLayoutId}</p>
             <p>GRID SIZE: {selectedLayout.gridSize}</p> */}
@@ -341,6 +343,7 @@ export default function Dashboard () {
         {dashboard.layout && (
           <WidgetLibrary
             layoutId={dashboard.layout.id}
+            textColor={changeTextColor(theme.bgColor)}
             onWidgetAdded={loadDashboard}
           />
         )}
@@ -401,7 +404,7 @@ export default function Dashboard () {
           {renderCanvas()}
         </div>
         <div style={themeBlockStyles}>
-          <Box width={`${settingsWidth}px`} height={`${settingsHeight}px`} borderWidth="1px" borderRadius="md" p={4} borderColor="white">
+          <Box width={`${settingsWidth}px`} height={`${settingsHeight}px`} borderWidth="1px" borderRadius="md" p={4} borderColor={changeTextColor(theme.bgColor)}>
             <ScrollArea.Root>
               <ScrollArea.Viewport>
                 <ScrollArea.Content >
@@ -414,7 +417,7 @@ export default function Dashboard () {
           </Box>
         </div>
         <div style={layoutBlockStyles}>
-          <Box width={`${settingsWidth}px`} height={`${settingsHeight}px`} borderWidth="1px" borderRadius="md" p={4} borderColor="white">
+          <Box width={`${settingsWidth}px`} height={`${settingsHeight}px`} borderWidth="1px" borderRadius="md" p={4} borderColor={changeTextColor(theme.bgColor)}>
             <ScrollArea.Root>
               <ScrollArea.Viewport>
                 <ScrollArea.Content >
@@ -458,7 +461,7 @@ export default function Dashboard () {
   // normal return
   return (
     <Box minH="100vh" bg={theme.bgColor}>
-      <NavBar pages={['Home', 'Hub']} textColor={changeTextColor(theme.bgColor)} navColor={theme.navColor}/>
+      <NavBar pages={['Home', 'Hub']} navColor={theme.navColor}/>
       {/* Use scroll area to make sure content won't exceed horizontal space, to make sure the navbar stays in the correct spot*/}
       <Box width="full" position="relative" p="0" m="0" color="gray.800">
         <ScrollArea.Root width="100%">

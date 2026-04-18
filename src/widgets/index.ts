@@ -14,10 +14,9 @@ import type { WidgetSettings } from '../../types/LayoutTypes';
 export type WidgetDefinition = {
   id: number;
   name: string;
-  component: React.FC<{ widgetId: number; settings: WidgetSettings | null }>;
+  component: React.FC<{ widgetId: number; textColor: string; settings: WidgetSettings | null }>;
   icon: IconType;
 };
-
 
 const WidgetMap: Record<number, WidgetDefinition>= {
   1: {id: 1, name: 'Calendar', component: Calendar, icon: LuCalendarDays},
