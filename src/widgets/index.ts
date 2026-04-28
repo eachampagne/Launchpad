@@ -27,7 +27,6 @@ const WidgetMap: Record<number, WidgetDefinition>= {
   4: {id: 4, name: 'Link', component: Link, icon: LuLink},
   5: { id: 5, name: 'AI Chat',  component: AiChat, icon: LuBot },
   6: { id: 6, name: 'Search', component: Search, icon: LuSearch },
-
 };
 
 export default WidgetMap;
