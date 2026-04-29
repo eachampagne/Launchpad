@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext, useCallback, type ChangeEvent } from 'react';
 import axios from 'axios';
-import { AbsoluteCenter, Box, Button, Center, Flex, Heading, Icon, IconButton, ScrollArea, VStack } from "@chakra-ui/react";
+import { AbsoluteCenter, Box, Button, Center, Drawer, Flex, Heading, Icon, IconButton, ScrollArea, VStack } from "@chakra-ui/react";
 import { LuCheck, LuPencil } from "react-icons/lu";
 
 import NavBar from "./NavBar";
@@ -22,7 +22,7 @@ import type { Layout, Dashboard } from '../types/LayoutTypes';
 enum SettingsPosition {
   BothSides = 'BOTH_SIDES',
   RightSide = 'RIGHT_SIDE',
-  Below = 'BELOW'
+  Drawer = 'DRAWER'
 }
 
 export default function Dashboard () {
@@ -45,19 +45,19 @@ export default function Dashboard () {
 
   // the media queries need to be declared before the first invocation of checkBreakpoints()
   // if we ever have variably-sized dashboards, these will need to be recreated when the dashboard changes
-  const belowQuery = window.matchMedia(`(width < ${oneSidebarBreakpoint}px)`);
+  const drawerQuery = window.matchMedia(`(width < ${oneSidebarBreakpoint}px)`);
   const twoSidebarQuery = window.matchMedia(`(width >= ${twoSidebarBreakpoint}px)`);
 
   // checks the media queries to set the correct settings orientation
   const checkBreakpoints = useCallback(() => {
     if (twoSidebarQuery.matches) {
       return SettingsPosition.BothSides;
-    } else if (belowQuery.matches) {
-      return SettingsPosition.Below;
+    } else if (drawerQuery.matches) {
+      return SettingsPosition.Drawer;
     } else {
       return SettingsPosition.RightSide;
     }
-  }, [twoSidebarQuery, belowQuery]);
+  }, [twoSidebarQuery, drawerQuery]);
 
   /**
    * CONTEXT VARIABLES
@@ -190,15 +190,15 @@ export default function Dashboard () {
   // adds the media change listeners on mount and removes them on dismount
   useEffect(() => {
     // add event listeners to media queries after all relevant functions are defined
-    belowQuery.addEventListener('change', handleMediaChange);
+    drawerQuery.addEventListener('change', handleMediaChange);
     twoSidebarQuery.addEventListener('change', handleMediaChange);
 
     // cleanup function: remove event listeners before unmounting
     return () => {
-      belowQuery.removeEventListener('change', handleMediaChange);
+      drawerQuery.removeEventListener('change', handleMediaChange);
       twoSidebarQuery.removeEventListener('change', handleMediaChange);
     };
-  }, [belowQuery, twoSidebarQuery, handleMediaChange]);
+  }, [drawerQuery, twoSidebarQuery, handleMediaChange]);
 
   // loads a new dashboard when the dashboard id changes
   useEffect(() => {
@@ -351,6 +351,37 @@ export default function Dashboard () {
     );
   };
 
+  const renderDrawer = () => {
+    if (!editMode || settingsOrientation !== SettingsPosition.Drawer) {
+      return null;
+    }
+
+    return (
+      <Drawer.Root closeOnInteractOutside={false} size="sm">
+        <Drawer.Trigger position="absolute" right="20px" top="60px">
+          Open
+        </Drawer.Trigger>
+        <Drawer.Positioner>
+          <Drawer.Content p={4}>
+            <Drawer.CloseTrigger>
+              Close
+            </Drawer.CloseTrigger>
+            <ScrollArea.Root>
+              <ScrollArea.Viewport>
+                <ScrollArea.Content >
+                  {renderThemeSettings()}
+                  {renderLayoutSettings()}
+                </ScrollArea.Content>
+              </ScrollArea.Viewport>
+              <ScrollArea.Scrollbar orientation="vertical" />
+              <ScrollArea.Corner />
+            </ScrollArea.Root>
+          </Drawer.Content>
+        </Drawer.Positioner>
+      </Drawer.Root>
+    );
+  };
+
   // renders the grid containing the layout canvas and the theme and layout panels
   // in a configuration determined by the screen size and edit mode
   // it is important to ensure that the same instances of the components are rendered
@@ -362,31 +393,30 @@ export default function Dashboard () {
   const renderContent = () => {
     if (!dashboard) return null;
 
-    let settingsHeight;
-    let themeBlockStyles, layoutBlockStyles, gridStyles, canvasBlockStyles;
+    let themeBlockStyles, layoutBlockStyles, gridStyles, canvasBlockStyles, bothSettingsStyles;
 
     if (editMode) {
       switch (settingsOrientation) {
         case SettingsPosition.BothSides:
-          settingsHeight = canvasHeight;
           gridStyles = { display: "grid", gridTemplateColumns: `repeat(3, fit-content(${canvasWidth}px))`, gridTemplateRows: `repeat(1, fit-content(${canvasHeight}px))`, gap: `${spacing}px` };
           canvasBlockStyles = { gridColumn: 2 };
           themeBlockStyles = {gridColumn: 1, gridRow: 1, maxWidth: `${settingsWidth}px`};
           layoutBlockStyles = {gridColumn: 3, gridRow: 1, maxWidth: `${settingsWidth}px`};
+          bothSettingsStyles = {display: "none"};
           break;
         case SettingsPosition.RightSide:
-          settingsHeight = Math.ceil((canvasHeight - spacing) / 2);
-          gridStyles = { display: "grid", gridTemplateColumns: `repeat(2, fit-content(${canvasWidth}px))`, gridTemplateRows: `repeat(2, fit-content(${(canvasHeight - spacing) / 2}px))`, gap: `${spacing}px` };
-          canvasBlockStyles = { gridColumn: 1, gridRowStart: 1, gridRowEnd: "span 2" };
-          themeBlockStyles = { gridColumn: 2, gridRow: 1, maxWidth: `${settingsWidth}px`, maxHeight: `${settingsHeight}px`};
-          layoutBlockStyles = {gridColumn: 2, gridRow: 2, maxWidth: `${settingsWidth}px`, maxHeight: `${settingsHeight}px`};
+          gridStyles = { display: "grid", gridTemplateColumns: `repeat(2, fit-content(${canvasWidth}px))`, gridTemplateRows: `repeat(1, fit-content(${canvasHeight}px))`, gap: `${spacing}px` };
+          canvasBlockStyles = { gridColumn: 1 };
+          themeBlockStyles = { display: "none" };
+          layoutBlockStyles = { display: "none" };
+          bothSettingsStyles = { gridColumn: 2 };
           break;
-        case SettingsPosition.Below:
-          settingsHeight = 400; // arbitrary - just doesn't need to be huge or anything
+        case SettingsPosition.Drawer:
           gridStyles = { display: "grid", gridTemplateColumns: `repeat(2, fit-content(${canvasWidth}px))`, gridTemplateRows: `repeat(2, fit-content(${canvasHeight}px))`, gap: `${spacing}px` };
           canvasBlockStyles = { gridColumnStart: 1, gridColumnEnd: "span 2" };
-          themeBlockStyles = {gridColumn: 1, gridRow: 2, maxWidth: `${settingsWidth}px`};
-          layoutBlockStyles = {gridColumn: 2, gridRow: 2, maxWidth: `${settingsWidth}px`};
+          themeBlockStyles = {display: "none"};
+          layoutBlockStyles = {display: "none"};
+          bothSettingsStyles = {display: "none"};
           break;
       }
     } else {
@@ -394,7 +424,7 @@ export default function Dashboard () {
       canvasBlockStyles = { gridColumn: 1 };
       themeBlockStyles = {display: "none"};
       layoutBlockStyles = {display: "none"};
-      settingsHeight = 400; // doesn't matter
+      bothSettingsStyles = {display: "none"};
     }
 
     // I had a problem with the Chakra Grid component so I'm using the vanilla grid instead. It gives more direct control.
@@ -404,7 +434,7 @@ export default function Dashboard () {
           {renderCanvas()}
         </div>
         <div style={themeBlockStyles}>
-          <Box width={`${settingsWidth}px`} height={`${settingsHeight}px`} borderWidth="1px" borderRadius="md" p={4} borderColor={changeTextColor(theme.bgColor)}>
+          <Box width={`${settingsWidth}px`} height={`${canvasHeight}px`} borderWidth="1px" borderRadius="md" p={4} borderColor={changeTextColor(theme.bgColor)}>
             <ScrollArea.Root>
               <ScrollArea.Viewport>
                 <ScrollArea.Content >
@@ -417,10 +447,24 @@ export default function Dashboard () {
           </Box>
         </div>
         <div style={layoutBlockStyles}>
-          <Box width={`${settingsWidth}px`} height={`${settingsHeight}px`} borderWidth="1px" borderRadius="md" p={4} borderColor={changeTextColor(theme.bgColor)}>
+          <Box width={`${settingsWidth}px`} height={`${canvasHeight}px`} borderWidth="1px" borderRadius="md" p={4} borderColor={changeTextColor(theme.bgColor)}>
             <ScrollArea.Root>
               <ScrollArea.Viewport>
                 <ScrollArea.Content >
+                  {renderLayoutSettings()}
+                </ScrollArea.Content>
+              </ScrollArea.Viewport>
+              <ScrollArea.Scrollbar orientation="vertical" />
+              <ScrollArea.Corner />
+            </ScrollArea.Root>
+          </Box>
+        </div>
+        <div style={bothSettingsStyles}>
+          <Box width={`${settingsWidth}px`} height={`${canvasHeight}px`} borderWidth="1px" borderRadius="md" p={4} borderColor={changeTextColor(theme.bgColor)}>
+            <ScrollArea.Root>
+              <ScrollArea.Viewport>
+                <ScrollArea.Content >
+                  {renderThemeSettings()}
                   {renderLayoutSettings()}
                 </ScrollArea.Content>
               </ScrollArea.Viewport>
@@ -479,6 +523,7 @@ export default function Dashboard () {
           <ScrollArea.Corner />
         </ScrollArea.Root>
         {renderEditButton()}
+        {renderDrawer()}
       </Box>
     </Box>
   );
