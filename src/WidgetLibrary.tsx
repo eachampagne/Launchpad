@@ -3,7 +3,7 @@ import axios from "axios";
 
 import WidgetMap from "./widgets";
 
-function WidgetLibrary({ layoutId, onWidgetAdded }: { layoutId: number; onWidgetAdded: () => void }) {
+function WidgetLibrary({ layoutId, textColor="white", onWidgetAdded }: { layoutId: number; textColor?: string; onWidgetAdded: () => void }) {
   const widgets = Object.values(WidgetMap);
 
   const addWidget = async (widgetId: number) => {
@@ -24,7 +24,7 @@ function WidgetLibrary({ layoutId, onWidgetAdded }: { layoutId: number; onWidget
   };
 
   return (
-    <Box mt={6}>
+    <Box mt={6} color={textColor}>
       <Heading size="md" mb={4}>
         Widget Library
       </Heading>
