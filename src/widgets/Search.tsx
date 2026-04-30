@@ -8,10 +8,13 @@ export default function Search({
   widgetId: number;
   settings: WidgetSettings | null;
 }) {
+  //Set search query state
   const [query, setQuery] = useState("");
 
   const handleSearch = () => {
+    //If nothing typed do nothing
     if (!query.trim()) return;
+    //Google search URL & convert query to string
     const url = "https://www.google.com/search?q=" + encodeURIComponent(query);
     window.open(url, "_blank", "noopener,noreferrer");
     setQuery("");
@@ -23,7 +26,7 @@ export default function Search({
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-        placeholder="Search Google…"
+        placeholder="Search Google..."
         style={{
           flex: 1,
           background: "transparent",
