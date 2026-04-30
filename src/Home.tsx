@@ -10,6 +10,7 @@ import { useState, useEffect, useContext } from 'react'
 import gridLogoURL from './assets/Launchpad_Logo_grid.png';
 import rocketLogoURL from './assets/Launchpad_Logo_rocket.png';
 
+
 function Home () {
   const { handleLogout, handleLoginDemo, user, activeDash } = useContext(UserContext);
   const [prs, setPrs] = useState([] as {number: number, merged: boolean, mergedAt: string, title: string}[]);
@@ -41,10 +42,10 @@ function Home () {
         <>
           <Heading color="#dba022" > Join Us! </Heading>
           <div>
-            <Button className="button google" colorPalette="gray" variant="outline" margin="1" asChild><Link href="/login/federated/google">Sign in with Google</Link></Button>
+            <Button className="glass-button-google" colorPalette="gray" variant="outline" margin="1" asChild><Link href="/login/federated/google">Sign in with Google</Link></Button>
           </div>
           <div>
-            <Button className="logout button google" margin="1" onClick={() => {handleLoginDemo()}} colorPalette="gray" variant="outline">Try out the demo</Button>
+            <Button className="glass-button-google" margin="1" onClick={() => {handleLoginDemo()}} colorPalette="gray" variant="outline">Try out the demo</Button>
           </div>
         </>
       );
@@ -56,12 +57,12 @@ function Home () {
             {
               // if there is no active dash set, send user to hub rather than to a nonexistent dashboard
               activeDash === -1 ?
-              <Button className="button google" colorPalette="gray" variant="outline" margin="1" asChild><Link href="/hub">Go to hub</Link></Button>
-              : <Button className="button google" colorPalette="gray" variant="outline" margin="1" asChild><Link href="/dashboard">Go to dashboard</Link></Button>
+              <Button className="glass-button-google" colorPalette="gray" variant="outline" margin="1" asChild><Link href="/hub">Go to hub</Link></Button>
+              : <Button className="glass-button-google" colorPalette="gray" variant="outline" margin="1" asChild><Link href="/dashboard">Go to dashboard</Link></Button>
             }
           </div>
           <div>
-            <Button className="logout button google" margin="1" onClick={() => {handleLogout()}} colorPalette="gray" variant="outline">Log Out</Button>
+            <Button className="glass-button-google" margin="1" onClick={() => {handleLogout()}} colorPalette="gray" variant="outline">Log Out</Button>
           </div>
         </>
       );
