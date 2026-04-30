@@ -38,7 +38,6 @@ function WidgetLibrary({ layoutId, textColor="white", onWidgetAdded }: { layoutI
             <TooltipRoot key={widget.id}>
               <TooltipTrigger asChild>
               <IconButton
-                aria-label={`Add ${widget.name}`}
                 onClick={() => addWidget(widget.id)}
                 size="lg"
                 variant="outline"
@@ -46,10 +45,6 @@ function WidgetLibrary({ layoutId, textColor="white", onWidgetAdded }: { layoutI
                  <Icon />
                </IconButton>
               </TooltipTrigger>
-
-              <TooltipContent>
-              Add {widget.name}
-              </TooltipContent>
             </TooltipRoot>
           );
         })}
