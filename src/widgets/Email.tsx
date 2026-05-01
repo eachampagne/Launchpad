@@ -10,7 +10,7 @@ import type { EmailObject } from '../../types/Email.ts';
 import type { WidgetSettings } from '../../types/LayoutTypes.ts';
 import { UserContext } from './../UserContext';
 
-function Email ({widgetId, settings}: {widgetId: number, settings: WidgetSettings | null}) {
+function Email ({widgetId, textColor, settings}: {widgetId: number, textColor: string, settings: WidgetSettings | null}) {
   const { user } = useContext(UserContext);
 
   const [authStatus, setAuthStatus] = useState(AuthStatus.SignedOut);
@@ -107,7 +107,7 @@ function Email ({widgetId, settings}: {widgetId: number, settings: WidgetSetting
   }, [user]);
 
   return (
-    <Flex direction="column" height="100%">
+    <Flex direction="column" height="100%" color={textColor}>
       <Flex align="center" marginBottom="0.5rem"> {/* Inner flex box means icon is vertically centered against text */}
         <Icon size="lg" marginRight="0.5rem">
           <LuMail/>
