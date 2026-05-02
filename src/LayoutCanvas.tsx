@@ -44,7 +44,9 @@ const LayoutCanvas = function({layout, editable=false, widgetColor = "#FFFFFF", 
       position="relative"
       width={`${gridCols * snapSize}px`}
       height={`${gridRows * snapSize}px`}
-      border="none"
+      borderRightWidth={editable ? "1px" : "0px"}
+      borderBottomWidth={editable ? "1px" : "0px"}
+      borderColor="rgba(255, 255, 255, 0.91)"
       //overflow="hidden"
       backgroundColor="transparent"
       //Snaps grid to units
@@ -55,6 +57,7 @@ const LayoutCanvas = function({layout, editable=false, widgetColor = "#FFFFFF", 
           linear-gradient(90deg, rgba(255, 255, 255, 0.91) 1px, transparent 1px)
           `: "none"
       }
+      backgroundOrigin="border-box" // prevents gridlines from disappearing due to border box sizing problems
     >
       {layout.layoutElements.map((element) => {
         const WidgetComp = widgetMap[element.widgetId]?.component;
