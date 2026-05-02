@@ -355,7 +355,7 @@ export default function Dashboard () {
         {dashboard.layout && (
           <WidgetLibrary
             layoutId={dashboard.layout.id}
-            textColor={textColor}
+            backgroundColor={localBgColor}
             onWidgetAdded={loadDashboard}
           />
         )}
