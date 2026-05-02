@@ -1,9 +1,9 @@
 // import { useState, useEffect } from 'react';
 // import axios from 'axios';
 
-import { Heading, Container, AbsoluteCenter, For, Button, Text, Flex, Spacer, Image, LinkOverlay} from '@chakra-ui/react';
+import { AbsoluteCenter, Button, Container, Flex, For, Heading, HStack, Image, LinkOverlay, Spacer, Text } from '@chakra-ui/react';
+import { useState, useContext } from 'react';
 import { Link } from "react-router";
-import { useContext } from 'react';
 
 import { UserContext } from './UserContext';
 import { IoLogOutOutline } from "react-icons/io5";
@@ -20,8 +20,20 @@ function NavBar (props: MyProps) {
   const { user, handleLogout } = useContext(UserContext);
 
   const textColor = props.navColor ? changeTextColor(props.navColor) : "black";
-
   const buttonColor = "gray";
+
+  const dropdownBreakpoint = 600; // in pixels
+  const dropdownQuery = window.matchMedia(`(width < ${dropdownBreakpoint}px)`);
+
+  const [narrowView, setNarrowView] = useState(dropdownQuery.matches);
+
+  dropdownQuery.addEventListener('change', () => {
+    if (dropdownQuery.matches) {
+      setNarrowView(true);
+    } else {
+      setNarrowView(false);
+    }
+  });
 
   const renderLoginInfo = () => {
     if (user.id === -1) { // not logged in
@@ -38,9 +50,24 @@ function NavBar (props: MyProps) {
     }
   };
 
+  // small screen return
+  if (narrowView) {
+    return (
+      <div style={{position: "sticky", top: "0", zIndex: "200"}}>
+        <Container as="div" w="100%" h="45px" backgroundColor={props.navColor ?? "gray.emphasized"} margin="0" maxWidth="none" color={textColor}>
+          <HStack>
+            <Image height="1.5rem" mr="1" src={rocketLogoURL}/>
+            <Heading color={textColor}>LaunchPad</Heading>
+            <LinkOverlay href="/" />
+          </HStack>
+        </Container>
+      </div>
+    );
+  }
+
   return (
     <div style={{position: "sticky", top: "0", zIndex: "200"}}>
-      <Container as="div" w="100%" h="45px" backgroundColor={props.navColor ?? "gray.emphasized"} margin="0" maxWidth="none" paddingLeft="16" paddingRight="16" color={textColor}>
+      <Container as="div" w="100%" h="45px" backgroundColor={props.navColor ?? "gray.emphasized"} margin="0" maxWidth="none" paddingX={{base: "4", sm: "8", md: "16"}} color={textColor}>
         {/* TODO: Make this responsive for mobile and turn into a collapsible thing */}
         <AbsoluteCenter>
           <Image height="1.5rem" mr="1" src={rocketLogoURL}/>
