@@ -9,7 +9,7 @@ type Message = {
   parts: { text: string }[];
 };
 
-function AiChat({ widgetId, settings }: { widgetId: number; settings: WidgetSettings | null }) {
+function AiChat({widgetId, textColor, settings}: {widgetId: number, textColor: string, settings: WidgetSettings | null}) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -47,7 +47,7 @@ function AiChat({ widgetId, settings }: { widgetId: number; settings: WidgetSett
   };
 
   return (
-    <Flex direction="column" height="100%" width="100%" p={2} gap={2}>
+    <Flex direction="column" height="100%" width="100%" p={2} gap={2} color={textColor}>
       <Flex align="center" marginBottom="0.5rem">
         {" "}
         {/* Inner flex box means icon is vertically centered against text */}

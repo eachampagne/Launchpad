@@ -15,7 +15,7 @@ It takes several props:
   * `snapSize` - the number of pixels per grid square
   * `editActive` - whether the widget can be resized or moved. Text selection is disabled when the widget is editable.
   * `handleResizeOrMove` - an optional function to call when the widget completes a resize or move operation. This allows the widget frame's container to respond when the widget is changed.
-  * `color` - currently unused. Presumably this was originally intended to control the color of the widget boxes. I believe this has been deprecated in favor of getting the widget color from the theme stored in the user context.
+  * `color` - controls the base color of the widget frame's glass effect.
   * `onDelete` - an optional function to call when the delete button is clicked, which allows the widget frame's container to send a delete request to the server.
   * `children` (wrapped in the `<WidgetFrame>` tags) - components to render inside the frame. These should be widgets, such as the Email, Calendar, or Timer components.
 
