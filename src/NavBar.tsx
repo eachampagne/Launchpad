@@ -1,11 +1,12 @@
 // import { useState, useEffect } from 'react';
 // import axios from 'axios';
 
-import { AbsoluteCenter, Button, Container, Flex, For, Heading, HStack, Image, LinkOverlay, Spacer, Text } from '@chakra-ui/react';
+import { AbsoluteCenter, Button, Collapsible, Container, Flex, For, Heading, HStack, Image, LinkBox, LinkOverlay, Spacer, Text, VStack } from '@chakra-ui/react';
 import { useState, useContext } from 'react';
 import { Link } from "react-router";
 
 import { UserContext } from './UserContext';
+import { LuChevronRight } from "react-icons/lu";
 import { IoLogOutOutline } from "react-icons/io5";
 
 import rocketLogoURL from './assets/Launchpad_Logo_2_DARK.png';
@@ -54,13 +55,36 @@ function NavBar (props: MyProps) {
   if (narrowView) {
     return (
       <div style={{position: "sticky", top: "0", zIndex: "200"}}>
-        <Container as="div" w="100%" h="45px" backgroundColor={props.navColor ?? "gray.emphasized"} margin="0" maxWidth="none" color={textColor}>
-          <HStack>
-            <Image height="1.5rem" mr="1" src={rocketLogoURL}/>
-            <Heading color={textColor}>LaunchPad</Heading>
-            <LinkOverlay href="/" />
-          </HStack>
-        </Container>
+        <Collapsible.Root w="100%" minH="45px" backgroundColor={props.navColor ?? "gray.emphasized"} margin="0" maxWidth="none" color={textColor}>
+          <Flex align="center" h="45px" px="2">
+            <LinkBox>
+              <HStack>
+                <Image height="1.5rem" mr="1" src={rocketLogoURL}/>
+                <Heading color={textColor}>LaunchPad</Heading>
+                <LinkOverlay href="/" />
+              </HStack>
+            </LinkBox>
+            <Spacer />
+            <Collapsible.Trigger>
+              <Collapsible.Indicator
+                transition="transform 0.2s"
+                _open={{ transform: "rotate(90deg)" }}
+              >
+                <LuChevronRight />
+              </Collapsible.Indicator>
+            </Collapsible.Trigger>
+          </Flex>
+          <Collapsible.Content>
+            <VStack>
+              <For each={props.pages}>
+                {(page) => (
+                  <Link to={`/${page === "Home" ? '' : page.toLowerCase()}`} >{page}</Link>
+                )}
+              </For>
+              {renderLoginInfo()}
+            </VStack>
+          </Collapsible.Content>
+        </Collapsible.Root>
       </div>
     );
   }
