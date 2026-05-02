@@ -74,8 +74,6 @@ function Home () {
       {/* Navbar */}
       <NavBar pages={ navbarLinks } navColor='#dba022'/>
 
-      
-
       <Container p="14" backgroundColor="gray.950">
         {/* Section 0, Title and Logo */}
         <Container>
@@ -88,13 +86,15 @@ function Home () {
         </Container>
 
         {/* Section 1, Call to Action */}
-        <Flex justifyContent="center" gap="16">
-          <ImageCarousel />
-          <Container width="-moz-fit-content" margin="2" textAlign="center" p="3">
+        <Flex justifyItems="center" alignItems="center" gap={{md: "16"}} flexDirection={{base: "column", md: "row"}}>
+          <Box order={{base: 3, md: 1}}>
+            <ImageCarousel />
+          </Box>
+          <Container width="-moz-fit-content" margin="2" textAlign="center" p="3" order={{base: 2, md: 2}}>
             <Text fontSize="lg" mb="5"> LaunchPad is the homepage you've always wanted! </Text>
             <Text fontSize="lg" mb="5"> Customize your dashboard's widgets and colors and watch your productivity take off. </Text>
           </Container>
-          <Box background="gray.950" p="3" margin="2" width="-moz-fit-content" textAlign="center" w="250px">
+          <Box background="gray.950" p="3" margin="2" width="-moz-fit-content" textAlign="center" w="250px" order={{base: 1, md: 3}}>
             {renderLogin()}
           </Box>
         </Flex>
@@ -102,18 +102,18 @@ function Home () {
 
       {/* Section 2,  Show Activity */}
       <Container p="14" backgroundColor="gray.800">
-          <Flex justifyContent="space-between" gap="16">
-            <Container width="-moz-fit-content" margin="2" textAlign="center" p="3">
-              <Text fontSize="lg" mb="5" textAlign="left">
-                LaunchPad lets you build your digital home! Place and resize widgets, choose the colors that fit your mood - set up your dashboard the way you like! You can even have your dashboard change with the time of day.
-              </Text>
-              <Text fontSize="lg" mb="5" textAlign="left">
-                View your calendar and email, and set pomodoro timers, all in one place. LaunchPad gives you the tools to take control of your life.
-              </Text>
-            </Container>
-            {/* Concept: Pass in a changelog value that is taken in from somewhere else. Ideally something that is easy for us to update. */}
-            <ChangelogScroll changelog={prs}/>
-          </Flex>
+        <Flex justifyContent="space-between" gap="16" alignItems={{base: "center", md: "start"}} flexDirection={{base: "column", md: "row"}}>
+          <Container width="-moz-fit-content" margin="2" textAlign="center" p="3">
+            <Text fontSize="lg" mb="5" textAlign="left">
+              LaunchPad lets you build your digital home! Place and resize widgets, choose the colors that fit your mood - set up your dashboard the way you like! You can even have your dashboard change with the time of day.
+            </Text>
+            <Text fontSize="lg" mb="5" textAlign="left">
+              View your calendar and email, and set pomodoro timers, all in one place. LaunchPad gives you the tools to take control of your life.
+            </Text>
+          </Container>
+          {/* Concept: Pass in a changelog value that is taken in from somewhere else. Ideally something that is easy for us to update. */}
+          <ChangelogScroll changelog={prs}/>
+        </Flex>
       </Container>
 
       {/* Section 3,  Footer */}
