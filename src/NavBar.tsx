@@ -1,7 +1,7 @@
 // import { useState, useEffect } from 'react';
 // import axios from 'axios';
 
-import { AbsoluteCenter, Button, Collapsible, Container, Flex, For, Heading, HStack, Image, LinkBox, LinkOverlay, Spacer, Text, VStack } from '@chakra-ui/react';
+import { AbsoluteCenter, Button, Collapsible, Container, Flex, For, Heading, HStack, Image, LinkBox, LinkOverlay, Spacer, Square, Text, VStack } from '@chakra-ui/react';
 import { useState, useContext } from 'react';
 import { Link } from "react-router";
 
@@ -39,7 +39,7 @@ function NavBar (props: MyProps) {
   const renderLoginInfo = () => {
     if (user.id === -1) { // not logged in
       return (
-        <Button colorPalette={buttonColor} variant="ghost" height="25px" mt="12px" mr="8px" p="1" asChild><a  >Sign in</a></Button>
+        <Button colorPalette={buttonColor} variant="ghost" height="25px" mt="12px" mr="8px" p="1" asChild><a href="/login/federated/google" color={textColor}>Sign in</a></Button>
       );
     } else { // logged in
       return (
@@ -50,6 +50,27 @@ function NavBar (props: MyProps) {
       );
     }
   };
+
+  const renderLoginInfoNarrow = () => {
+    if (user.id === -1) { // not logged in
+      return (
+        <LinkBox width="full" _hover={{bg: "#99450e"}} p="4px">
+          Sign In
+          <LinkOverlay href="/login/federated/google" />
+        </LinkBox>
+      );
+    } else { // logged in
+      return (
+        <Flex width="full" px="4px">
+          {user.name}
+          <Spacer />
+          <Square _hover={{bg: "#99450e"}} onClick={() => {handleLogout()}} m="4px" p="4px">
+            <IoLogOutOutline  />
+          </Square>
+        </Flex>
+      );
+    }
+  }
 
   // small screen return
   if (narrowView) {
@@ -75,13 +96,16 @@ function NavBar (props: MyProps) {
             </Collapsible.Trigger>
           </Flex>
           <Collapsible.Content>
-            <VStack>
+            <VStack gap="0">
+              {renderLoginInfoNarrow()}
               <For each={props.pages}>
                 {(page) => (
-                  <Link to={`/${page === "Home" ? '' : page.toLowerCase()}`} >{page}</Link>
+                  <LinkBox width="full" _hover={{bg: "#99450e"}} p="4px">
+                    {page}
+                    <LinkOverlay href={`/${page === "Home" ? '' : page.toLowerCase()}`} />
+                  </LinkBox>
                 )}
               </For>
-              {renderLoginInfo()}
             </VStack>
           </Collapsible.Content>
         </Collapsible.Root>
