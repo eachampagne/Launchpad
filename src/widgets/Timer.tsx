@@ -7,6 +7,7 @@ import { LuTimer, LuVolume2, LuVolumeOff } from 'react-icons/lu';
 import type { WidgetSettings } from '../../types/LayoutTypes.ts';
 import { TimerStatus } from '../../types/WidgetStatus.ts';
 import { UserContext } from '../UserContext.tsx';
+import { Toaster, toaster } from '../components/ui/toaster'
 
 import soundUrl from './../assets/triangle.mp3';
 const audioElement = new Audio(soundUrl); // defined here so it doesn't keep getting recreated every rerender
@@ -187,6 +188,11 @@ function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: st
   const handleTimeUp = () => {
     audioElement.play();
     checkServer();
+
+    toaster.create({
+    title: "Timer Finished!",
+    description: "Your timer is up!",
+    })
   }
 
   const handleUnmount = () => {
@@ -338,6 +344,7 @@ function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: st
         {renderVolumeControl()}
       </Flex>
       {renderTimer()}
+      <Toaster/>
     </Flex>
   );
 }
