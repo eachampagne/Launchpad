@@ -78,8 +78,8 @@ function Home () {
         {/* Section 0, Title and Logo */}
         <Container>
           <Flex w="100%" justifyContent="center" align="center">
-            <Image height="4rem" src={gridLogoURL}/>
-            <Heading size="7xl">
+            <Image height={{base: "3rem", sm: "3.5rem", md: "4rem"}} src={gridLogoURL}/>
+            <Heading size={{base: "5xl", sm: "6xl", md: "7xl"}}>
               LaunchPad
             </Heading>
           </Flex>
