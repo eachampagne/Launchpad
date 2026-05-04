@@ -86,6 +86,49 @@ theme.post('/', async (req, res) => {
   }
 })
 
+// POST - copy an existing theme - either public or owned by the current user
+theme.post('/:themeId/copy', async (req, res) => {
+  // check auth
+  if (req.user === undefined) {
+    return res.sendStatus(401);
+  }
+
+  const userId = req.user.id;
+  const themeId = parseInt(req.params.themeId);
+
+  if (isNaN(themeId)) {
+    return res.sendStatus(400); // bad request
+  }
+
+  try {
+    const original = await prisma.theme.findUnique({where: {id: themeId}});
+
+    // make sure theme exists
+    if (!original) {
+      return res.sendStatus(404);
+    }
+
+    // can only copy a theme that is either public or owned by the current user
+    if (!(original.public || original.ownerId === userId)) {
+      return res.sendStatus(403);
+    }
+
+    const copy = await prisma.theme.create({data: {
+      navColor: original.navColor,
+      bgColor: original.bgColor,
+      font: original.font,
+      name: original.name,
+      public: false,
+      ownerId: userId
+    }});
+
+    res.status(201).send(copy);
+  } catch (error) {
+    console.error('Failed to copy theme:', error);
+    res.sendStatus(500);
+  }
+});
+
 
 // PUT/PATCH - Updates the theme that is current selected
 theme.patch('/', async (req, res) => {
