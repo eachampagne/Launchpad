@@ -17,15 +17,18 @@ export type WidgetDefinition = {
   name: string;
   component: React.FC<{ widgetId: number; textColor: string; settings: WidgetSettings | null }>;
   icon: IconType;
+  defaultSize: { sizeX: number; sizeY: number };
 };
 
+
+
 const WidgetMap: Record<number, WidgetDefinition>= {
-  1: {id: 1, name: 'Calendar', component: Calendar, icon: LuCalendarDays},
-  2: {id: 2, name: 'Email', component: Email, icon: LuMail},
-  3: {id: 3, name: 'Timer', component: Timer, icon: LuTimer},
-  4: {id: 4, name: 'Link', component: Link, icon: LuLink},
-  5: { id: 5, name: 'AI Chat',  component: AiChat, icon: LuBot },
-  6: { id: 6, name: 'Search', component: Search, icon: LuSearch },
+  1: {id: 1, name: 'Calendar', component: Calendar, icon: LuCalendarDays, defaultSize: { sizeX: 3, sizeY: 2}},
+  // 2: {id: 2, name: 'Email', component: Email, icon: LuMail},
+  // 3: {id: 3, name: 'Timer', component: Timer, icon: LuTimer},
+  // 4: {id: 4, name: 'Link', component: Link, icon: LuLink},
+  // 5: { id: 5, name: 'AI Chat',  component: AiChat, icon: LuBot },
+  // 6: { id: 6, name: 'Search', component: Search, icon: LuSearch },
 };
 
 export default WidgetMap;

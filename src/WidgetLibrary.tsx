@@ -14,15 +14,15 @@ function WidgetLibrary({ layoutId, textColor="white", onWidgetAdded }: { layoutI
 
     const posX = Math.floor(Math.random() * (gridCols - 2));
     const posY = Math.floor(Math.random() * (gridRows - 1));
-
+    const { sizeX, sizeY } = WidgetMap[widgetId].defaultSize;
     try {
       await axios.post(`/layout/${layoutId}/element`, {
         widgetId,
         widgetSettings: {
           posX,
           posY,
-          sizeX: 2,
-          sizeY: 2,
+          sizeX,
+          sizeY,
         },
       });
       onWidgetAdded();
