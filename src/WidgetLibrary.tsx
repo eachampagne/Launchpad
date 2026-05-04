@@ -1,18 +1,26 @@
-import { Box, Heading, IconButton, HStack, TooltipRoot, TooltipTrigger, TooltipContent} from "@chakra-ui/react";
+import { Box, Heading, IconButton, HStack, TooltipRoot, TooltipTrigger} from "@chakra-ui/react";
 import axios from "axios";
 
 import WidgetMap from "./widgets";
 
+const gridCols = 19;
+const gridRows = 12;
+
 function WidgetLibrary({ layoutId, textColor="white", onWidgetAdded }: { layoutId: number; textColor?: string; onWidgetAdded: () => void }) {
   const widgets = Object.values(WidgetMap);
 
+
   const addWidget = async (widgetId: number) => {
+
+    const posX = Math.floor(Math.random() * (gridCols - 2));
+    const posY = Math.floor(Math.random() * (gridRows - 1));
+
     try {
       await axios.post(`/layout/${layoutId}/element`, {
         widgetId,
         widgetSettings: {
-          posX: 0,
-          posY: 0,
+          posX,
+          posY,
           sizeX: 2,
           sizeY: 2,
         },

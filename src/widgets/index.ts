@@ -30,4 +30,6 @@ const WidgetMap: Record<number, WidgetDefinition>= {
 
 export default WidgetMap;
 
+//add more props for min width and height and when created set at size with in width and heught then apply to props of widget frame
+
 export { Calendar, Email, Link, Timer, AiChat, Search };
