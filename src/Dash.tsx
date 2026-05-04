@@ -301,6 +301,7 @@ export default function Dashboard () {
           layout={dashboard.layout}
           editable={editMode}
           widgetColor={theme.font}
+          backgroundColor={theme.bgColor}
           onLayoutChange={loadDashboard}
         />
       </Box>
