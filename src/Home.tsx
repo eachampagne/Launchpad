@@ -72,7 +72,7 @@ function Home () {
   return (
     <>
       {/* Navbar */}
-      <NavBar pages={ navbarLinks } navColor='#dba022'/>
+      <NavBar pages={ navbarLinks } />
 
       <Container p="14" backgroundColor="gray.950">
         {/* Section 0, Title and Logo */}
