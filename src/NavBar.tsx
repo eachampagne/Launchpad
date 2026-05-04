@@ -10,6 +10,8 @@ import { LuChevronRight } from "react-icons/lu";
 import { IoLogOutOutline } from "react-icons/io5";
 
 import rocketLogoURL from './assets/Launchpad_Logo_2_DARK.png';
+import rocketLogoBlack from './assets/launchpad-logo-rocket-black.png';
+import rocketLogoWhite from './assets/launchpad-logo-rocket-white.png';
 import changeTextColor from './utilities/color';
 
 interface MyProps {
@@ -35,6 +37,15 @@ function NavBar (props: MyProps) {
       setNarrowView(false);
     }
   });
+
+  const renderRocket = () => {
+    if (props.navColor) {
+      return <Image height="1.5rem" mr="1" src={changeTextColor(props.navColor, rocketLogoBlack, rocketLogoWhite)}/>;
+    } else {
+      // only use this version of the logo when we know what the navbar color is and know it won't clash
+      return <Image height="1.5rem" mr="1" src={rocketLogoURL}/>;
+    }
+  }
 
   const renderLoginInfo = () => {
     if (user.id === -1) { // not logged in
@@ -76,11 +87,11 @@ function NavBar (props: MyProps) {
   if (narrowView) {
     return (
       <div style={{position: "sticky", top: "0", zIndex: "200"}}>
-        <Collapsible.Root w="100%" minH="45px" backgroundColor={props.navColor ?? "gray.emphasized"} margin="0" maxWidth="none" color={textColor}>
+        <Collapsible.Root w="100%" minH="45px" backgroundColor={props.navColor ?? "#dba022"} margin="0" maxWidth="none" color={textColor}>
           <Flex align="center" h="45px" px="2">
             <LinkBox>
               <HStack>
-                <Image height="1.5rem" mr="1" src={rocketLogoURL}/>
+                {renderRocket()}
                 <Heading color={textColor}>LaunchPad</Heading>
                 <LinkOverlay href="/" />
               </HStack>
@@ -115,10 +126,10 @@ function NavBar (props: MyProps) {
 
   return (
     <div style={{position: "sticky", top: "0", zIndex: "200"}}>
-      <Container as="div" w="100%" h="45px" backgroundColor={props.navColor ?? "gray.emphasized"} margin="0" maxWidth="none" paddingX={{base: "4", sm: "8", md: "16"}} color={textColor}>
+      <Container as="div" w="100%" h="45px" backgroundColor={props.navColor ?? "#dba022"} margin="0" maxWidth="none" paddingX={{base: "4", sm: "8", md: "16"}} color={textColor}>
         {/* TODO: Make this responsive for mobile and turn into a collapsible thing */}
         <AbsoluteCenter>
-          <Image height="1.5rem" mr="1" src={rocketLogoURL}/>
+          {renderRocket()}
           <Heading color={textColor}>LaunchPad</Heading>
           <LinkOverlay href="/" />
         </AbsoluteCenter>
