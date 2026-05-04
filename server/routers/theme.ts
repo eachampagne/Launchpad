@@ -133,8 +133,29 @@ theme.post('/:themeId/copy', async (req, res) => {
 // PUT/PATCH - Updates the theme that is current selected
 theme.patch('/', async (req, res) => {
   console.log('PATCH / hit, body:', req.body)
+
+  // check auth
+  if (req.user === undefined) {
+    return res.sendStatus(401);
+  }
+
+  const userId = req.user.id;
+
+  // I *guess* an owner could in theory transfer ownership to someone else, so (new) ownerId might not === userId? There's nowhere in the front end that allows this though
   const { id, public: isPublic, navColor, bgColor, font, ownerId, name} = req.body
   try {
+    const existing = await prisma.theme.findUnique({where: {id}});
+
+    // make sure theme exists
+    if (!existing) {
+      return res.sendStatus(404);
+    }
+
+    // make sure theme is owned by the user trying to update it
+    if (existing.ownerId !== userId) {
+      return res.sendStatus(403);
+    }
+
     await prisma.theme.update({
       where: {
         id: Number(id)
@@ -159,6 +180,12 @@ theme.patch('/', async (req, res) => {
 // PATCH for public themes
 
 theme.patch('/:themeId', async (req, res) => {
+  // check auth
+  if (req.user === undefined) {
+    return res.sendStatus(401);
+  }
+
+  const userId = req.user.id;
   const themeId = Number(req.params.themeId)
   
 
@@ -175,9 +202,9 @@ theme.patch('/:themeId', async (req, res) => {
     }
     
 
-    // if(existing.ownerId !== ownerId){
-    //   return res.status(403).send('You do not own this theme');
-    // }
+    if(existing.ownerId !== userId){
+      return res.status(403).send('You do not own this theme');
+    }
 
     const publicTheme = await prisma.theme.update({
       where: {

@@ -46,7 +46,7 @@ model Dashboard {
   owner              User                @relation("UserDashboards", fields: [ownerId], references: [id])
   ownerId            Int
   theme              Theme               @relation(fields: [themeId], references: [id])
-  themeId            Int                 @unique
+  themeId            Int
   layout             Layout              @relation(fields: [layoutId], references: [id])
   layoutId           Int                 @unique
   primaryOf          User?               @relation("PrimaryDash")
@@ -61,11 +61,11 @@ model Session {
 }
 
 model Theme {
-  id       Int        @id @default(autoincrement())
-  usedBy   Dashboard?
-  owner    User       @relation(fields: [ownerId], references: [id])
+  id       Int          @id @default(autoincrement())
+  usedBy   Dashboard[]
+  owner    User         @relation(fields: [ownerId], references: [id])
   ownerId  Int
-  public   Boolean    @default(false)
+  public   Boolean      @default(false)
   navColor String
   bgColor  String
   font     String
