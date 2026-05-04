@@ -72,14 +72,14 @@ function Home () {
   return (
     <>
       {/* Navbar */}
-      <NavBar pages={ navbarLinks } navColor='#dba022'/>
+      <NavBar pages={ navbarLinks } />
 
       <Container p="14" backgroundColor="gray.950">
         {/* Section 0, Title and Logo */}
         <Container>
           <Flex w="100%" justifyContent="center" align="center">
-            <Image height="4rem" src={gridLogoURL}/>
-            <Heading size="7xl">
+            <Image height={{base: "3rem", sm: "3.5rem", md: "4rem"}} src={gridLogoURL}/>
+            <Heading size={{base: "5xl", sm: "6xl", md: "7xl"}}>
               LaunchPad
             </Heading>
           </Flex>

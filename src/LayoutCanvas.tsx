@@ -13,7 +13,7 @@ const snapSize = 60;
 
 
 
-const LayoutCanvas = function({layout, editable=false, widgetColor = "#FFFFFF", onLayoutChange}: { layout: Layout; editable?: boolean; widgetColor?: string; onLayoutChange?: () => void; }){
+const LayoutCanvas = function({layout, editable=false, widgetColor = "#FFFFFF", backgroundColor="#111111", onLayoutChange}: { layout: Layout; editable?: boolean; widgetColor?: string; backgroundColor?: string; onLayoutChange?: () => void; }){
 
   const handleResize = async ( elementId: number, posX: number, posY: number, sizeX: number, sizeY: number) => {
   try{
@@ -37,6 +37,8 @@ const LayoutCanvas = function({layout, editable=false, widgetColor = "#FFFFFF", 
   }
 };
 
+  const gridColor = changeTextColor(backgroundColor, 'rgba(0, 0, 0, 0.91)', 'rgba(255, 255, 255, 0.91)');
+
   return (
     <Box
       //Anchors absolute widgets position="relative"
@@ -44,17 +46,20 @@ const LayoutCanvas = function({layout, editable=false, widgetColor = "#FFFFFF", 
       position="relative"
       width={`${gridCols * snapSize}px`}
       height={`${gridRows * snapSize}px`}
-      border="none"
+      borderRightWidth={editable ? "1px" : "0px"}
+      borderBottomWidth={editable ? "1px" : "0px"}
+      borderColor={gridColor}
       //overflow="hidden"
       backgroundColor="transparent"
       //Snaps grid to units
       backgroundSize={`calc(100% / ${gridCols}) calc(100% / ${gridRows})`}
       //Actual grid lines
       backgroundImage={editable ? `
-          linear-gradient(rgba(255, 255, 255, 0.91) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(255, 255, 255, 0.91) 1px, transparent 1px)
+          linear-gradient(${gridColor} 1px, transparent 1px),
+          linear-gradient(90deg, ${gridColor} 1px, transparent 1px)
           `: "none"
       }
+      backgroundOrigin="border-box" // prevents gridlines from disappearing due to border box sizing problems
     >
       {layout.layoutElements.map((element) => {
         const WidgetComp = widgetMap[element.widgetId]?.component;

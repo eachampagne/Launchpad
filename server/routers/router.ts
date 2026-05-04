@@ -14,6 +14,7 @@ import dashboard from './dashboard.js';
 import schedule from './schedule.js';
 import accounts from './accounts.js';
 import github from './github.js';
+import spotifyRouter from './music.js';
 
 import link from './link.js';
 import aiChat from './ai.js';
@@ -32,6 +33,7 @@ router.use('/timer', timer);
 router.use('/notifications', phoneNumbers);
 router.use('/accounts', accounts);
 router.use('/github', github);
+router.use('/spotify', spotifyRouter);
 
 router.use('/link', link);
 router.use('/ai', aiChat);
