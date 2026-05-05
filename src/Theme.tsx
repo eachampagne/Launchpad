@@ -2,7 +2,7 @@ import { useState, useEffect} from 'react';
 import { parseColor } from '@chakra-ui/react'
 import Color from './ColorPicker';
 import axios from 'axios';
-import { Box, Button, Text, Listbox, createListCollection } from "@chakra-ui/react"
+import { Box, Button, Text, Listbox, createListCollection} from "@chakra-ui/react"
 import { IoTrashSharp, IoPencilSharp, IoAddCircleOutline, IoPeopleSharp, IoPeopleOutline } from "react-icons/io5";
 
 function Theme ({dashboard, ownerId, dashboardId, textColor="white", refreshTheme}: {dashboard: { name: string, ownerId: number}, ownerId: number, dashboardId : number, textColor?: string, refreshTheme: () => void}) {
@@ -200,11 +200,11 @@ function Theme ({dashboard, ownerId, dashboardId, textColor="white", refreshThem
       )}
     </Box>
 
-    <Box display='grid' gridTemplateColumns='1fr 1fr' gap='2' mb='3'>
+    <Box display='grid' gridTemplateColumns='1fr 1fr' gap='2' mb='3' >
       {publicList.slice(page * 4, (page + 1) * 4).map((theme) => (
         // bringing back the functionality for each theme card
         <Box key={theme.id} borderRadius='14px' border={ `1px solid ${theme.navColor}88`}
-        bg='rgba(255,255,255,0.03)' position='relative' cursor='pointer' transition='all 0.18s' 
+        bg='rgba(34, 34, 34, 0.08)' position='relative' cursor='pointer' transition='all 0.18s' 
         // onClick={async () => {
         //     setCurrTheme(theme)
         //     setNavColorPick(theme.navColor)
@@ -213,9 +213,9 @@ function Theme ({dashboard, ownerId, dashboardId, textColor="white", refreshThem
         //     axios.patch(`/dashboard/${dashboardId}`, { themeId: theme.id })
         //     //await getTheDash()
         //   }}
-          _hover={{ transform: 'translateY(-1px)', borderColor: 'rgba(255,255,255,0.18)' }}>
+          _hover={{ transform: 'translateY(-1px)' }}>
           {/* displaying the colors side by side */}
-          <Box display='flex' h='52px' borderRadius='13px 13px 0 0' overflow='hidden'>
+          <Box display='flex' h='52px' borderRadius='13px 13px 0 0' overflow='hidden' >
             <Box flex='1' bg={theme.navColor} />
             <Box flex='1' bg={theme.bgColor} />
             <Box flex='1' bg={theme.font} />
@@ -268,20 +268,6 @@ function Theme ({dashboard, ownerId, dashboardId, textColor="white", refreshThem
                 >
                   +
                 </Button>
-                {/* <Button
-                  size='sm' variant='ghost' minW='22px' h='22px' p='0'
-                  borderRadius='6px' color='#f87171'
-                  bg='rgba(248,113,113,0.08)'
-                  border='0.5px solid rgba(248,113,113,0.2)'
-                  _hover={{ opacity: 0.75 }}
-                  onPointerDown={async (e) => {
-                    e.preventDefault(); e.stopPropagation()
-                    await deleteTheme({ themeId: theme.id })
-                    
-                  }}
-                >
-                  <IoTrashSharp />
-                </Button> */}
               </Box>
           </Box>
         </Box>
@@ -289,70 +275,6 @@ function Theme ({dashboard, ownerId, dashboardId, textColor="white", refreshThem
       ))}
     </Box>
 
-
-    {/* {
-      <Listbox.Root collection={allThemesList} width="320px">
-      <Listbox.Label fontSize='md' fontWeight='bold'>Select Theme</Listbox.Label>
-      <Listbox.Content  maxH='300px' overflowY='auto' w='full' flexWrap='wrap'>
-        {allThemesList.items.map((theme) => (
-          <Box border={currTheme.id === theme.id ? `1.5px solid ${theme.font}b3` : '1.5px solid rgba(255,255,255,0.07)'}
-          key={theme.id} borderRadius='14px' p='4' mb='3' w='full' cursor='pointer'
-          bg={currTheme.id === theme.id ? 'rgba(225, 225, 225, 0.05)' : 'rgba(255,255,255,0.02)'}
-          backdropFilter='blur(8px)' boxShadow={currTheme.id === theme.id ? `0 0 24px ${theme.font}33, inset 0 1px 0 rgba(255,255,255,0.06)` : 'inset 0 1px 0 rgba(255,255,255,0.04)'}
-          transition='all 0.2s ease' position='relative' _hover={{ bg: 'rgba(255,255,255,0.05)', border: `1.5px solid ${theme.font}80`, boxShadow: `-4px 4px 20px ${theme.navColor}66, 0 0 20px ${theme.bgColor}44, 4px 4px 20px ${theme.font}66, inset 0 1px 0 rgba(255,255,255,0.06)` }}
-          className={currTheme.id === theme.id ? 'selected' : ''}
-          css={{
-            '&:hover .color, &.selected .color': { boxShadow: `-12px 0 24px ${theme.navColor}, 0 0 24px ${theme.bgColor}, 12px 0 24px ${theme.font}`},
-                '&:hover .navColor, &.selected .navColor': { filter: `drop-shadow(0 0 12px ${theme.navColor})` },
-                '&:hover .bgColor, &.selected .bgColor': { filter: `drop-shadow(0 0 12px ${theme.bgColor})` },
-                '&:hover .widget, &.selected .widget': { filter: `drop-shadow(0 0 12px ${theme.font})` },
-              }}
-          >
-          <Listbox.Item item={theme} onClick={async () => {
-            setCurrTheme(theme)
-            setNavColorPick(theme.navColor)
-            setBgColorPick(theme.bgColor)
-            setFontPick(theme.font)
-            await axios.patch(`/dashboard/${dashboardId}`, { themeId: theme.id })
-            await getTheDash();
-          }}>
-            <Listbox.ItemText w='full'>
-            <Box w='full'>
-            <Box mb='4' borderRadius='8px' overflow='visible' className='color' css={{ boxShadow: 'none', transition: 'box-shadow 0.3s ease' }}>
-            <Box display='flex' h='48px' borderRadius='8px' overflow='hidden' border='none'>
-                <Box flex='1' bg={theme.navColor} className='navColor' css={{ filter: 'none', transition: 'filter 0.3s ease' }}/>
-                <Box flex='1' bg={theme.bgColor} className='bgColor' css={{ filter: 'none', transition: 'filter 0.3s ease' }}/>
-                <Box flex='1' bg={theme.font} className='widget' css={{ filter: 'none', transition: 'filter 0.3s ease' }}/>
-              </Box>
-            </Box>
-
-              <Box display='flex' w='full' justifyContent='space-between' >
-                {colors.map((key) => (
-                  <Box key={key} display='flex' flexDirection='column' alignItems='center' gap='1'>
-                  <Box w='32px' h='32px' borderRadius='8px' bg={theme[key]} border='1px solid rgba(255,255,255,0.12)' boxShadow={`0 0 12px 2px ${theme[key]}cc`} transition='box-shadow 0.3s ease'>
-                  </Box>
-                  <Text fontSize='15px' color='#64748b' fontWeight='medium' mb='1'>{colorMap[key]}</Text>
-                  {/* <Text fontSize='12px' color='white'>{theme[key]}</Text> */}
-                  {/* </Box>
-                ))}
-              </Box>
-            </Box>
-            </Listbox.ItemText>
-            <Listbox.ItemIndicator />
-            </Listbox.Item>
-            
-          <Button size='sm' variant='ghost' colorPalette='red' onPointerDown={(e) => {
-            e.preventDefault()
-            e.stopPropagation()
-            deleteTheme({themeId: theme.id})
-            }}>{<IoTrashSharp />}</Button>
-          <Button size='2xs' variant='ghost' colorPalette='red' onPointerDown={makePublicTheme}>Make them public</Button>
-          <Button size='2xs' variant='ghost' colorPalette='red' onPointerDown={savePublicTheme}>Save this theme</Button>
-        </Box>
-          ))}
-      </Listbox.Content>
-      </Listbox.Root>
-    } */}
 
     {/* Changing the display of the cards and only allow 4 at a time */}
     <Box display='flex' alignItems='center' justifyContent='space-between' mb='3'>
@@ -364,11 +286,11 @@ function Theme ({dashboard, ownerId, dashboardId, textColor="white", refreshThem
     </Box>
 
     {/* two cards side by side only */}
-    <Box display='grid' gridTemplateColumns='1fr 1fr' gap='2' mb='3'>
+    <Box display='grid' gridTemplateColumns='1fr 1fr' gap='2' mb='3' >
       {themesList.slice(page * 4, (page + 1) * 4).map((theme) => (
         // bringing back the functionality for each theme card
-        <Box key={theme.id} borderRadius='14px' border={currTheme.id === theme.id ? `1px solid ${theme.navColor}88` : '0.5px solid rgba(255,255,255,0.08)'}
-        bg='rgba(255,255,255,0.03)' position='relative' cursor='pointer' transition='all 0.18s' onClick={async () => {
+        <Box key={theme.id} borderRadius='14px' border={currTheme.id === theme.id ? `2px solid ${theme.navColor}88` : '0.5px solid rgba(255,255,255,0.08)'}
+        bg='rgba(34, 34, 34, 0.08)' position='relative' cursor='pointer' transition='all 0.18s' onClick={async () => {
             setCurrTheme(theme)
             setNavColorPick(theme.navColor)
             setBgColorPick(theme.bgColor)
@@ -378,7 +300,7 @@ function Theme ({dashboard, ownerId, dashboardId, textColor="white", refreshThem
               .then(refreshTheme);
             //await getTheDash()
           }}
-          _hover={{ transform: 'translateY(-1px)', borderColor: 'rgba(255,255,255,0.18)' }}>
+          _hover={{ transform: 'translateY(-1px)' }}>
           {/* displaying the colors side by side */}
           <Box display='flex' h='52px' borderRadius='13px 13px 0 0' overflow='hidden'>
             <Box flex='1' bg={theme.navColor} />
@@ -389,7 +311,7 @@ function Theme ({dashboard, ownerId, dashboardId, textColor="white", refreshThem
           {/* title of the color - nav, bg, widget */}
           <Box display='flex' borderBottom='0.5px solid rgba(255,255,255,0.06)'>
             {colors.map((title, i) => (
-              <Box key={title} flex='1' textAlign='center' py='1' fontSize='9px' color={textColor} letterSpacing='0.06em' borderRight={i < 2 ? '0.5px solid rgba(255,255,255,0.06)' : 'none'}>
+              <Box key={title} flex='1' textAlign='center' py='1' fontSize='9px' color={textColor} letterSpacing='0.06em' borderRight={i < 2 ? '0.5px solid rgba(255,255,255,0.08)' : 'none'}>
               {title}
               </Box>
             ))}
@@ -497,10 +419,10 @@ function Theme ({dashboard, ownerId, dashboardId, textColor="white", refreshThem
 
 
     <Text fontSize='12px' fontWeight='500' color={textColor} letterSpacing='0.12em' textTransform='uppercase' > Create a Theme </Text>
-    <Box borderRadius='14px' border='0.5px solid rgba(255,255,255,0.08)' bg='rgba(255,255,255,0.03)' overflow='hidden' mt='3'>
+    <Box borderRadius='14px' border='0.5px solid rgba(255,255,255,0.08)' bg='rgba(34, 34, 34, 0.08)' overflow='hidden' mt='3'>
 
   {/* color stack */}
-  <Box display='flex' h='52px' borderRadius='13px 13px 0 0'>
+  <Box display='flex' h='52px' borderRadius='13px 13px 0 0' bg='rgba(34, 34, 34, 0.08)'>
     <Box flex='1' bg={navColorPick} />
     <Box flex='1' bg={bgColorPick} />
     <Box flex='1' bg={fontPick} />
@@ -517,7 +439,7 @@ function Theme ({dashboard, ownerId, dashboardId, textColor="white", refreshThem
     ))}
   </Box>
         <Box display='flex' alignItems='center' gap='2'
-        py='1.5' borderBottom='0.5px solid rgba(255,255,255,0.06)'>
+        py='1.5' borderBottom='0.5px solid rgba(255,255,255,0.06)' bg='rgba(34, 34, 34, 0.08)'>
         <Text fontSize='11px' color={textColor} w='72px' flexShrink={0}>Name</Text>
         <input
           value={themeName}
@@ -534,10 +456,11 @@ function Theme ({dashboard, ownerId, dashboardId, textColor="white", refreshThem
             padding: '4px 8px',
             width: '100%',
             outline: 'none',
+            alignItems: 'center',
           }}
         />
       </Box>
-  <Box px='2.5' pt='2' pb='2.5'>
+  <Box px='2.5' pt='2' pb='2.5' bg='rgba(34, 34, 34, 0.08)'>
     {[
       { label: 'Navigation', value: navColorPick, setter: setNavColorPick },
       { label: 'Background', value: bgColorPick, setter: setBgColorPick },
@@ -551,7 +474,7 @@ function Theme ({dashboard, ownerId, dashboardId, textColor="white", refreshThem
       </Box>
     ))}
 
-    <Box display='flex' gap='2' mt='2.5'>
+    <Box display='flex' gap='2' mt='2.5' >
       <Button flex='1' size='sm' variant='ghost'
         color='#ffffff'
         border='0.5px solid rgba(255,255,255,0.1)'
