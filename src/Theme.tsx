@@ -224,7 +224,7 @@ function Theme ({dashboard, ownerId, dashboardId, textColor="white", refreshThem
           {/* title of the color - nav, bg, widget */}
           <Box display='flex' borderBottom='0.5px solid rgba(255,255,255,0.06)'>
             {colors.map((title, i) => (
-              <Box key={title} flex='1' textAlign='center' py='1' fontSize='9px' color={textColor} letterSpacing='0.06em' borderRight={i < 2 ? '0.5px solid rgba(255,255,255,0.06)' : 'none'}>
+              <Box key={title} flex='1' textAlign='center' py='1' fontSize='9px' color={textColor} letterSpacing='0.06em' border={i < 2 ? '0.5px solid rgba(255, 255, 255, 0.39)' : '0.5px solid rgba(255, 255, 255, 0.39)'}>
               {title}
               </Box>
             ))}
@@ -258,7 +258,7 @@ function Theme ({dashboard, ownerId, dashboardId, textColor="white", refreshThem
                 <Button
                   size='sm' variant='ghost' minW='22px' h='22px' p='0'
                   borderRadius='6px' color='#ffffff'
-                  border='0.5px solid rgba(255,255,255,0.08)'
+                  border='0.5px solid rgba(255, 255, 255, 0.39)'
                   _hover={{ color: 'whiteAlpha.800', bg: 'whiteAlpha.100' }}
                   onPointerDown={async (e) => {
                     e.preventDefault(); e.stopPropagation()
@@ -289,7 +289,7 @@ function Theme ({dashboard, ownerId, dashboardId, textColor="white", refreshThem
     <Box display='grid' gridTemplateColumns='1fr 1fr' gap='2' mb='3' >
       {themesList.slice(page * 4, (page + 1) * 4).map((theme) => (
         // bringing back the functionality for each theme card
-        <Box key={theme.id} borderRadius='14px' border={currTheme.id === theme.id ? `2px solid ${theme.navColor}88` : '0.5px solid rgba(255,255,255,0.08)'}
+        <Box key={theme.id} borderRadius='14px' border={currTheme.id === theme.id ? '0.5px solid rgba(255, 255, 255, 0.33)' : '0.5px solid rgba(255, 255, 255, 0.33)'}
         bg='rgba(34, 34, 34, 0.08)' position='relative' cursor='pointer' transition='all 0.18s' onClick={async () => {
             setCurrTheme(theme)
             setNavColorPick(theme.navColor)
@@ -311,7 +311,7 @@ function Theme ({dashboard, ownerId, dashboardId, textColor="white", refreshThem
           {/* title of the color - nav, bg, widget */}
           <Box display='flex' borderBottom='0.5px solid rgba(255,255,255,0.06)'>
             {colors.map((title, i) => (
-              <Box key={title} flex='1' textAlign='center' py='1' fontSize='9px' color={textColor} letterSpacing='0.06em' borderRight={i < 2 ? '0.5px solid rgba(255,255,255,0.08)' : 'none'}>
+              <Box key={title} flex='1' textAlign='center' py='1' fontSize='9px' color={textColor} letterSpacing='0.06em' border={i < 2 ? '0.5px solid rgba(255, 255, 255, 0.39)' : '0.5px solid rgba(255, 255, 255, 0.39)'}>
               {title}
               </Box>
             ))}
@@ -344,7 +344,7 @@ function Theme ({dashboard, ownerId, dashboardId, textColor="white", refreshThem
                 <Button
                   size='sm' variant='ghost' minW='22px' h='22px' p='0'
                   borderRadius='6px' color='#ffffff'
-                  border='0.5px solid rgba(255,255,255,0.08)'
+                  border='0.5px solid rgba(255, 255, 255, 0.39)'
                   _hover={{ color: 'whiteAlpha.800', bg: 'whiteAlpha.100' }}
                   onPointerDown={async (e) => {
                     e.preventDefault(); e.stopPropagation()
@@ -387,7 +387,7 @@ function Theme ({dashboard, ownerId, dashboardId, textColor="white", refreshThem
       <Box display='flex' alignItems='center' justifyContent='center' gap='1.5' mb='3'>
         <Button
           size='xs' variant='ghost' minW='28px' h='28px' p='0' borderRadius='7px'
-          color='#ffffff' border='0.5px solid rgba(255,255,255,0.08)'
+          color='#ffffff' border='0.5px solid rgba(255, 255, 255, 0.39)'
           disabled={page === 0}
           onClick={() => setPage((p) => Math.max(0, p - 1))}
           _hover={{ color: 'white', bg: 'whiteAlpha.100' }}
@@ -408,7 +408,7 @@ function Theme ({dashboard, ownerId, dashboardId, textColor="white", refreshThem
 
         <Button
           size='xs' variant='ghost' minW='28px' h='28px' p='0' borderRadius='7px'
-          color='#ffffff' border='0.5px solid rgba(255,255,255,0.08)'
+          color='#ffffff' border='0.5px solid rgba(255, 255, 255, 0.39)'
           disabled={page === Math.ceil(themesList.length / 4) - 1}
           onClick={() => setPage((page) => page + 1)}
           _hover={{ color: 'white', bg: 'whiteAlpha.100' }}
@@ -419,7 +419,7 @@ function Theme ({dashboard, ownerId, dashboardId, textColor="white", refreshThem
 
 
     <Text fontSize='12px' fontWeight='500' color={textColor} letterSpacing='0.12em' textTransform='uppercase' > Create a Theme </Text>
-    <Box borderRadius='14px' border='0.5px solid rgba(255,255,255,0.08)' bg='rgba(34, 34, 34, 0.08)' overflow='hidden' mt='3'>
+    <Box borderRadius='14px' border='0.5px solid rgba(255, 255, 255, 0.39)' bg='rgba(34, 34, 34, 0.08)' overflow='hidden' mt='3'>
 
   {/* color stack */}
   <Box display='flex' h='52px' borderRadius='13px 13px 0 0' bg='rgba(34, 34, 34, 0.08)'>
@@ -433,7 +433,7 @@ function Theme ({dashboard, ownerId, dashboardId, textColor="white", refreshThem
     {['Nav', 'Bg', 'Widget'].map((t, i) => (
       <Box key={t} flex='1' textAlign='center' py='1' fontSize='9px'
         color={textColor} letterSpacing='0.06em'
-        borderRight={i < 2 ? '0.5px solid rgba(255,255,255,0.06)' : 'none'}>
+        border={i < 2 ? '0.5px solid rgba(255, 255, 255, 0.39)' : '0.5px solid rgba(255, 255, 255, 0.39)'}>
         {t}
       </Box>
     ))}

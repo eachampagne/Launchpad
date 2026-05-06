@@ -189,6 +189,8 @@ function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: st
     audioElement.play();
     checkServer();
 
+    
+
     toaster.create({
     title: "Timer Finished!",
     description: "Your timer is up!",
