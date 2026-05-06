@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Box, Flex, Input, IconButton, Text, VStack, Heading, Spacer, Icon} from '@chakra-ui/react';
+import { Box, Flex, Textarea, IconButton, Text, VStack, Heading, Spacer, Icon} from '@chakra-ui/react';
 import type { WidgetSettings } from '../../types/LayoutTypes';
 
 import { LuBot } from "react-icons/lu";
@@ -14,10 +14,18 @@ function AiChat({widgetId, textColor, settings}: {widgetId: number, textColor: s
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  }, [input]);
 
   const sendMessage = async () => {
     const text = input.trim();
@@ -95,15 +103,20 @@ function AiChat({widgetId, textColor, settings}: {widgetId: number, textColor: s
       </VStack>
 
       <Flex gap={1}>
-        <Input
+        <Textarea
+          ref={textareaRef}
           size="xs"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+          onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && (e.preventDefault(), sendMessage())}
           placeholder="Message Gemini..."
           borderRadius="md"
           flex={1}
           borderColor={'whiteAlpha.800'}
+          resize="none"
+          minH="40px"
+          maxH="200px"
+          overflowY="auto"
           css={{ "&::placeholder": { color: "inherit" } }}
         />
         <IconButton
@@ -112,6 +125,7 @@ function AiChat({widgetId, textColor, settings}: {widgetId: number, textColor: s
           onClick={sendMessage}
           loading={loading}
           colorScheme="orange"
+          alignSelf="flex-end"
         >
           ➤
         </IconButton>

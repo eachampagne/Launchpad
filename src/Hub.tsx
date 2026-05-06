@@ -161,6 +161,7 @@ export default function Hub(
       await axios.delete(`/schedule/all/${ownerId}`);
       getDashboardData();
       await getScheduledDashboardsData();
+      refreshPrimaryDash();
       setMode("ALWAYS");
       setEditingAlways(false);
     } catch (err) {
@@ -341,8 +342,7 @@ export default function Hub(
                     <NativeSelect.Indicator />
                   </NativeSelect.Root>
 
-                  {mode === "ALWAYS" &&
-                    (primaryDashId === null || editingAlways) && (
+                  {mode === "ALWAYS" && primaryDashId !== primaryDashIdContext && (
                       <Button
                         size="sm"
                         onClick={() =>
