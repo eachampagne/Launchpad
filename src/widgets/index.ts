@@ -24,11 +24,11 @@ export type WidgetDefinition = {
 
 const WidgetMap: Record<number, WidgetDefinition>= {
   1: {id: 1, name: 'Calendar', component: Calendar, icon: LuCalendarDays, defaultSize: { sizeX: 3, sizeY: 2}},
-  // 2: {id: 2, name: 'Email', component: Email, icon: LuMail},
-  // 3: {id: 3, name: 'Timer', component: Timer, icon: LuTimer},
-  // 4: {id: 4, name: 'Link', component: Link, icon: LuLink},
-  // 5: { id: 5, name: 'AI Chat',  component: AiChat, icon: LuBot },
-  // 6: { id: 6, name: 'Search', component: Search, icon: LuSearch },
+  2: {id: 2, name: 'Email', component: Email, icon: LuMail, defaultSize: {sizeX: 3, sizeY: 2}},
+  3: {id: 3, name: 'Timer', component: Timer, icon: LuTimer, defaultSize: {sizeX: 5, sizeY: 3}},
+  4: {id: 4, name: 'Link', component: Link, icon: LuLink, defaultSize: {sizeX: 3, sizeY: 2}},
+  5: { id: 5, name: 'AI Chat',  component: AiChat, icon: LuBot, defaultSize: {sizeX: 4, sizeY: 2}},
+  6: { id: 6, name: 'Search', component: Search, icon: LuSearch, defaultSize: {sizeX: 5, sizeY: 1} },
 };
 
 export default WidgetMap;
