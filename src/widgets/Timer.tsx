@@ -35,7 +35,7 @@ function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: st
     }
 
     try {
-      const response = await axios.get('/timer');
+      const response = await axios.get(`/timer/${widgetId}`);
       if (!response.data) { // even though it's sending null on the server side, it comes through as an empty string
         // I assume because null isn't serializable
         setTimerStatus(TimerStatus.NoTimer);
@@ -68,7 +68,7 @@ function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: st
 
   const startTimer = async (duration: number) => {
     try {
-      await axios.post('/timer', {duration});
+      await axios.post(`/timer/${widgetId}`, {duration});
       checkServer();
     } catch (error) {
       console.error('Failed to start new timer:', error);
@@ -97,7 +97,7 @@ function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: st
     }
 
     try {
-      await axios.patch('/timer/pause');
+      await axios.patch(`/timer/pause/${widgetId}`);
       checkServer();
     } catch (error) {
       console.error('Failed to pause timer:', error);
@@ -110,7 +110,7 @@ function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: st
     }
 
     try {
-      await axios.patch('/timer/resume');
+      await axios.patch(`/timer/resume/${widgetId}`);
       checkServer(); // resets expiration, which triggers ticking to start
     } catch (error) {
       console.error('Failed to resume timer:', error);
@@ -119,7 +119,7 @@ function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: st
 
   const reset = async () => {
     try {
-      await axios.delete('/timer');
+      await axios.delete(`/timer/${widgetId}`);
       checkServer();
     } catch (error) {
       console.error('Failed to delete timer:', error);
