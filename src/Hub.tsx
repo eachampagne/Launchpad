@@ -323,9 +323,9 @@ export default function Hub(
                         setPrimaryDashId(value);
                       }}
                       style={{ minWidth: "200px" }}
-                      aria-disabled={primaryDashId !== null && !editingAlways}
+                      aria-disabled={primaryDashIdContext !== null && !editingAlways && primaryDashId === primaryDashIdContext}
                       pointerEvents={
-                        primaryDashId !== null && !editingAlways
+                        primaryDashIdContext !== null && !editingAlways && primaryDashId === primaryDashIdContext
                           ? "none"
                           : "auto"
                       }
@@ -651,6 +651,7 @@ export default function Hub(
                           flex="1"
                           placeholder=""
                           onChange={handleInputChange}
+                          onKeyDown={(e) => e.key === "Enter" && handleCreate()}
                           value={createdDashName}
                         />
                         <Button
