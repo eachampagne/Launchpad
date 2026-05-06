@@ -228,14 +228,14 @@ export default function Hub(
   if (ownerId === -1) {
     return (
       <Box width="full" minH="100vh" position="relative" p="0" m="0">
-        <NavBar pages={[]} navColor="#dba022" />
+        <NavBar pages={[]} />
       </Box>
     )
   }
 
   return (
     <>
-      <NavBar pages={["Home", "Dashboard"]} navColor="#dba022" />{" "}
+      <NavBar pages={["Home", "Dashboard"]} />{" "}
       {/*empty string will take user to Home page*/}
       <Flex minH="100vh" justify="center">
         <Box w="100%" maxW="1800px" p={6}>
