@@ -14,16 +14,17 @@ import soundUrl from './../assets/triangle.mp3';
 
 function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: string, settings: WidgetSettings | null}) {
   const { user } = useContext(UserContext);
-  
+
+  // this was helpful: https://stackoverflow.com/questions/55198517/react-usestate-why-settimeout-function-does-not-have-latest-state-value
   const audioElement = useRef(new Audio(soundUrl)); // don't recreate every rerender
+  const tickInterval = useRef(null as null | number);
+  const timerTimeout = useRef(null as null | number);
 
   // should you be able to use the timer just client side if you're logged out?
   const [timerStatus, setTimerStatus] = useState(TimerStatus.SignedOut);
   const [expiration, setExpiration] = useState(null as Date | null);
   const [timerString, setTimerString] = useState('');
   const [pausedRemaining, setPausedRemaining] = useState(null as number | null);
-  const [tickInterval, setTickInterval] = useState(null as null | number);
-  const [timerTimeout, setTimerTimeout] = useState(null as null | number);
   const [muted, setMuted] = useState(false);
 
 
@@ -81,15 +82,17 @@ function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: st
   }
 
   const stopTicking = () => {
-    if (tickInterval !== null) {
-      clearInterval(tickInterval);
-      setTickInterval(null);
+    if (tickInterval.current !== null) {
+      clearInterval(tickInterval.current);
+      tickInterval.current = null;
     }
   }
 
   const startTicking = () => {
-    stopTicking();
-    setTickInterval(setInterval(tick, 100));
+    if (tickInterval.current !== null) {
+      clearInterval(tickInterval.current);
+    }
+    tickInterval.current = setInterval(tick, 100);
   }
 
   const pause = async () => {
@@ -198,9 +201,9 @@ function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: st
 
   const handleUnmount = () => {
     // clear timeouts/intervals before unmounting
-    if (timerTimeout !== null) {
-      clearTimeout(timerTimeout);
-      setTimerTimeout(null);
+    if (timerTimeout.current !== null) {
+      clearTimeout(timerTimeout.current);
+      timerTimeout.current = null;
     }
     stopTicking();
   };
@@ -213,18 +216,18 @@ function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: st
   const resetClockDisplay = useEffectEvent(() => {
     stopTicking();
 
-    if (timerTimeout !== null) {
-      clearTimeout(timerTimeout);
+    if (timerTimeout.current !== null) {
+      clearTimeout(timerTimeout.current);
     }
 
     if (expiration !== null) {
       const remainingMs = expiration.getTime() - Date.now();
-      setTimerTimeout(setTimeout(handleTimeUp, remainingMs));
+      timerTimeout.current = setTimeout(handleTimeUp, remainingMs);
       setTimerString(expiresToString(expiration));
       startTicking();
     } else if (pausedRemaining !== null) {
       setTimerString(timeToString(pausedRemaining));
-      setTimerTimeout(null);
+      timerTimeout.current = null;
     }
   });
 
@@ -263,7 +266,7 @@ function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: st
             <Text marginBottom="0.5rem">Start a timer:</Text>
             <Flex justify="center" gap="0.5rem">
               <For
-                each={[1, 5, 25, 45]}
+                each={[0.1, 1, 5, 25, 45]}
               >
                 {(time) => {
                   return (
