@@ -440,7 +440,7 @@ function Theme ({dashboard, ownerId, dashboardId, textColor="white", refreshThem
   </Box>
         <Box display='flex' alignItems='center' gap='2'
         py='1.5' borderBottom='0.5px solid rgba(255,255,255,0.06)' bg='rgba(34, 34, 34, 0.08)'>
-        <Text fontSize='11px' color={textColor} w='72px' flexShrink={0}>Name</Text>
+        <Text fontSize='11px' color={textColor} w='72px' flexShrink={0} position='center'>Name</Text>
         <input
           value={themeName}
           onChange={(e) => setThemeName(e.target.value)}

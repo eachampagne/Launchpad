@@ -185,16 +185,30 @@ function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: st
     }
   };
 
-  const handleTimeUp = () => {
+  const handleTimeUp = async () => {
     audioElement.play();
     checkServer();
 
     
 
-    toaster.create({
-    title: "Timer Finished!",
-    description: "Your timer is up!",
-    })
+    // toaster.create({
+    // title: "Timer Finished!",
+    // description: "Your timer is up!",
+    // })
+    axios.get(`/phoneNumbers/${user.id}`)
+        .then(response => {
+          const { noti } = response.data.data;
+          if (noti) {
+            toaster.create({
+              title: "Timer Finished!",
+              description: "Your timer is up!",
+            });
+          }
+        })
+        .catch(error => {
+          console.error('Failed to fetch phone number settings:', error);
+        });
+  
   }
 
   const handleUnmount = () => {
