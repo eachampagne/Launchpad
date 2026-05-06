@@ -122,11 +122,11 @@ function Theme ({dashboard, ownerId, dashboardId, textColor="white", refreshThem
       const updatedTheme = makePublic.data.theme
 
 
-      if(updatedTheme.public === true){
-        await axios.post(`/publicThemes`, {themeId: currTheme.id, ownerId})
-      } else {
-        await axios.delete(`/publicThemes/${currTheme.id}`)
-      }
+      // if(updatedTheme.public === true){
+      //   await axios.post(`/publicThemes`, {themeId: currTheme.id, ownerId})
+      // } else {
+      //   await axios.delete(`/publicThemes/${currTheme.id}`)
+      // }
       setPublicStatus(updatedTheme.public)
       await allThemes()
       await allPublicThemes()

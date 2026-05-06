@@ -301,6 +301,7 @@ export default function Dashboard () {
           layout={dashboard.layout}
           editable={editMode}
           widgetColor={theme.font}
+          backgroundColor={theme.bgColor}
           onLayoutChange={loadDashboard}
         />
       </Box>
@@ -355,7 +356,7 @@ export default function Dashboard () {
         {dashboard.layout && (
           <WidgetLibrary
             layoutId={dashboard.layout.id}
-            textColor={textColor}
+            backgroundColor={localBgColor}
             onWidgetAdded={loadDashboard}
           />
         )}
@@ -515,7 +516,7 @@ export default function Dashboard () {
   if (ownerId === -1) {
     return (
       <Box width="full" minH="100vh" position="relative" p="0" m="0">
-        <NavBar pages={[]} navColor="#dba022" />
+        <NavBar pages={[]} />
       </Box>
     )
   }

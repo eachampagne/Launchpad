@@ -2,9 +2,13 @@ import { Box, Heading, IconButton, HStack, TooltipRoot, TooltipTrigger, TooltipC
 import axios from "axios";
 
 import WidgetMap from "./widgets";
+import changeTextColor from './utilities/color.ts';
 
-function WidgetLibrary({ layoutId, textColor="white", onWidgetAdded }: { layoutId: number; textColor?: string; onWidgetAdded: () => void }) {
+function WidgetLibrary({ layoutId, backgroundColor="#111111", onWidgetAdded }: { layoutId: number; backgroundColor?: string; onWidgetAdded: () => void }) {
   const widgets = Object.values(WidgetMap);
+
+  const textColor = changeTextColor(backgroundColor);
+  const buttonBgColor = changeTextColor(backgroundColor, "gray.100", "gray.900");
 
   const addWidget = async (widgetId: number) => {
     try {
@@ -42,6 +46,10 @@ function WidgetLibrary({ layoutId, textColor="white", onWidgetAdded }: { layoutI
                 onClick={() => addWidget(widget.id)}
                 size="lg"
                 variant="outline"
+                color={textColor}
+                borderColor={textColor}
+                _hover={{bg: buttonBgColor}}
+                _expanded={{bg: buttonBgColor}}
               >
                  <Icon />
                </IconButton>
