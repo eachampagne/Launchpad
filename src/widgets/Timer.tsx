@@ -1,4 +1,4 @@
-import { useState, useEffect, useEffectEvent, useContext } from 'react';
+import { useState, useEffect, useEffectEvent, useContext, useMemo } from 'react';
 import axios, { AxiosError } from 'axios';
 
 import { Button, For, Flex, Heading, HStack, Icon, Text } from '@chakra-ui/react';
@@ -10,11 +10,12 @@ import { UserContext } from '../UserContext.tsx';
 import { Toaster, toaster } from '../components/ui/toaster'
 
 import soundUrl from './../assets/triangle.mp3';
-const audioElement = new Audio(soundUrl); // defined here so it doesn't keep getting recreated every rerender
 // constantly recreating it is bad performance wise, but also means its muted/unmuted status doesn't persist
 
 function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: string, settings: WidgetSettings | null}) {
   const { user } = useContext(UserContext);
+  
+  const audioElement = useMemo(() => new Audio(soundUrl), []); // don't recreate every rerender
 
   // should you be able to use the timer just client side if you're logged out?
   const [timerStatus, setTimerStatus] = useState(TimerStatus.SignedOut);
