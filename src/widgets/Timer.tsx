@@ -1,7 +1,7 @@
 import { useState, useEffect, useEffectEvent, useContext, useRef } from 'react';
 import axios, { AxiosError } from 'axios';
 
-import { Button, For, Flex, Heading, HStack, Icon, Text } from '@chakra-ui/react';
+import { Button, For, Flex, Heading, HStack, Icon, NumberInput, Text } from '@chakra-ui/react';
 import { LuTimer, LuVolume2, LuVolumeOff } from 'react-icons/lu';
 
 import type { WidgetSettings } from '../../types/LayoutTypes.ts';
@@ -27,9 +27,15 @@ function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: st
   const [pausedRemaining, setPausedRemaining] = useState(null as number | null);
   const [muted, setMuted] = useState(false);
 
+  const [minutes, setMinutes] = useState('0');
+  const [seconds, setSeconds] = useState('0');
 
   // check timer, assign states
   const checkServer = async () => {
+    // reset minutes and seconds for custom times
+    setMinutes('0');
+    setSeconds('0');
+
     // if no user, don't bother sending a request
     if (user.id === -1) {
       setTimerStatus(TimerStatus.SignedOut);
@@ -170,6 +176,11 @@ function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: st
     startTimer(duration);
   };
 
+  const handleStartCustomTimer = () => {
+    const duration = parseInt(minutes) * 60 * 1000 + parseInt(seconds) * 1000;
+    startTimer(duration);
+  }
+
   const handleControlButton = (event: React.MouseEvent<HTMLButtonElement>) => {
     const action = (event.target as HTMLButtonElement).value;
 
@@ -264,9 +275,32 @@ function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: st
         return (
           <>
             <Text marginBottom="0.5rem">Start a timer:</Text>
+            <Flex justify="center" gap="0.5rem" mb="0.5rem">
+              <NumberInput.Root
+                w="75px"
+                value={minutes}
+                min={0}
+                max={59}
+                onValueChange={(e) => setMinutes(e.value)}
+              >
+                <NumberInput.Control />
+                <NumberInput.Input />
+              </NumberInput.Root>
+              <NumberInput.Root
+                w="75px"
+                value={seconds}
+                min={0}
+                max={59}
+                onValueChange={(e) => setSeconds(e.value)}
+              >
+                <NumberInput.Control />
+                <NumberInput.Input />
+              </NumberInput.Root>
+              <Button onClick={handleStartCustomTimer}>Start</Button>
+            </Flex>
             <Flex justify="center" gap="0.5rem">
               <For
-                each={[0.1, 1, 5, 25, 45]}
+                each={[5, 25, 45]}
               >
                 {(time) => {
                   return (
