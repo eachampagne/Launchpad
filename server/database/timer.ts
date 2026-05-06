@@ -92,7 +92,7 @@ function clearTimer(userId: number, layoutElementId: number) {
   const timers = await prisma.timer.findMany({where: {paused: false}});
 
   timers.forEach((timer) => {
-    const { id: userId, layoutElementId } = timer;
+    const { ownerId: userId, layoutElementId } = timer;
 
     let remainingMs = (timer.expiresAt as Date).getTime() - Date.now();
     if (remainingMs < 0) {
