@@ -1,4 +1,4 @@
-import { useState, useEffect, useEffectEvent, useContext, useMemo } from 'react';
+import { useState, useEffect, useEffectEvent, useContext, useRef } from 'react';
 import axios, { AxiosError } from 'axios';
 
 import { Button, For, Flex, Heading, HStack, Icon, Text } from '@chakra-ui/react';
@@ -15,7 +15,7 @@ import soundUrl from './../assets/triangle.mp3';
 function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: string, settings: WidgetSettings | null}) {
   const { user } = useContext(UserContext);
   
-  const audioElement = useMemo(() => new Audio(soundUrl), []); // don't recreate every rerender
+  const audioElement = useRef(new Audio(soundUrl)); // don't recreate every rerender
 
   // should you be able to use the timer just client side if you're logged out?
   const [timerStatus, setTimerStatus] = useState(TimerStatus.SignedOut);
@@ -187,7 +187,7 @@ function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: st
   };
 
   const handleTimeUp = () => {
-    audioElement.play();
+    audioElement.current.play();
     checkServer();
 
     toaster.create({
@@ -206,7 +206,7 @@ function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: st
   };
 
   const toggleMute = () => {
-    audioElement.muted = !muted; // do this before setting the state instead of waiting for the state to update asynchronously
+    audioElement.current.muted = !muted; // avoid closure issues with the handleTimeUp function
     setMuted(m => !m);
   }
 
