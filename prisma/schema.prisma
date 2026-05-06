@@ -21,7 +21,7 @@ model User {
   credentialSubject  String
   themes             Theme[]
   layouts            Layout[]
-  Timer              Timer?
+  Timer              Timer[]
   phoneNumber        PhoneNumbers?
   dashboardSchedules DashboardSchedule[]
 }
@@ -92,15 +92,18 @@ model LayoutElement {
   sizeX    Int
   sizeY    Int
   settings   WidgetSettings?
+  timer     Timer?
 }
 
 model Timer {
-  id            Int       @id @default(autoincrement())
-  owner         User      @relation(fields: [ownerId], references: [id])
-  ownerId       Int       @unique
-  paused        Boolean
-  expiresAt     DateTime?
-  remainingMs   Int?
+  id              Int             @id @default(autoincrement())
+  owner           User            @relation(fields: [ownerId], references: [id])
+  ownerId         Int
+  layoutElement   LayoutElement   @relation(fields: [layoutElementId], references: [id])
+  layoutElementId Int             @unique
+  paused          Boolean
+  expiresAt       DateTime?
+  remainingMs     Int?
 }
 
 model PhoneNumbers {

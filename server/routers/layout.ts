@@ -1,6 +1,7 @@
 import express from 'express';
 
 import { prisma } from '../database/prisma.js';
+import { clearTimer } from '../database/timer.js';
 
 const layout = express.Router();
 
@@ -230,6 +231,11 @@ layout.patch('/:elementId', async (req, res) => {
 // DELETE: Remove an element from a layout.
 
 layout.delete('/:elementId', async (req, res) => {
+  // check auth
+  if (req.user === undefined) {
+    return res.sendStatus(500);
+  }
+
   const elementId = Number(req.params.elementId);
   try {
     // Delete child records first to avoid foreign key constraint errors
@@ -247,6 +253,11 @@ layout.delete('/:elementId', async (req, res) => {
         where: { layoutElementId: elementId }
       });
     }
+
+    // delete timer associated with widget, if any, and clear the timeout
+    // this does nothing if there is no timer
+    await clearTimer(req.user.id, elementId);
+
     await prisma.layoutElement.delete({
       where: { id: elementId }
     });
