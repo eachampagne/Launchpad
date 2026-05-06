@@ -134,11 +134,9 @@ export default function Hub(
    * Handles deleting a dashboard
    */
   const handleDelete = async (dashboardId: number) => {
-
     try {
       await axios.delete(`/dashboard/${dashboardId}`);
-      // refresh primary dashboard data if user deletes their active primary dash
-      if (primaryDashId === dashboardId) {
+      if (primaryDashIdContext === dashboardId) {
         refreshPrimaryDash();
       }
     } catch (err) {
@@ -323,9 +321,9 @@ export default function Hub(
                         setPrimaryDashId(value);
                       }}
                       style={{ minWidth: "200px" }}
-                      aria-disabled={primaryDashIdContext !== null && !editingAlways && primaryDashId === primaryDashIdContext}
+                      aria-disabled={primaryDashIdContext !== null && !editingAlways}
                       pointerEvents={
-                        primaryDashIdContext !== null && !editingAlways && primaryDashId === primaryDashIdContext
+                        primaryDashIdContext !== null && !editingAlways
                           ? "none"
                           : "auto"
                       }
