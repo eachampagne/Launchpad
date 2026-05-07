@@ -15,9 +15,9 @@ function WidgetLibrary({ layoutId, backgroundColor="#111111", onWidgetAdded }: {
 
   const addWidget = async (widgetId: number) => {
 
-    const posX = Math.floor(Math.random() * (gridCols - 2));
-    const posY = Math.floor(Math.random() * (gridRows - 1));
     const { sizeX, sizeY } = WidgetMap[widgetId].defaultSize;
+    const posX = Math.floor(Math.random() * (gridCols - sizeX));
+    const posY = Math.floor(Math.random() * (gridRows - sizeY));
     try {
       await axios.post(`/layout/${layoutId}/element`, {
         widgetId,
