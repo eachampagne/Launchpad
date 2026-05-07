@@ -86,12 +86,76 @@ theme.post('/', async (req, res) => {
   }
 })
 
+// POST - copy an existing theme - either public or owned by the current user
+theme.post('/:themeId/copy', async (req, res) => {
+  // check auth
+  if (req.user === undefined) {
+    return res.sendStatus(401);
+  }
+
+  const userId = req.user.id;
+  const themeId = parseInt(req.params.themeId);
+
+  if (isNaN(themeId)) {
+    return res.sendStatus(400); // bad request
+  }
+
+  try {
+    const original = await prisma.theme.findUnique({where: {id: themeId}});
+
+    // make sure theme exists
+    if (!original) {
+      return res.sendStatus(404);
+    }
+
+    // can only copy a theme that is either public or owned by the current user
+    if (!(original.public || original.ownerId === userId)) {
+      return res.sendStatus(403);
+    }
+
+    const copy = await prisma.theme.create({data: {
+      navColor: original.navColor,
+      bgColor: original.bgColor,
+      font: original.font,
+      name: original.name,
+      public: false,
+      ownerId: userId
+    }});
+
+    res.status(201).send(copy);
+  } catch (error) {
+    console.error('Failed to copy theme:', error);
+    res.sendStatus(500);
+  }
+});
+
 
 // PUT/PATCH - Updates the theme that is current selected
 theme.patch('/', async (req, res) => {
   console.log('PATCH / hit, body:', req.body)
+
+  // check auth
+  if (req.user === undefined) {
+    return res.sendStatus(401);
+  }
+
+  const userId = req.user.id;
+
+  // I *guess* an owner could in theory transfer ownership to someone else, so (new) ownerId might not === userId? There's nowhere in the front end that allows this though
   const { id, public: isPublic, navColor, bgColor, font, ownerId, name} = req.body
   try {
+    const existing = await prisma.theme.findUnique({where: {id}});
+
+    // make sure theme exists
+    if (!existing) {
+      return res.sendStatus(404);
+    }
+
+    // make sure theme is owned by the user trying to update it
+    if (existing.ownerId !== userId) {
+      return res.sendStatus(403);
+    }
+
     await prisma.theme.update({
       where: {
         id: Number(id)
@@ -116,6 +180,12 @@ theme.patch('/', async (req, res) => {
 // PATCH for public themes
 
 theme.patch('/:themeId', async (req, res) => {
+  // check auth
+  if (req.user === undefined) {
+    return res.sendStatus(401);
+  }
+
+  const userId = req.user.id;
   const themeId = Number(req.params.themeId)
   
 
@@ -132,9 +202,9 @@ theme.patch('/:themeId', async (req, res) => {
     }
     
 
-    // if(existing.ownerId !== ownerId){
-    //   return res.status(403).send('You do not own this theme');
-    // }
+    if(existing.ownerId !== userId){
+      return res.status(403).send('You do not own this theme');
+    }
 
     const publicTheme = await prisma.theme.update({
       where: {

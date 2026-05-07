@@ -21,7 +21,7 @@ enum Corner {
   BottomLeft = 'BOTTOM_LEFT',
   BottomRight = 'BOTTOM_RIGHT'
 }
-
+const tintCache = new Map<string, string>();
 function hexToGlassTint(hex: string): string {
   try {
     const canvas = document.createElement('canvas');
@@ -30,7 +30,9 @@ function hexToGlassTint(hex: string): string {
     ctx.fillStyle = hex;
     ctx.fillRect(0, 0, 1, 1);
     const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
-    return `rgba(${r},${g},${b},0.18)`;
+    const result = `rgba(${r},${g},${b},1)`;
+    tintCache.set(hex, result);
+    return result;
   } catch {
     return 'rgba(255,255,255,0)';
   }

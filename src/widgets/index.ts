@@ -1,6 +1,6 @@
 
 import type { IconType } from "react-icons";
-import { LuBot, LuCalendarDays, LuMail, LuTimer, LuLink, LuSearch} from "react-icons/lu";
+import { LuBot, LuCalendarDays, LuMail, LuTimer, LuLink, LuSearch, LuMusic} from "react-icons/lu";
 
 
 import Calendar from './Calendar';
@@ -8,6 +8,7 @@ import Email from './Email';
 import Link from './Link';
 import Timer from './Timer';
 import AiChat from './AiChat';
+import Music from './Music';
 import Search from './Search';
 
 import type { WidgetSettings } from '../../types/LayoutTypes';

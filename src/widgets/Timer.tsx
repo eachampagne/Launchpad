@@ -1,32 +1,41 @@
-import { useState, useEffect, useEffectEvent, useContext } from 'react';
+import { useState, useEffect, useEffectEvent, useContext, useRef } from 'react';
 import axios, { AxiosError } from 'axios';
 
-import { Button, For, Flex, Heading, HStack, Icon, Text } from '@chakra-ui/react';
+import { Button, For, Flex, Heading, HStack, Icon, NumberInput, Text } from '@chakra-ui/react';
 import { LuTimer, LuVolume2, LuVolumeOff } from 'react-icons/lu';
 
 import type { WidgetSettings } from '../../types/LayoutTypes.ts';
 import { TimerStatus } from '../../types/WidgetStatus.ts';
 import { UserContext } from '../UserContext.tsx';
+import { Toaster, toaster } from '../components/ui/toaster'
 
 import soundUrl from './../assets/triangle.mp3';
-const audioElement = new Audio(soundUrl); // defined here so it doesn't keep getting recreated every rerender
 // constantly recreating it is bad performance wise, but also means its muted/unmuted status doesn't persist
 
 function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: string, settings: WidgetSettings | null}) {
   const { user } = useContext(UserContext);
+
+  // this was helpful: https://stackoverflow.com/questions/55198517/react-usestate-why-settimeout-function-does-not-have-latest-state-value
+  const audioElement = useRef(new Audio(soundUrl)); // don't recreate every rerender
+  const tickInterval = useRef(null as null | number);
+  const timerTimeout = useRef(null as null | number);
 
   // should you be able to use the timer just client side if you're logged out?
   const [timerStatus, setTimerStatus] = useState(TimerStatus.SignedOut);
   const [expiration, setExpiration] = useState(null as Date | null);
   const [timerString, setTimerString] = useState('');
   const [pausedRemaining, setPausedRemaining] = useState(null as number | null);
-  const [tickInterval, setTickInterval] = useState(null as null | number);
-  const [timerTimeout, setTimerTimeout] = useState(null as null | number);
   const [muted, setMuted] = useState(false);
 
+  const [minutes, setMinutes] = useState('0');
+  const [seconds, setSeconds] = useState('0');
 
   // check timer, assign states
   const checkServer = async () => {
+    // reset minutes and seconds for custom times
+    setMinutes('0');
+    setSeconds('0');
+
     // if no user, don't bother sending a request
     if (user.id === -1) {
       setTimerStatus(TimerStatus.SignedOut);
@@ -34,7 +43,7 @@ function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: st
     }
 
     try {
-      const response = await axios.get('/timer');
+      const response = await axios.get(`/timer/${widgetId}`);
       if (!response.data) { // even though it's sending null on the server side, it comes through as an empty string
         // I assume because null isn't serializable
         setTimerStatus(TimerStatus.NoTimer);
@@ -67,7 +76,7 @@ function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: st
 
   const startTimer = async (duration: number) => {
     try {
-      await axios.post('/timer', {duration});
+      await axios.post(`/timer/${widgetId}`, {duration});
       checkServer();
     } catch (error) {
       console.error('Failed to start new timer:', error);
@@ -79,15 +88,17 @@ function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: st
   }
 
   const stopTicking = () => {
-    if (tickInterval !== null) {
-      clearInterval(tickInterval);
-      setTickInterval(null);
+    if (tickInterval.current !== null) {
+      clearInterval(tickInterval.current);
+      tickInterval.current = null;
     }
   }
 
   const startTicking = () => {
-    stopTicking();
-    setTickInterval(setInterval(tick, 100));
+    if (tickInterval.current !== null) {
+      clearInterval(tickInterval.current);
+    }
+    tickInterval.current = setInterval(tick, 100);
   }
 
   const pause = async () => {
@@ -96,7 +107,7 @@ function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: st
     }
 
     try {
-      await axios.patch('/timer/pause');
+      await axios.patch(`/timer/pause/${widgetId}`);
       checkServer();
     } catch (error) {
       console.error('Failed to pause timer:', error);
@@ -109,7 +120,7 @@ function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: st
     }
 
     try {
-      await axios.patch('/timer/resume');
+      await axios.patch(`/timer/resume/${widgetId}`);
       checkServer(); // resets expiration, which triggers ticking to start
     } catch (error) {
       console.error('Failed to resume timer:', error);
@@ -118,7 +129,7 @@ function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: st
 
   const reset = async () => {
     try {
-      await axios.delete('/timer');
+      await axios.delete(`/timer/${widgetId}`);
       checkServer();
     } catch (error) {
       console.error('Failed to delete timer:', error);
@@ -165,6 +176,11 @@ function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: st
     startTimer(duration);
   };
 
+  const handleStartCustomTimer = () => {
+    const duration = parseInt(minutes) * 60 * 1000 + parseInt(seconds) * 1000;
+    startTimer(duration);
+  }
+
   const handleControlButton = (event: React.MouseEvent<HTMLButtonElement>) => {
     const action = (event.target as HTMLButtonElement).value;
 
@@ -185,39 +201,44 @@ function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: st
   };
 
   const handleTimeUp = () => {
-    audioElement.play();
+    audioElement.current.play();
     checkServer();
+
+    toaster.create({
+    title: "Timer Finished!",
+    description: "Your timer is up!",
+    })
   }
 
   const handleUnmount = () => {
     // clear timeouts/intervals before unmounting
-    if (timerTimeout !== null) {
-      clearTimeout(timerTimeout);
-      setTimerTimeout(null);
+    if (timerTimeout.current !== null) {
+      clearTimeout(timerTimeout.current);
+      timerTimeout.current = null;
     }
     stopTicking();
   };
 
   const toggleMute = () => {
-    audioElement.muted = !muted; // do this before setting the state instead of waiting for the state to update asynchronously
+    audioElement.current.muted = !muted; // avoid closure issues with the handleTimeUp function
     setMuted(m => !m);
   }
 
   const resetClockDisplay = useEffectEvent(() => {
     stopTicking();
 
-    if (timerTimeout !== null) {
-      clearTimeout(timerTimeout);
+    if (timerTimeout.current !== null) {
+      clearTimeout(timerTimeout.current);
     }
 
     if (expiration !== null) {
       const remainingMs = expiration.getTime() - Date.now();
-      setTimerTimeout(setTimeout(handleTimeUp, remainingMs));
+      timerTimeout.current = setTimeout(handleTimeUp, remainingMs);
       setTimerString(expiresToString(expiration));
       startTicking();
     } else if (pausedRemaining !== null) {
       setTimerString(timeToString(pausedRemaining));
-      setTimerTimeout(null);
+      timerTimeout.current = null;
     }
   });
 
@@ -254,9 +275,32 @@ function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: st
         return (
           <>
             <Text marginBottom="0.5rem">Start a timer:</Text>
+            <Flex justify="center" gap="0.5rem" mb="0.5rem">
+              <NumberInput.Root
+                w="75px"
+                value={minutes}
+                min={0}
+                max={59}
+                onValueChange={(e) => setMinutes(e.value)}
+              >
+                <NumberInput.Control />
+                <NumberInput.Input />
+              </NumberInput.Root>
+              <NumberInput.Root
+                w="75px"
+                value={seconds}
+                min={0}
+                max={59}
+                onValueChange={(e) => setSeconds(e.value)}
+              >
+                <NumberInput.Control />
+                <NumberInput.Input />
+              </NumberInput.Root>
+              <Button onClick={handleStartCustomTimer}>Start</Button>
+            </Flex>
             <Flex justify="center" gap="0.5rem">
               <For
-                each={[1, 5, 25, 45]}
+                each={[5, 25, 45]}
               >
                 {(time) => {
                   return (
@@ -338,6 +382,7 @@ function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: st
         {renderVolumeControl()}
       </Flex>
       {renderTimer()}
+      <Toaster/>
     </Flex>
   );
 }

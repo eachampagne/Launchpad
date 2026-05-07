@@ -134,11 +134,9 @@ export default function Hub(
    * Handles deleting a dashboard
    */
   const handleDelete = async (dashboardId: number) => {
-
     try {
       await axios.delete(`/dashboard/${dashboardId}`);
-      // refresh primary dashboard data if user deletes their active primary dash
-      if (primaryDashId === dashboardId) {
+      if (primaryDashIdContext === dashboardId) {
         refreshPrimaryDash();
       }
     } catch (err) {
@@ -161,6 +159,7 @@ export default function Hub(
       await axios.delete(`/schedule/all/${ownerId}`);
       getDashboardData();
       await getScheduledDashboardsData();
+      refreshPrimaryDash();
       setMode("ALWAYS");
       setEditingAlways(false);
     } catch (err) {
@@ -227,14 +226,14 @@ export default function Hub(
   if (ownerId === -1) {
     return (
       <Box width="full" minH="100vh" position="relative" p="0" m="0">
-        <NavBar pages={[]} navColor="#dba022" />
+        <NavBar pages={[]} />
       </Box>
     )
   }
 
   return (
     <>
-      <NavBar pages={["Home", "Dashboard"]} navColor="#dba022" />{" "}
+      <NavBar pages={["Home", "Dashboard"]} />{" "}
       {/*empty string will take user to Home page*/}
       <Flex minH="100vh" justify="center">
         <Box w="100%" maxW="1800px" p={6}>
@@ -322,9 +321,9 @@ export default function Hub(
                         setPrimaryDashId(value);
                       }}
                       style={{ minWidth: "200px" }}
-                      aria-disabled={primaryDashId !== null && !editingAlways}
+                      aria-disabled={primaryDashIdContext !== null && !editingAlways}
                       pointerEvents={
-                        primaryDashId !== null && !editingAlways
+                        primaryDashIdContext !== null && !editingAlways
                           ? "none"
                           : "auto"
                       }
@@ -341,8 +340,7 @@ export default function Hub(
                     <NativeSelect.Indicator />
                   </NativeSelect.Root>
 
-                  {mode === "ALWAYS" &&
-                    (primaryDashId === null || editingAlways) && (
+                  {mode === "ALWAYS" && primaryDashId !== primaryDashIdContext && (
                       <Button
                         size="sm"
                         onClick={() =>
@@ -651,6 +649,7 @@ export default function Hub(
                           flex="1"
                           placeholder=""
                           onChange={handleInputChange}
+                          onKeyDown={(e) => e.key === "Enter" && handleCreate()}
                           value={createdDashName}
                         />
                         <Button
