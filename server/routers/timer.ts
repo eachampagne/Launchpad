@@ -2,77 +2,30 @@ import express from 'express';
 
 import { prisma } from '../database/prisma.js';
 
-import "dotenv/config";
-import twilio, { Twilio } from 'twilio'
-const accountSid = process.env.TWILIO_ACCOUNT_SID;
-const authToken = process.env.TWILIO_AUTH_TOKEN;
-
-let client: Twilio | undefined;
-
-if (process.env.NODE_ENV !== "test") {
-    if (!accountSid || !authToken) {
-      throw new Error("Missing Twilio environment variables");
-    }
-    client = twilio(accountSid, authToken);
-}
-
-const timerLookup: {[key: string]: NodeJS.Timeout} = {};
+import { timerLookup, timerCallback, clearTimer } from '../database/timer.js';
 
 const timer = express.Router();
 
-const timerCallback = async (userId: number) => {
-  console.info(`User ${userId}'s timer is up.`);
+// I don't think using layoutElementId as the path param (as opposed to the timer id)
+// is proper REST, but the widget has no way to know what the timer id is
+// ... this also doesn't actually check that the layoutElement is in fact a timer...
 
-  // check if user has a phone number - verified - notifications are true
-  // if so send the message - if not throw error
-
-  
-    
-      const userNumber = await prisma.phoneNumbers.findUnique({
-        where: {
-          userId: userId
-        }
-      })
-      console.log(userNumber, userId, 'TIMER TESTING')
-      if(userNumber){
-        if(userNumber.verified === true && userNumber.notifications === true){
-          if (!client) {
-            console.info("Twilio disabled (test mode), skipping SMS.");
-          } else {
-            try {
-              await client.messages.create({
-                body: "Timer is up!",
-                from: "+18336574381",
-                to: userNumber.contactNumber,
-              });
-            } catch (error) {
-              console.error(
-                error,
-                "something went wrong when sending message with timer ending",
-              );
-            }
-          }
-        }
-      }
-
-    
-  
-
-  await prisma.timer.deleteMany({where: {
-    ownerId: userId
-  }});
-};
-
-timer.get('/', async (req, res) => {
+timer.get('/:layoutElementId', async (req, res) => {
   // check auth
   if (req.user === undefined) {
     res.sendStatus(401);
     return;
   }
 
+  const layoutElementId = parseInt(req.params.layoutElementId);
+  if (isNaN(layoutElementId)) {
+    return res.sendStatus(400);
+  }
+
   try {
     const timer = await prisma.timer.findFirst({where: {
-      ownerId: req.user.id
+      ownerId: req.user.id,
+      layoutElementId
     }});
 
     if (timer === null) {
@@ -92,7 +45,7 @@ timer.get('/', async (req, res) => {
   }
 });
 
-timer.post('/', async (req, res) => {
+timer.post('/:layoutElementId', async (req, res) => {
   // check auth
   if (req.user === undefined) {
     res.sendStatus(401);
@@ -101,11 +54,17 @@ timer.post('/', async (req, res) => {
 
   const { id } = req.user;
 
+  const layoutElementId = parseInt(req.params.layoutElementId);
+  if (isNaN(layoutElementId)) {
+    return res.sendStatus(400);
+  }
+
   try {
-    // check if user already has a timer
-    // a user is only allowed to have one timer at a time
+    // check if this widget already has a timer
+    // a given widget is only allowed to have one timer at a time
     const existingTimer = await prisma.timer.findFirst({where: {
-      ownerId: id
+      ownerId: id,
+      layoutElementId
     }});
 
     if (existingTimer !== null) {
@@ -119,16 +78,17 @@ timer.post('/', async (req, res) => {
     };
 
     const timeout = setTimeout(() => {
-      timerCallback(id);
+      timerCallback(id, layoutElementId);
     }, duration); // apparently NodeJS's setTimeout is different from the window one
-    timerLookup[id] = timeout;
+    timerLookup[layoutElementId] = timeout;
     const expirationTime = Date.now() + duration;
 
     await prisma.timer.create({
       data: {
         ownerId: id,
         expiresAt: new Date(expirationTime),
-        paused: false
+        paused: false,
+        layoutElementId
       }
     });
 
@@ -139,16 +99,22 @@ timer.post('/', async (req, res) => {
   }
 });
 
-timer.patch('/pause', async (req, res) => {
+timer.patch('/pause/:layoutElementId', async (req, res) => {
   // check auth
   if (req.user === undefined) {
     res.sendStatus(401);
     return;
   }
 
+  const layoutElementId = parseInt(req.params.layoutElementId);
+  if (isNaN(layoutElementId)) {
+    return res.sendStatus(400);
+  }
+
   try {
     const timer = await prisma.timer.findFirst({where: {
       ownerId: req.user.id,
+      layoutElementId,
       paused: false
     }});
 
@@ -156,8 +122,8 @@ timer.patch('/pause', async (req, res) => {
       res.sendStatus(404); // either timer doesn't exist, or is already paused
     } else {
       const remainingMs = (timer.expiresAt as Date).getTime() - Date.now();
-      clearTimeout(timerLookup[req.user.id]);
-      delete timerLookup[req.user.id];
+      clearTimeout(timerLookup[layoutElementId]);
+      delete timerLookup[layoutElementId];
 
       await prisma.timer.update({
         where: {id: timer.id},
@@ -176,7 +142,7 @@ timer.patch('/pause', async (req, res) => {
   }
 });
 
-timer.patch('/resume', async (req, res) => {
+timer.patch('/resume/:layoutElementId', async (req, res) => {
   // check auth
   if (req.user === undefined) {
     res.sendStatus(401);
@@ -184,10 +150,15 @@ timer.patch('/resume', async (req, res) => {
   }
 
   const { id } = req.user;
+  const layoutElementId = parseInt(req.params.layoutElementId);
+  if (isNaN(layoutElementId)) {
+    return res.sendStatus(400);
+  }
 
   try {
     const timer = await prisma.timer.findFirst({where: {
       ownerId: id,
+      layoutElementId,
       paused: true
     }});
 
@@ -197,9 +168,9 @@ timer.patch('/resume', async (req, res) => {
       const remainingMs = timer.remainingMs as number;
 
       const timeout = setTimeout(() => {
-        timerCallback(id);
+        timerCallback(id, layoutElementId);
       }, remainingMs); // apparently NodeJS's setTimeout is different from the window one
-      timerLookup[id] = timeout;
+      timerLookup[layoutElementId] = timeout;
       const expiresAt = new Date((remainingMs) + Date.now());
 
       await prisma.timer.update({
@@ -219,21 +190,22 @@ timer.patch('/resume', async (req, res) => {
   }
 });
 
-timer.delete('/', async (req, res) => {
+timer.delete('/:layoutElementId', async (req, res) => {
   // check auth
   if (req.user === undefined) {
     res.sendStatus(401);
     return;
   }
 
-  try {
-    const batchPayload = await prisma.timer.deleteMany({where: {
-      ownerId: req.user.id
-    }});
+  const layoutElementId = parseInt(req.params.layoutElementId);
+  if (isNaN(layoutElementId)) {
+    return res.sendStatus(400);
+  }
 
-    if (batchPayload.count > 0) {
-      clearTimeout(timerLookup[req.user.id]);
-      delete timerLookup[req.user.id];
+  try {
+    const deleteCount = await clearTimer(req.user.id, layoutElementId);
+
+    if (deleteCount > 0) {
       res.sendStatus(200);
     } else {
       res.sendStatus(404);
@@ -243,31 +215,5 @@ timer.delete('/', async (req, res) => {
     res.sendStatus(500);
   }
 });
-
-// initialize timeouts for any running timers
-(async function () {
-  console.info('Initializing timers:');
-  let timerCount = 0;
-
-  const timers = await prisma.timer.findMany({where: {paused: false}});
-
-  timers.forEach((timer) => {
-    const userId = timer.ownerId;
-
-    let remainingMs = (timer.expiresAt as Date).getTime() - Date.now();
-    if (remainingMs < 0) {
-      remainingMs = 0; // stop the negative timeout warning
-    }
-
-    const timeout = setTimeout(() => {
-      timerCallback(userId);
-    }, remainingMs); // apparently NodeJS's setTimeout is different from the window one
-    timerLookup[userId] = timeout;
-
-    timerCount++;
-  });
-
-  console.info(`Successfully initialized ${timerCount} timers.`);
-})();
 
 export default timer;
