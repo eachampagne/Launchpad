@@ -2,7 +2,7 @@ import { useState, useEffect} from 'react';
 import { parseColor } from '@chakra-ui/react'
 import Color from './ColorPicker';
 import axios from 'axios';
-import { Box, Button, Text, Listbox, createListCollection} from "@chakra-ui/react"
+import { Box, Button, Text, Listbox, createListCollection, Input} from "@chakra-ui/react"
 import { IoTrashSharp, IoPencilSharp, IoAddCircleOutline, IoPeopleSharp, IoPeopleOutline } from "react-icons/io5";
 
 function Theme ({dashboard, ownerId, dashboardId, textColor="white", refreshTheme}: {dashboard: { name: string, ownerId: number}, ownerId: number, dashboardId : number, textColor?: string, refreshTheme: () => void}) {
@@ -438,29 +438,27 @@ function Theme ({dashboard, ownerId, dashboardId, textColor="white", refreshThem
       </Box>
     ))}
   </Box>
-        <Box display='flex' alignItems='center' gap='2'
-        py='1.5' borderBottom='0.5px solid rgba(255,255,255,0.06)' bg='rgba(34, 34, 34, 0.08)'>
+    <Box px='2.5' pt='2' pb='2.5' bg='0.5px solid rgba(255,255,255,0.06)'>
+      <Box display='flex' alignItems='center' gap='2'
+        py='1.5' borderBottom={textColor} bg='0.5px solid rgba(255,255,255,0.06)'>
         <Text fontSize='11px' color={textColor} w='72px' flexShrink={0} position='center'>Name</Text>
-        <input
+        <Input
           value={themeName}
           onChange={(e) => setThemeName(e.target.value)}
           maxLength={15}
           placeholder='default'
+          size='xs'
+          variant='outline'
+          color={textColor}
+          fontSize='11px'
           
-          style={{
-            background: 'transparent',
-            border: '0.5px solid rgba(255,255,255,0.1)',
-            borderRadius: '6px',
-            color: '#ffffff',
-            fontSize: '11px',
-            padding: '4px 8px',
-            width: '100%',
-            outline: 'none',
-            alignItems: 'center',
-          }}
+          borderRadius='6px'
+          bg='transparent'
+          _placeholder={{ color: 'whiteAlpha.400' }}
+          _focus={{ border: '0.5px solid rgba(255, 255, 255, 0.6)', boxShadow: 'none' }}
         />
       </Box>
-  <Box px='2.5' pt='2' pb='2.5' bg='rgba(34, 34, 34, 0.08)'>
+  
     {[
       { label: 'Navigation', value: navColorPick, setter: setNavColorPick },
       { label: 'Background', value: bgColorPick, setter: setBgColorPick },
