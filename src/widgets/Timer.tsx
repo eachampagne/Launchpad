@@ -57,6 +57,14 @@ function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: st
           setPausedRemaining(remainingMs);
           setExpiration(null);
         } else {
+          if (remainingMs < 0) { // timer has already expired - basically counts as no timer
+            // the server should no longer send expired timers, but this is just in case
+            setTimerStatus(TimerStatus.NoTimer);
+            setPausedRemaining(null);
+            setExpiration(null);
+            return;
+          }
+
           setTimerStatus(TimerStatus.ActiveTimer);
           const expirationResponse = new Date(Date.now() + remainingMs);
           setExpiration(expirationResponse);
