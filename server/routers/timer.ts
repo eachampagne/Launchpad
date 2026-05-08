@@ -37,6 +37,10 @@ timer.get('/:layoutElementId', async (req, res) => {
         remainingMs: timer.paused ? timer.remainingMs : (timer.expiresAt as Date).getTime() - Date.now()
       }
 
+      if (timerData.remainingMs as number < 0) {
+        return res.status(200).send(null); // timer has already expired and is about to be deleted - don't send to client to avoid notification loop
+      }
+
       res.status(200).send(timerData)
     }
   } catch (error) {
@@ -67,6 +71,7 @@ timer.post('/:layoutElementId', async (req, res) => {
       layoutElementId
     }});
 
+    // TODO: - check for timers with negative remaining times (could be expired but not yet deleted)
     if (existingTimer !== null) {
       res.sendStatus(409);
       return;
