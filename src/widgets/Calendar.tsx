@@ -5,14 +5,18 @@ import axios, { AxiosError } from 'axios';
 import { AbsoluteCenter, Button, Container, Flex, For, Heading, HStack, Icon, LinkBox, LinkOverlay, NativeSelect, ScrollArea, Spacer, Spinner, Text, VStack } from '@chakra-ui/react';
 import { LuCalendarDays, LuRefreshCw } from 'react-icons/lu';
 
+import { UserContext } from './../UserContext';
+import changeTextColor from '../utilities/color.ts';
+
 
 import type { AllDayTime, PartDayTime, Event, CalendarObject } from '../../types/Calendar.ts';
 import type { WidgetSettings } from '../../types/LayoutTypes.ts';
 import { AuthStatus } from '../../types/WidgetStatus.ts';
-import { UserContext } from './../UserContext';
 
-function Calendar({widgetId, textColor, settings}: {widgetId: number, textColor: string, settings: WidgetSettings | null}) {
+function Calendar({widgetId, widgetColor, settings}: {widgetId: number, widgetColor: string, settings: WidgetSettings | null}) {
   const { user } = useContext(UserContext);
+
+  const textColor = changeTextColor(widgetColor);
 
   const [authStatus, setAuthStatus] = useState(AuthStatus.SignedOut);
   const [events, setEvents] = useState([] as Event[]);

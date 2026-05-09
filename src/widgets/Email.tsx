@@ -5,13 +5,17 @@ import { decode } from 'html-entities';
 import { AbsoluteCenter, Button, Flex, For, Heading, Icon, LinkBox, LinkOverlay, ScrollArea, Spacer, Spinner, Stack, Text } from '@chakra-ui/react';
 import { LuMail, LuRefreshCw } from 'react-icons/lu';
 
+import { UserContext } from './../UserContext';
+import changeTextColor from '../utilities/color.ts';
+
 import { AuthStatus } from '../../types/WidgetStatus.ts';
 import type { EmailObject } from '../../types/Email.ts';
 import type { WidgetSettings } from '../../types/LayoutTypes.ts';
-import { UserContext } from './../UserContext';
 
-function Email ({widgetId, textColor, settings}: {widgetId: number, textColor: string, settings: WidgetSettings | null}) {
+function Email ({widgetId, widgetColor, settings}: {widgetId: number, widgetColor: string, settings: WidgetSettings | null}) {
   const { user } = useContext(UserContext);
+
+  const textColor = changeTextColor(widgetColor);
 
   const [authStatus, setAuthStatus] = useState(AuthStatus.SignedOut);
   const [emails, setEmails] = useState([] as EmailObject[]);

@@ -7,13 +7,16 @@ import { LuTimer, LuVolume2, LuVolumeOff } from 'react-icons/lu';
 import type { WidgetSettings } from '../../types/LayoutTypes.ts';
 import { TimerStatus } from '../../types/WidgetStatus.ts';
 import { UserContext } from '../UserContext.tsx';
+import changeTextColor from '../utilities/color.ts';
 import { Toaster, toaster } from '../components/ui/toaster'
 
 import soundUrl from './../assets/triangle.mp3';
 // constantly recreating it is bad performance wise, but also means its muted/unmuted status doesn't persist
 
-function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: string, settings: WidgetSettings | null}) {
+function Timer({widgetId, widgetColor, settings}: {widgetId: number, widgetColor: string, settings: WidgetSettings | null}) {
   const { user } = useContext(UserContext);
+
+  const textColor = changeTextColor(widgetColor);
 
   // this was helpful: https://stackoverflow.com/questions/55198517/react-usestate-why-settimeout-function-does-not-have-latest-state-value
   const audioElement = useRef(new Audio(soundUrl)); // don't recreate every rerender

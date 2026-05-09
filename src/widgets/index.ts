@@ -16,7 +16,7 @@ import type { WidgetSettings } from '../../types/LayoutTypes';
 export type WidgetDefinition = {
   id: number;
   name: string;
-  component: React.FC<{ widgetId: number; textColor: string; settings: WidgetSettings | null }>;
+  component: React.FC<{ widgetId: number; widgetColor: string; settings: WidgetSettings | null }>;
   icon: IconType;
   defaultSize: { sizeX: number; sizeY: number };
 };
