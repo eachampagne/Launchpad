@@ -1,8 +1,11 @@
-import { Box, Heading, IconButton, HStack, TooltipRoot, TooltipTrigger, TooltipContent} from "@chakra-ui/react";
+import { Box, Heading, IconButton, HStack, TooltipRoot, TooltipTrigger} from "@chakra-ui/react";
 import axios from "axios";
 
 import WidgetMap from "./widgets";
 import changeTextColor from './utilities/color.ts';
+
+const gridCols = 19;
+const gridRows = 12;
 
 function WidgetLibrary({ layoutId, backgroundColor="#111111", onWidgetAdded }: { layoutId: number; backgroundColor?: string; onWidgetAdded: () => void }) {
   const widgets = Object.values(WidgetMap);
@@ -11,14 +14,18 @@ function WidgetLibrary({ layoutId, backgroundColor="#111111", onWidgetAdded }: {
   const buttonBgColor = changeTextColor(backgroundColor, "gray.100", "gray.900");
 
   const addWidget = async (widgetId: number) => {
+
+    const { sizeX, sizeY } = WidgetMap[widgetId].defaultSize;
+    const posX = Math.floor(Math.random() * (gridCols - sizeX));
+    const posY = Math.floor(Math.random() * (gridRows - sizeY));
     try {
       await axios.post(`/layout/${layoutId}/element`, {
         widgetId,
         widgetSettings: {
-          posX: 0,
-          posY: 0,
-          sizeX: 2,
-          sizeY: 2,
+          posX,
+          posY,
+          sizeX,
+          sizeY,
         },
       });
       onWidgetAdded();
@@ -42,7 +49,6 @@ function WidgetLibrary({ layoutId, backgroundColor="#111111", onWidgetAdded }: {
             <TooltipRoot key={widget.id}>
               <TooltipTrigger asChild>
               <IconButton
-                aria-label={`Add ${widget.name}`}
                 onClick={() => addWidget(widget.id)}
                 size="lg"
                 variant="outline"
@@ -54,10 +60,6 @@ function WidgetLibrary({ layoutId, backgroundColor="#111111", onWidgetAdded }: {
                  <Icon />
                </IconButton>
               </TooltipTrigger>
-
-              <TooltipContent>
-              Add {widget.name}
-              </TooltipContent>
             </TooltipRoot>
           );
         })}
