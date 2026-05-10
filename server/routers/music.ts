@@ -26,7 +26,7 @@ spotify.get('/login', (req, res) => {
     response_type: 'code',
     client_id: spotify_client_id!,
     scope: scope,
-    redirect_uri: 'http://127.0.0.1:8000/spotify/callback',
+    redirect_uri: 'https://www.yuzulaunchpad.com',
     state: state,
   });
 

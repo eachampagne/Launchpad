@@ -26,6 +26,8 @@ function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: st
   const [timerString, setTimerString] = useState('');
   const [pausedRemaining, setPausedRemaining] = useState(null as number | null);
   const [muted, setMuted] = useState(false);
+  const [notiAllowed, setNotiAllowed] = useState(false);
+  const [countToast, setCountToast] = useState(0);
 
   const [minutes, setMinutes] = useState('0');
   const [seconds, setSeconds] = useState('0');
@@ -89,6 +91,8 @@ function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: st
     } catch (error) {
       console.error('Failed to start new timer:', error);
     }
+
+    setCountToast(0);
   };
 
   const tick = () => {
@@ -208,14 +212,55 @@ function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: st
     }
   };
 
+  const checkNotiStatus = () => {
+
+      axios.get(`/notifications/${user.id}`)
+        .then(response => {
+          const { noti } = response.data.data;
+          console.log(response, 'hi')
+          setNotiAllowed(noti);
+        })
+        .catch(error => {
+          console.error('Failed to fetch phone number settings:', error);
+      });
+
+
+      console.log(notiAllowed)
+  }
+
   const handleTimeUp = () => {
     audioElement.current.play();
     checkServer();
 
-    toaster.create({
-    title: "Timer Finished!",
-    description: "Your timer is up!",
-    })
+
+
+    if(notiAllowed === true && countToast === 0){
+      toaster.create({
+      title: "Timer Finished!",
+      description: "Your timer is up!",
+      })
+
+      setCountToast((c) => c + 1)
+    }
+
+    // toaster.create({
+    // title: "Timer Finished!",
+    // description: "Your timer is up!",
+    // })
+    // axios.get(`/phoneNumbers/${user.id}`)
+    //     .then(response => {
+    //       const { noti } = response.data.data;
+    //       if (noti) {
+    //         toaster.create({
+    //           title: "Timer Finished!",
+    //           description: "Your timer is up!",
+    //         });
+    //       }
+    //     })
+    //     .catch(error => {
+    //       console.error('Failed to fetch phone number settings:', error);
+    //     });
+  
   }
 
   const handleUnmount = () => {
@@ -256,6 +301,7 @@ function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: st
 
   useEffect(() => {
     checkServer();
+    checkNotiStatus();
   }, [user]);
 
   useEffect(() => {
