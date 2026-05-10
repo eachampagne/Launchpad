@@ -17,6 +17,8 @@ function LinkWidget ({widgetId, widgetColor, settings}: {widgetId: number, widge
   const [linkError, setLinkError] = useState(false);
 
   const textColor = changeTextColor(widgetColor);
+  const buttonText = changeTextColor(widgetColor, "white", "black");
+  const colorMode = changeTextColor(widgetColor, "light", "dark"); // control popover color scheme
 
   const refreshLink = async () => {
     try {
@@ -67,10 +69,10 @@ function LinkWidget ({widgetId, widgetColor, settings}: {widgetId: number, widge
         setLinkError(false);
         if (e.open) {
           setNewLink(linkUrl);
-          setDisplayText(displayText);
+          setNewDisplay(displayText);
         } else {
           setNewLink('');
-          setDisplayText('');
+          setNewDisplay('');
         }
       }}>
       <Popover.Trigger asChild>
@@ -82,7 +84,7 @@ function LinkWidget ({widgetId, widgetColor, settings}: {widgetId: number, widge
         </Icon>
       </Popover.Trigger>
       <Portal>
-        <Popover.Positioner>
+        <Popover.Positioner className={colorMode} color={textColor}>
           <Popover.Content>
             <Popover.Arrow />
             <Popover.Body>
@@ -123,7 +125,7 @@ function LinkWidget ({widgetId, widgetColor, settings}: {widgetId: number, widge
                     }}
                   />
                 </VStack>
-                <Button onClick={() => handleSubmitNewLink(newLink, newDisplay)}>Save</Button>
+                <Button onClick={() => handleSubmitNewLink(newLink, newDisplay)} variant="solid" bgColor={textColor} color={buttonText}>Save</Button>
               </HStack>
             </Popover.Body>
           </Popover.Content>
@@ -142,7 +144,7 @@ function LinkWidget ({widgetId, widgetColor, settings}: {widgetId: number, widge
       );
     } else {
       return (
-        <Link href={linkUrl.slice(0,4) === 'http' ? linkUrl : `https://${linkUrl}`}>
+        <Link href={linkUrl.slice(0,4) === 'http' ? linkUrl : `https://${linkUrl}`} color={textColor}>
           {/* assuming that https is more common than http */}
           <Heading>
             {displayText || linkUrl}
