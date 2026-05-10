@@ -6,6 +6,7 @@ const spotify = express.Router();
 
 const spotify_client_id = process.env.SPOTIFY_CLIENT_ID;
 const spotify_client_secret = process.env.SPOTIFY_CLIENT_SECRET;
+const spotify_redirect = process.env.SPOTIFY_LOGIN_REDIRECT_URL;
 
 let access_token = '';
 
@@ -26,7 +27,7 @@ spotify.get('/login', (req, res) => {
     response_type: 'code',
     client_id: spotify_client_id!,
     scope: scope,
-    redirect_uri: 'https://www.yuzulaunchpad.com',
+    redirect_uri: spotify_redirect!,
     state: state,
   });
 
@@ -40,7 +41,7 @@ spotify.get('/callback', (req, res) => {
     url: 'https://accounts.spotify.com/api/token',
     form: {
       code: code,
-      redirect_uri: 'http://127.0.0.1:8000/spotify/callback',
+      redirect_uri: spotify_redirect!,
       grant_type: 'authorization_code',
     },
     headers: {
