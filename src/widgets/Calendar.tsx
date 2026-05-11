@@ -5,14 +5,20 @@ import axios, { AxiosError } from 'axios';
 import { AbsoluteCenter, Button, Container, Flex, For, Heading, HStack, Icon, LinkBox, LinkOverlay, NativeSelect, ScrollArea, Spacer, Spinner, Text, VStack } from '@chakra-ui/react';
 import { LuCalendarDays, LuRefreshCw } from 'react-icons/lu';
 
+import { UserContext } from './../UserContext';
+import changeTextColor from '../utilities/color.ts';
+
 
 import type { AllDayTime, PartDayTime, Event, CalendarObject } from '../../types/Calendar.ts';
 import type { WidgetSettings } from '../../types/LayoutTypes.ts';
 import { AuthStatus } from '../../types/WidgetStatus.ts';
-import { UserContext } from './../UserContext';
 
-function Calendar({widgetId, textColor, settings}: {widgetId: number, textColor: string, settings: WidgetSettings | null}) {
+function Calendar({widgetId, widgetColor, settings}: {widgetId: number, widgetColor: string, settings: WidgetSettings | null}) {
   const { user } = useContext(UserContext);
+
+  const textColor = changeTextColor(widgetColor);
+  const buttonText = changeTextColor(widgetColor, "white", "black");
+  const colorMode = changeTextColor(widgetColor, "dark", "light"); // affects dropdown menu
 
   const [authStatus, setAuthStatus] = useState(AuthStatus.SignedOut);
   const [events, setEvents] = useState([] as Event[]);
@@ -154,7 +160,7 @@ function Calendar({widgetId, textColor, settings}: {widgetId: number, textColor:
 
       return (
         <HStack>
-          <NativeSelect.Root variant={'subtle'} color='white'>
+          <NativeSelect.Root variant={'subtle'} color={buttonText}>
             <NativeSelect.Field onChange={handleCalendarSelect} value={activeCalendarId || primaryCalendarId}>
               <For
                 each={calendars}
@@ -165,7 +171,7 @@ function Calendar({widgetId, textColor, settings}: {widgetId: number, textColor:
             </NativeSelect.Field>
             <NativeSelect.Indicator />
           </NativeSelect.Root>
-          <Button onClick={() => setDefaultCalendar(activeCalendarId)}>Make default</Button>
+          <Button onClick={() => setDefaultCalendar(activeCalendarId)} bgColor={textColor} color={buttonText}>Make default</Button>
         </HStack>
       )
     } else {
@@ -182,7 +188,7 @@ function Calendar({widgetId, textColor, settings}: {widgetId: number, textColor:
         // LinkBox/LinkOverlay mean the whole button, not just the text, functions as a link
         return (
           <LinkBox>
-            <Button>
+            <Button bgColor={textColor} color={buttonText}>
               <LinkOverlay href='/auth/calendar'>Authorize Calendar</LinkOverlay>
             </Button>
           </LinkBox>
@@ -200,7 +206,7 @@ function Calendar({widgetId, textColor, settings}: {widgetId: number, textColor:
         return (
           <ScrollArea.Root marginTop="0.5rem">
             <ScrollArea.Viewport>
-              <ScrollArea.Content>
+              <ScrollArea.Content containerType="size">
                 <VStack>
                   <For
                     each={events}
@@ -220,7 +226,7 @@ function Calendar({widgetId, textColor, settings}: {widgetId: number, textColor:
                       }
 
                       return (
-                        <Flex w="100%" wrap="wrap" justify="flex-start" align="center">
+                        <Flex w="100%" justify="flex-start" align="center" css={{"@container (width < 250px)": {flexDirection: "column", alignItems: "flex-start"}}}>
                           <Container maxWidth="75px" p="0" m="0">
                             {startEmphasis}
                           </Container>
@@ -247,7 +253,7 @@ function Calendar({widgetId, textColor, settings}: {widgetId: number, textColor:
   };
 
   return (
-    <Flex direction="column" height="100%" color={textColor}>
+    <Flex direction="column" height="100%" color={textColor} className={colorMode}>
       <Flex align="center" marginBottom="0.5rem"> {/* Inner flex box means icon is vertically centered against text */}
         <Icon size="lg" marginRight="0.5rem">
           <LuCalendarDays/>

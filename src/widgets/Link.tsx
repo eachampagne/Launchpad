@@ -5,15 +5,20 @@ import { Button, Container, Field, Flex, Heading, HStack, Icon, Input, Link, Pop
 import { LuExternalLink, LuLink, LuPencil, LuUnlink } from 'react-icons/lu';
 
 import type { WidgetSettings } from '../../types/LayoutTypes.ts';
+import changeTextColor from '../utilities/color.ts';
 
 // can't conflict with Chakra Link...
-function LinkWidget ({widgetId, textColor, settings}: {widgetId: number, textColor: string, settings: WidgetSettings | null}) {
+function LinkWidget ({widgetId, widgetColor, settings}: {widgetId: number, widgetColor: string, settings: WidgetSettings | null}) {
   const [linkUrl, setLinkUrl] = useState(settings?.link?.url ?? '');
   const [displayText, setDisplayText] = useState(settings?.link?.displayText ?? '');
   const [newLink, setNewLink] = useState('');
   const [newDisplay, setNewDisplay] = useState('');
   const [linkEditorOpen, setLinkEditorOpen] = useState(false);
   const [linkError, setLinkError] = useState(false);
+
+  const textColor = changeTextColor(widgetColor);
+  const buttonText = changeTextColor(widgetColor, "white", "black");
+  const colorMode = changeTextColor(widgetColor, "light", "dark"); // control popover color scheme
 
   const refreshLink = async () => {
     try {
@@ -64,10 +69,10 @@ function LinkWidget ({widgetId, textColor, settings}: {widgetId: number, textCol
         setLinkError(false);
         if (e.open) {
           setNewLink(linkUrl);
-          setDisplayText(displayText);
+          setNewDisplay(displayText);
         } else {
           setNewLink('');
-          setDisplayText('');
+          setNewDisplay('');
         }
       }}>
       <Popover.Trigger asChild>
@@ -79,7 +84,7 @@ function LinkWidget ({widgetId, textColor, settings}: {widgetId: number, textCol
         </Icon>
       </Popover.Trigger>
       <Portal>
-        <Popover.Positioner>
+        <Popover.Positioner className={colorMode} color={textColor}>
           <Popover.Content>
             <Popover.Arrow />
             <Popover.Body>
@@ -120,7 +125,7 @@ function LinkWidget ({widgetId, textColor, settings}: {widgetId: number, textCol
                     }}
                   />
                 </VStack>
-                <Button onClick={() => handleSubmitNewLink(newLink, newDisplay)}>Save</Button>
+                <Button onClick={() => handleSubmitNewLink(newLink, newDisplay)} variant="solid" bgColor={textColor} color={buttonText}>Save</Button>
               </HStack>
             </Popover.Body>
           </Popover.Content>
@@ -139,7 +144,7 @@ function LinkWidget ({widgetId, textColor, settings}: {widgetId: number, textCol
       );
     } else {
       return (
-        <Link href={linkUrl.slice(0,4) === 'http' ? linkUrl : `https://${linkUrl}`}>
+        <Link href={linkUrl.slice(0,4) === 'http' ? linkUrl : `https://${linkUrl}`} color={textColor}>
           {/* assuming that https is more common than http */}
           <Heading>
             {displayText || linkUrl}
