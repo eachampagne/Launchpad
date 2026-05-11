@@ -426,12 +426,12 @@ function WidgetFrame({widgetId, posX, posY, sizeX, sizeY, minWidth, minHeight, m
     return (
       <>
         <For each={Object.values(Side)}>
-          {(item) => <SideHandle side={item} parentWidth={parentWidth} parentHeight={parentHeight} resize={resize} snap={snapSide}/>}
+          {(item) => <SideHandle side={item} parentWidth={parentWidth - 2 * margin} parentHeight={parentHeight - 2 * margin} resize={resize} snap={snapSide}/>}
         </For>
         <For each={Object.values(Corner)}>
-          {(item) => <CornerHandle corner={item} parentWidth={parentWidth} parentHeight={parentHeight} resize={resize} snap={snapSide}/>}
+          {(item) => <CornerHandle corner={item} parentWidth={parentWidth - 2 * margin} parentHeight={parentHeight - 2 * margin} resize={resize} snap={snapSide}/>}
         </For>
-        <DragHandle parentWidth={parentWidth} parentHeight={parentHeight} move={move} snap={snapPosition}/>
+        <DragHandle parentWidth={parentWidth - 2 * margin} parentHeight={parentHeight - 2 * margin} move={move} snap={snapPosition}/>
       </>
     );
   };
