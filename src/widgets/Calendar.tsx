@@ -204,7 +204,7 @@ function Calendar({widgetId, widgetColor, settings}: {widgetId: number, widgetCo
         return (
           <ScrollArea.Root marginTop="0.5rem">
             <ScrollArea.Viewport>
-              <ScrollArea.Content>
+              <ScrollArea.Content containerType="size">
                 <VStack>
                   <For
                     each={events}
@@ -224,7 +224,7 @@ function Calendar({widgetId, widgetColor, settings}: {widgetId: number, widgetCo
                       }
 
                       return (
-                        <Flex w="100%" wrap="wrap" justify="flex-start" align="center">
+                        <Flex w="100%" justify="flex-start" align="center" css={{"@container (width < 250px)": {flexDirection: "column", alignItems: "flex-start"}}}>
                           <Container maxWidth="75px" p="0" m="0">
                             {startEmphasis}
                           </Container>
