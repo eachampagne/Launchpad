@@ -16,6 +16,7 @@ function Email ({widgetId, widgetColor, settings}: {widgetId: number, widgetColo
   const { user } = useContext(UserContext);
 
   const textColor = changeTextColor(widgetColor);
+  const buttonText = changeTextColor(widgetColor, "white", "black");
 
   const [authStatus, setAuthStatus] = useState(AuthStatus.SignedOut);
   const [emails, setEmails] = useState([] as EmailObject[]);
@@ -94,7 +95,7 @@ function Email ({widgetId, widgetColor, settings}: {widgetId: number, widgetColo
       case AuthStatus.Unauthorized:
         return (
           <LinkBox>
-            <Button>
+            <Button bgColor={textColor} color={buttonText}>
               <LinkOverlay href='/auth/gmail'>Authorize Gmail</LinkOverlay>
             </Button>
           </LinkBox>

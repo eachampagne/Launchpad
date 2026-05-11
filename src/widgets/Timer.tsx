@@ -17,6 +17,8 @@ function Timer({widgetId, widgetColor, settings}: {widgetId: number, widgetColor
   const { user } = useContext(UserContext);
 
   const textColor = changeTextColor(widgetColor);
+  const buttonText = changeTextColor(widgetColor, "white", "black");
+  const colorMode = changeTextColor(widgetColor, "dark", "light"); // affects number inputs
 
   // this was helpful: https://stackoverflow.com/questions/55198517/react-usestate-why-settimeout-function-does-not-have-latest-state-value
   const audioElement = useRef(new Audio(soundUrl)); // don't recreate every rerender
@@ -286,7 +288,10 @@ function Timer({widgetId, widgetColor, settings}: {widgetId: number, widgetColor
                 max={59}
                 onValueChange={(e) => setMinutes(e.value)}
               >
-                <NumberInput.Control />
+                <NumberInput.Control>
+                  <NumberInput.IncrementTrigger color={textColor}/>
+                  <NumberInput.DecrementTrigger color={textColor}/>
+                </NumberInput.Control>
                 <NumberInput.Input />
               </NumberInput.Root>
               <NumberInput.Root
@@ -296,10 +301,13 @@ function Timer({widgetId, widgetColor, settings}: {widgetId: number, widgetColor
                 max={59}
                 onValueChange={(e) => setSeconds(e.value)}
               >
-                <NumberInput.Control />
+                <NumberInput.Control>
+                  <NumberInput.IncrementTrigger color={textColor}/>
+                  <NumberInput.DecrementTrigger color={textColor}/>
+                </NumberInput.Control>
                 <NumberInput.Input />
               </NumberInput.Root>
-              <Button onClick={handleStartCustomTimer}>Start</Button>
+              <Button onClick={handleStartCustomTimer} bgColor={textColor} color={buttonText}>Start</Button>
             </Flex>
             <Flex justify="center" gap="0.5rem">
               <For
@@ -310,6 +318,8 @@ function Timer({widgetId, widgetColor, settings}: {widgetId: number, widgetColor
                     <Button
                       value={time * 60 * 1000}
                       onClick={handleStartTimerButton}
+                      bgColor={textColor}
+                      color={buttonText}
                     >
                       {time} m
                     </Button>
@@ -334,6 +344,8 @@ function Timer({widgetId, widgetColor, settings}: {widgetId: number, widgetColor
                       <Button
                         value={action}
                         onClick={handleControlButton}
+                        bgColor={textColor}
+                        color={buttonText}
                       >
                         {action[0].toUpperCase() + action.slice(1)}
                       </Button>
@@ -359,6 +371,8 @@ function Timer({widgetId, widgetColor, settings}: {widgetId: number, widgetColor
                       <Button
                         value={action}
                         onClick={handleControlButton}
+                        bgColor={textColor}
+                        color={buttonText}
                       >
                         {action[0].toUpperCase() + action.slice(1)}
                       </Button>
@@ -374,7 +388,7 @@ function Timer({widgetId, widgetColor, settings}: {widgetId: number, widgetColor
   }
 
   return (
-    <Flex direction="column" height="100%" color={textColor}>
+    <Flex direction="column" height="100%" color={textColor} className={colorMode}>
       <Flex align="center" marginBottom="0.5rem">
         <Icon size="lg" marginRight="0.5rem">
           <LuTimer/> {/* Would the alarm clock be better? */}

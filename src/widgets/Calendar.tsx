@@ -17,6 +17,8 @@ function Calendar({widgetId, widgetColor, settings}: {widgetId: number, widgetCo
   const { user } = useContext(UserContext);
 
   const textColor = changeTextColor(widgetColor);
+  const buttonText = changeTextColor(widgetColor, "white", "black");
+  const colorMode = changeTextColor(widgetColor, "dark", "light"); // affects dropdown menu
 
   const [authStatus, setAuthStatus] = useState(AuthStatus.SignedOut);
   const [events, setEvents] = useState([] as Event[]);
@@ -158,7 +160,7 @@ function Calendar({widgetId, widgetColor, settings}: {widgetId: number, widgetCo
 
       return (
         <HStack>
-          <NativeSelect.Root variant={'subtle'} color='white'>
+          <NativeSelect.Root variant={'subtle'} color={buttonText}>
             <NativeSelect.Field onChange={handleCalendarSelect} value={activeCalendarId || primaryCalendarId}>
               <For
                 each={calendars}
@@ -169,7 +171,7 @@ function Calendar({widgetId, widgetColor, settings}: {widgetId: number, widgetCo
             </NativeSelect.Field>
             <NativeSelect.Indicator />
           </NativeSelect.Root>
-          <Button onClick={() => setDefaultCalendar(activeCalendarId)}>Make default</Button>
+          <Button onClick={() => setDefaultCalendar(activeCalendarId)} bgColor={textColor} color={buttonText}>Make default</Button>
         </HStack>
       )
     } else {
@@ -186,7 +188,7 @@ function Calendar({widgetId, widgetColor, settings}: {widgetId: number, widgetCo
         // LinkBox/LinkOverlay mean the whole button, not just the text, functions as a link
         return (
           <LinkBox>
-            <Button>
+            <Button bgColor={textColor} color={buttonText}>
               <LinkOverlay href='/auth/calendar'>Authorize Calendar</LinkOverlay>
             </Button>
           </LinkBox>
@@ -251,7 +253,7 @@ function Calendar({widgetId, widgetColor, settings}: {widgetId: number, widgetCo
   };
 
   return (
-    <Flex direction="column" height="100%" color={textColor}>
+    <Flex direction="column" height="100%" color={textColor} className={colorMode}>
       <Flex align="center" marginBottom="0.5rem"> {/* Inner flex box means icon is vertically centered against text */}
         <Icon size="lg" marginRight="0.5rem">
           <LuCalendarDays/>
