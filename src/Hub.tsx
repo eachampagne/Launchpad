@@ -206,14 +206,6 @@ export default function Hub(
   }
 };
 
-  // used to set a dashboard's layout as public
-  // TODO coordinate with layout team to finish function
-  const handlePublishLayout = () => {};
-
-  // used to set a dashboard's theme as public
-  // TODO coordinate with theme team to finish function
-  const handlePublishTheme = () => {};
-
   // used to navigate to dashboard after click
  function OpenDashboard(dashboardId: number) {
     
@@ -582,30 +574,6 @@ export default function Hub(
                           <Popover.Content minW="150px">
                             <Popover.Body p={0}>
                               <VStack align="stretch" gap={0}>
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  justifyContent="flex-start"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handlePublishLayout();
-                                  }}
-                                >
-                                  Publish Layout
-                                </Button>
-
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  justifyContent="flex-start"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handlePublishTheme();
-                                  }}
-                                >
-                                  Publish Theme
-                                </Button>
-
                                 <Button
                                   size="sm"
                                   variant="ghost"
