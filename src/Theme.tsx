@@ -203,7 +203,7 @@ function Theme ({dashboard, ownerId, dashboardId, textColor="white", refreshThem
     <Box display='grid' gridTemplateColumns='1fr 1fr' gap='2' mb='3' >
       {publicList.slice(page * 4, (page + 1) * 4).map((theme) => (
         // bringing back the functionality for each theme card
-        <Box key={theme.id} borderRadius='14px' border={ `1px solid ${theme.navColor}88`}
+        <Box key={theme.id} borderRadius='14px' border='0.5px solid rgba(255, 255, 255, 0.33)'
         bg='rgba(34, 34, 34, 0.08)' position='relative' cursor='pointer' transition='all 0.18s' 
         // onClick={async () => {
         //     setCurrTheme(theme)
@@ -222,7 +222,7 @@ function Theme ({dashboard, ownerId, dashboardId, textColor="white", refreshThem
           </Box>
 
           {/* title of the color - nav, bg, widget */}
-          <Box display='flex' borderBottom='0.5px solid rgba(255,255,255,0.06)'>
+          <Box display='flex' borderBottom={textColor}>
             {colors.map((title, i) => (
               <Box key={title} flex='1' textAlign='center' py='1' fontSize='9px' color={textColor} letterSpacing='0.06em' border={i < 2 ? '0.5px solid rgba(255, 255, 255, 0.39)' : '0.5px solid rgba(255, 255, 255, 0.39)'}>
               {title}
@@ -256,8 +256,8 @@ function Theme ({dashboard, ownerId, dashboardId, textColor="white", refreshThem
             <Box display='flex' gap='1' onClick={(e) => e.stopPropagation()}>
               
                 <Button
-                  size='sm' variant='ghost' minW='22px' h='22px' p='0'
-                  borderRadius='6px' color='#ffffff'
+                  size='md' variant='ghost' minW='22px' h='22px' p='0'
+                  borderRadius='6px' color={textColor}
                   border='0.5px solid rgba(255, 255, 255, 0.39)'
                   _hover={{ color: 'whiteAlpha.800', bg: 'whiteAlpha.100' }}
                   onPointerDown={async (e) => {
@@ -332,8 +332,8 @@ function Theme ({dashboard, ownerId, dashboardId, textColor="white", refreshThem
                   </Box>
                 )}
                  <Box
-                  bg={theme.public ? 'rgba(34,197,94,0.12)' : 'rgba(255,255,255,0.05)'}
-                  color={theme.public ? '#4ade80' : '#ffffff'}
+                  bg={theme.public ? 'rgba(0, 0, 0, 0.15)' : 'rgba(0, 0, 0, 0.15)'}
+                  color={theme.public ? '#4ade80' : textColor}
                   border={theme.public ? 'none' : '0.5px solid rgba(255,255,255,0.1)'}
                   fontSize='12px' fontWeight='500' px='1.5' py='0.5'
                   borderRadius='20px' >
@@ -387,7 +387,7 @@ function Theme ({dashboard, ownerId, dashboardId, textColor="white", refreshThem
       <Box display='flex' alignItems='center' justifyContent='center' gap='1.5' mb='3'>
         <Button
           size='xs' variant='ghost' minW='28px' h='28px' p='0' borderRadius='7px'
-          color='#ffffff' border='0.5px solid rgba(255, 255, 255, 0.39)'
+          color={textColor} border='0.5px solid rgba(255, 255, 255, 0.39)'
           disabled={page === 0}
           onClick={() => setPage((p) => Math.max(0, p - 1))}
           _hover={{ color: 'white', bg: 'whiteAlpha.100' }}
@@ -398,7 +398,7 @@ function Theme ({dashboard, ownerId, dashboardId, textColor="white", refreshThem
             key={i} size='xs' variant='ghost'
             minW='24px' h='24px' p='0' borderRadius='6px'
             fontSize='12px'
-            color={i === page ? 'whiteAlpha.900' : 'whiteAlpha.400'}
+            color={textColor}
             bg={i === page ? 'whiteAlpha.100' : 'transparent'}
             border={i === page ? '0.5px solid rgba(255,255,255,0.2)' : '0.5px solid transparent'}
             _hover={{ color: 'white', bg: 'whiteAlpha.100' }}
@@ -408,7 +408,7 @@ function Theme ({dashboard, ownerId, dashboardId, textColor="white", refreshThem
 
         <Button
           size='xs' variant='ghost' minW='28px' h='28px' p='0' borderRadius='7px'
-          color='#ffffff' border='0.5px solid rgba(255, 255, 255, 0.39)'
+          color={textColor} border='0.5px solid rgba(255, 255, 255, 0.39)'
           disabled={page === Math.ceil(themesList.length / 4) - 1}
           onClick={() => setPage((page) => page + 1)}
           _hover={{ color: 'white', bg: 'whiteAlpha.100' }}
@@ -474,7 +474,7 @@ function Theme ({dashboard, ownerId, dashboardId, textColor="white", refreshThem
 
     <Box display='flex' gap='2' mt='2.5' >
       <Button flex='1' size='sm' variant='ghost'
-        color='#ffffff'
+        color={textColor}
         border='0.5px solid rgba(255,255,255,0.1)'
         borderRadius='9px' fontSize='11px'
         _hover={{ bg: 'whiteAlpha.100' }}
