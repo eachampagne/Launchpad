@@ -4,11 +4,11 @@ import type { WidgetSettings } from "../../types/LayoutTypes";
 export default function Search({
   widgetId,
   settings,
-  textColor,
+  widgetColor,
 }: {
   widgetId: number;
   settings: WidgetSettings | null;
-  textColor: string;
+  widgetColor: string;
 }) {
   //Set search query state
   const [query, setQuery] = useState("");
@@ -43,7 +43,7 @@ export default function Search({
           border: "none",
           outline: "none",
           fontSize: "1rem",
-          color: textColor,
+          color: widgetColor,
         }}
         autoComplete="off"
       />
@@ -52,7 +52,7 @@ export default function Search({
         style={{
           background: "transparent",
           //border: `1px solid ${textColor}`,
-          color: textColor,
+          color: widgetColor,
           borderRadius: "6px",
           padding: "4px 10px",
           cursor: "pointer",

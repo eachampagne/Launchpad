@@ -13,24 +13,24 @@ function LayoutGallery({ onSelect, selectedLayoutId, currentLayoutId }: Props) {
   const [publicLayouts, setPublicLayouts] = useState<Layout[]>([]);
   const [privateLayouts, setPrivateLayouts] = useState<Layout[]>([]);
 
+  const fetchLayouts = async () => {
+    try {
+      const publicRes = await axios.get("/layout/public");
+      const privateRes = await axios.get("/layout/private");
+
+      const filteredPrivate = privateRes.data.filter(
+        (layout: Layout) =>
+          layout.id !== currentLayoutId || privateRes.data.length === 1,
+      );
+
+      setPublicLayouts(publicRes.data);
+      setPrivateLayouts(filteredPrivate);
+    } catch (err) {
+      console.error("Couldn't fetch layouts:", err);
+    }
+  };
+
   useEffect(() => {
-    const fetchLayouts = async () => {
-      try {
-        const publicRes = await axios.get("/layout/public");
-        const privateRes = await axios.get("/layout/private");
-
-        const filteredPrivate = privateRes.data.filter(
-          (layout: Layout) =>
-            layout.id !== currentLayoutId || privateRes.data.length === 1
-        );
-
-        setPublicLayouts(publicRes.data);
-        setPrivateLayouts(filteredPrivate);
-      } catch (err) {
-        console.error("Couldn't fetch layouts:", err);
-      }
-    };
-
     fetchLayouts();
   }, [currentLayoutId]);
 
@@ -43,13 +43,15 @@ function LayoutGallery({ onSelect, selectedLayoutId, currentLayoutId }: Props) {
 
     const updated = res.data;
 
-    if (updated.public) {
-      setPrivateLayouts(prev => prev.filter(l => l.id !== updated.id));
-      setPublicLayouts(prev => [...prev, updated]);
-    } else {
-      setPublicLayouts(prev => prev.map(l => l.id === updated.id ? updated : l));
-      setPrivateLayouts(prev => [...prev, updated]);
-    }
+    fetchLayouts()
+
+    // if (updated.public) {
+    //   setPrivateLayouts(prev => prev.filter(l => l.id !== updated.id));
+    //   setPublicLayouts(prev => [...prev, updated]);
+    // } else {
+    //   setPublicLayouts(prev => prev.map(l => l.id === updated.id ? updated : l));
+    //   setPrivateLayouts(prev => [...prev, updated]);
+    // }
   };
 
   const deleteLayout = async (lay: Layout, e: any) => {
