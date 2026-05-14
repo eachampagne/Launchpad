@@ -15,6 +15,7 @@ export type WidgetSettings = {
 export type Layout = {
   id: number;
   gridSize: string;
+  public: boolean;
   layoutElements: LayoutElement[];
 };
 
