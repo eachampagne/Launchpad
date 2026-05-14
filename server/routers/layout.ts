@@ -228,14 +228,48 @@ layout.patch('/:elementId', async (req, res) => {
 
 });
 
+// PATCH: toggle layout public/private
+layout.patch('/:layoutId/public', async (req, res) => {
+  if (!req.user) return res.sendStatus(401);
+
+  const layoutId = Number(req.params.layoutId);
+  const { public: isPublic } = req.body;
+
+  try {
+    const layout = await prisma.layout.findUnique({
+      where: { id: layoutId }
+    });
+
+    if (!layout) return res.sendStatus(404);
+
+    // only owner can change visibility
+    if (layout.ownerId !== req.user.id) {
+      return res.sendStatus(403);
+    }
+
+    const updated = await prisma.layout.update({
+      where: { id: layoutId },
+      data: { public: isPublic }
+    });
+
+    res.status(200).send(updated);
+  } catch (err) {
+    console.error('Failed to toggle layout visibility:', err);
+    res.sendStatus(500);
+  }
+});
+
+
+
+
 // DELETE: Remove an element from a layout.
 
-layout.delete('/:elementId', async (req, res) => {
+layout.delete('/element/:elementId', async (req, res) => {
   // check auth
   if (req.user === undefined) {
     return res.sendStatus(500);
   }
-
+  
   const elementId = Number(req.params.elementId);
   try {
     // Delete child records first to avoid foreign key constraint errors
@@ -253,11 +287,11 @@ layout.delete('/:elementId', async (req, res) => {
         where: { layoutElementId: elementId }
       });
     }
-
+    
     // delete timer associated with widget, if any, and clear the timeout
     // this does nothing if there is no timer
     await clearTimer(req.user.id, elementId);
-
+    
     await prisma.layoutElement.delete({
       where: { id: elementId }
     });
@@ -267,4 +301,46 @@ layout.delete('/:elementId', async (req, res) => {
   }
 });
 
+layout.delete('/id/:layoutId', async (req, res) => {
+  if (!req.user) return res.sendStatus(401);
+
+  const layoutId = Number(req.params.layoutId);
+
+  try {
+    const layout = await prisma.layout.findUnique({
+      where: { id: layoutId },
+      include: { layoutElements: true }
+    });
+
+    if (!layout) return res.sendStatus(404);
+
+    if (layout.ownerId !== req.user.id) {
+      return res.sendStatus(403);
+    }
+
+    const dashboardsUsing = await prisma.dashboard.findMany({
+      where: { layoutId }
+    });
+
+    if (dashboardsUsing.length > 0) {
+      return res.status(400).send({
+        error: "Cannot delete layout currently used by dashboards"
+      });
+    }
+    //delete children FIRST
+    await prisma.layoutElement.deleteMany({
+      where: { layoutId }
+    });
+    //delete layout
+    await prisma.layout.delete({
+      where: { id: layoutId }
+    });
+
+    return res.sendStatus(204);
+
+  } catch (err) {
+    console.error("DELETE layout failed:", err);
+    return res.status(500).send({ error: "Internal server error" });
+  }
+});
 export default layout;
