@@ -37,7 +37,7 @@ export default function Dashboard () {
 
   const canvasWidth = columns * snapSize;
   const canvasHeight = rows * snapSize;
-  const settingsWidth = 400;
+  const settingsWidth = 450;
   const spacing = 20;
 
   // add spacing on each side to the breakpoints to have a little bit of margin instead of having everything touch the edge of the screen
