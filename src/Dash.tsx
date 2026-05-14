@@ -40,8 +40,9 @@ export default function Dashboard () {
   const settingsWidth = 400;
   const spacing = 20;
 
-  const oneSidebarBreakpoint = canvasWidth + spacing + settingsWidth;
-  const twoSidebarBreakpoint = canvasWidth + 2 * (spacing + settingsWidth);
+  // add spacing on each side to the breakpoints to have a little bit of margin instead of having everything touch the edge of the screen
+  const oneSidebarBreakpoint = canvasWidth + 3 * spacing + settingsWidth;
+  const twoSidebarBreakpoint = canvasWidth + 2 * (2 * spacing + settingsWidth);
 
   // the media queries need to be declared before the first invocation of checkBreakpoints()
   // if we ever have variably-sized dashboards, these will need to be recreated when the dashboard changes
@@ -283,7 +284,7 @@ export default function Dashboard () {
       return (
         <Flex align="center" onClick={() => setRenaming(true)} height={nameHeight} color={changeTextColor(theme.bgColor)}>
           <Heading >{dashboard.name}</Heading>
-          <Icon ml="0.5rem">
+          <Icon ml="0.5rem" cursor="pointer">
             <LuPencil />
           </Icon>
         </Flex>

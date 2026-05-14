@@ -85,7 +85,7 @@ const LayoutCanvas = function({layout, editable=false, widgetColor = "#FFFFFF", 
             onDelete={handleDelete}
             editActive={editable}
           >
-            <WidgetComp widgetId={element.id} settings={element.settings} textColor={changeTextColor(widgetColor)} />
+            <WidgetComp widgetId={element.id} settings={element.settings} widgetColor={widgetColor} />
           </WidgetFrame>
         );
       })}

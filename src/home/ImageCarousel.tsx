@@ -1,7 +1,15 @@
 import { Carousel, IconButton, Box } from "@chakra-ui/react"
 import { LuChevronLeft, LuChevronRight } from "react-icons/lu"
 
-const items = Array.from({ length: 5 })
+import widgets from "../assets/widgetss.png";
+import themes from "../assets/newthemeagain.png";
+import layout from "../assets/layout2.png";
+import dashboard from "../assets/dash.png";
+import accounts from "../assets/accounts.png";
+
+
+
+const items = [widgets, themes, layout, dashboard, accounts]
 
 // ! This is currently the demo from the Chakra-UI page, and should be replaced. It is being used while laying out the site.
 const ImageCarousel = () => {
@@ -11,7 +19,7 @@ const ImageCarousel = () => {
         {items.map((_, index) => (
           <Carousel.Item key={index} index={index}>
             <Box rounded="lg" fontSize="2.5rem" width="250px" height="250px" backgroundColor="gray.muted" textAlign="center">
-              {index + 1}
+              <img src={_} alt='' />
             </Box>
           </Carousel.Item>
         ))}

@@ -7,13 +7,18 @@ import { LuTimer, LuVolume2, LuVolumeOff } from 'react-icons/lu';
 import type { WidgetSettings } from '../../types/LayoutTypes.ts';
 import { TimerStatus } from '../../types/WidgetStatus.ts';
 import { UserContext } from '../UserContext.tsx';
+import changeTextColor from '../utilities/color.ts';
 import { Toaster, toaster } from '../components/ui/toaster'
 
 import soundUrl from './../assets/triangle.mp3';
 // constantly recreating it is bad performance wise, but also means its muted/unmuted status doesn't persist
 
-function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: string, settings: WidgetSettings | null}) {
+function Timer({widgetId, widgetColor, settings}: {widgetId: number, widgetColor: string, settings: WidgetSettings | null}) {
   const { user } = useContext(UserContext);
+
+  const textColor = changeTextColor(widgetColor);
+  const buttonText = changeTextColor(widgetColor, "white", "black");
+  const colorMode = changeTextColor(widgetColor, "dark", "light"); // affects number inputs
 
   // this was helpful: https://stackoverflow.com/questions/55198517/react-usestate-why-settimeout-function-does-not-have-latest-state-value
   const audioElement = useRef(new Audio(soundUrl)); // don't recreate every rerender
@@ -26,6 +31,8 @@ function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: st
   const [timerString, setTimerString] = useState('');
   const [pausedRemaining, setPausedRemaining] = useState(null as number | null);
   const [muted, setMuted] = useState(false);
+  const [notiAllowed, setNotiAllowed] = useState(false);
+  const [countToast, setCountToast] = useState(0);
 
   const [minutes, setMinutes] = useState('0');
   const [seconds, setSeconds] = useState('0');
@@ -57,6 +64,14 @@ function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: st
           setPausedRemaining(remainingMs);
           setExpiration(null);
         } else {
+          if (remainingMs < 0) { // timer has already expired - basically counts as no timer
+            // the server should no longer send expired timers, but this is just in case
+            setTimerStatus(TimerStatus.NoTimer);
+            setPausedRemaining(null);
+            setExpiration(null);
+            return;
+          }
+
           setTimerStatus(TimerStatus.ActiveTimer);
           const expirationResponse = new Date(Date.now() + remainingMs);
           setExpiration(expirationResponse);
@@ -81,6 +96,8 @@ function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: st
     } catch (error) {
       console.error('Failed to start new timer:', error);
     }
+
+    setCountToast(0);
   };
 
   const tick = () => {
@@ -200,14 +217,55 @@ function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: st
     }
   };
 
+  const checkNotiStatus = () => {
+
+      axios.get(`/notifications/${user.id}`)
+        .then(response => {
+          const { noti } = response.data.data;
+          console.log(response, 'hi')
+          setNotiAllowed(noti);
+        })
+        .catch(error => {
+          console.error('Failed to fetch phone number settings:', error);
+      });
+
+
+      console.log(notiAllowed)
+  }
+
   const handleTimeUp = () => {
     audioElement.current.play();
     checkServer();
 
-    toaster.create({
-    title: "Timer Finished!",
-    description: "Your timer is up!",
-    })
+
+
+    if(notiAllowed === true && countToast === 0){
+      toaster.create({
+      title: "Timer Finished!",
+      description: "Your timer is up!",
+      })
+
+      setCountToast((c) => c + 1)
+    }
+
+    // toaster.create({
+    // title: "Timer Finished!",
+    // description: "Your timer is up!",
+    // })
+    // axios.get(`/phoneNumbers/${user.id}`)
+    //     .then(response => {
+    //       const { noti } = response.data.data;
+    //       if (noti) {
+    //         toaster.create({
+    //           title: "Timer Finished!",
+    //           description: "Your timer is up!",
+    //         });
+    //       }
+    //     })
+    //     .catch(error => {
+    //       console.error('Failed to fetch phone number settings:', error);
+    //     });
+  
   }
 
   const handleUnmount = () => {
@@ -248,6 +306,7 @@ function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: st
 
   useEffect(() => {
     checkServer();
+    checkNotiStatus();
   }, [user]);
 
   useEffect(() => {
@@ -283,7 +342,10 @@ function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: st
                 max={59}
                 onValueChange={(e) => setMinutes(e.value)}
               >
-                <NumberInput.Control />
+                <NumberInput.Control>
+                  <NumberInput.IncrementTrigger color={textColor}/>
+                  <NumberInput.DecrementTrigger color={textColor}/>
+                </NumberInput.Control>
                 <NumberInput.Input />
               </NumberInput.Root>
               <NumberInput.Root
@@ -293,10 +355,13 @@ function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: st
                 max={59}
                 onValueChange={(e) => setSeconds(e.value)}
               >
-                <NumberInput.Control />
+                <NumberInput.Control>
+                  <NumberInput.IncrementTrigger color={textColor}/>
+                  <NumberInput.DecrementTrigger color={textColor}/>
+                </NumberInput.Control>
                 <NumberInput.Input />
               </NumberInput.Root>
-              <Button onClick={handleStartCustomTimer}>Start</Button>
+              <Button onClick={handleStartCustomTimer} bgColor={textColor} color={buttonText}>Start</Button>
             </Flex>
             <Flex justify="center" gap="0.5rem">
               <For
@@ -307,6 +372,8 @@ function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: st
                     <Button
                       value={time * 60 * 1000}
                       onClick={handleStartTimerButton}
+                      bgColor={textColor}
+                      color={buttonText}
                     >
                       {time} m
                     </Button>
@@ -331,6 +398,8 @@ function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: st
                       <Button
                         value={action}
                         onClick={handleControlButton}
+                        bgColor={textColor}
+                        color={buttonText}
                       >
                         {action[0].toUpperCase() + action.slice(1)}
                       </Button>
@@ -356,6 +425,8 @@ function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: st
                       <Button
                         value={action}
                         onClick={handleControlButton}
+                        bgColor={textColor}
+                        color={buttonText}
                       >
                         {action[0].toUpperCase() + action.slice(1)}
                       </Button>
@@ -371,7 +442,7 @@ function Timer({widgetId, textColor, settings}: {widgetId: number, textColor: st
   }
 
   return (
-    <Flex direction="column" height="100%" color={textColor}>
+    <Flex direction="column" height="100%" color={textColor} className={colorMode}>
       <Flex align="center" marginBottom="0.5rem">
         <Icon size="lg" marginRight="0.5rem">
           <LuTimer/> {/* Would the alarm clock be better? */}

@@ -35,6 +35,7 @@ phoneNumbers.get('/:ownerId', async (req, res) => {
       verified: userNumber.verified
     }
     // console.log(Number(req.params.ownerId))
+    console.log(data)
     return res.status(200).send({
       data
     })

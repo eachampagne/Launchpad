@@ -110,10 +110,12 @@ const deleteNumber = async () => {
   try {
     await axios.delete(`/notifications/${ownerId}`)
     setHasNumber(false)
+    setIsDeleting(false)
     setIsAdding(false)
     setPhoneNumber('')
     setChecked(false)
     setStep('phone')
+    setVerificationStatus(false)
     
   } catch (error) {
     console.error('sorry couldnt delete something thats not there', error)
@@ -134,6 +136,7 @@ const deleteNumber = async () => {
           <Center>
           <Text fontWeight='medium'>Enter A Phone Number</Text>
           </Center>
+          <Center>
           <For each={['2xs']}>
             {(size) => (
             <PinInput.Root key={size} size={size} onValueChange={(e) => setPhoneNumber(e.valueAsString)}>
@@ -161,6 +164,7 @@ const deleteNumber = async () => {
             </PinInput.Root>
             )}
           </For>
+          </Center>
           <Center mt='1'>
           <Button  placeContent='center' size="xs" variant="surface" colorPalette="blue" onClick={async () => {
             if(!phoneNumber || phoneNumber.length !== 10){

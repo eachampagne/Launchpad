@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Box, Flex, Textarea, IconButton, Text, VStack, Heading, Spacer, Icon} from '@chakra-ui/react';
 import type { WidgetSettings } from '../../types/LayoutTypes';
+import changeTextColor from '../utilities/color.ts';
 
 import { LuBot } from "react-icons/lu";
 
@@ -9,12 +10,13 @@ type Message = {
   parts: { text: string }[];
 };
 
-function AiChat({widgetId, textColor, settings}: {widgetId: number, textColor: string, settings: WidgetSettings | null}) {
+function AiChat({widgetId, widgetColor, settings}: {widgetId: number, widgetColor: string, settings: WidgetSettings | null}) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const textColor = changeTextColor(widgetColor);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
