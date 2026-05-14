@@ -2,16 +2,22 @@ import { useState, useEffect } from "react";
 import { Grid, Box, Heading, Button } from "@chakra-ui/react";
 import axios from "axios";
 import type { Layout } from "../types/LayoutTypes";
+import changeTextColor from './utilities/color.ts';
 
 type Props = {
   onSelect: (layoutId: number) => void;
   selectedLayoutId: number;
   currentLayoutId: number;
+  backgroundColor: string;
 };
 
-function LayoutGallery({ onSelect, selectedLayoutId, currentLayoutId }: Props) {
+function LayoutGallery({ onSelect, selectedLayoutId, currentLayoutId, backgroundColor }: Props) {
   const [publicLayouts, setPublicLayouts] = useState<Layout[]>([]);
   const [privateLayouts, setPrivateLayouts] = useState<Layout[]>([]);
+
+  const buttonColor = changeTextColor(backgroundColor); // also button background
+  const buttonTextColor = changeTextColor(backgroundColor, "white", "black");
+  const outlineColor = changeTextColor(backgroundColor, "gray.300", "gray.700");
 
   const fetchLayouts = async () => {
     try {
@@ -78,9 +84,9 @@ function LayoutGallery({ onSelect, selectedLayoutId, currentLayoutId }: Props) {
             borderRadius="md"
             cursor="pointer"
             borderColor={
-              lay.id === selectedLayoutId ? "orange.400" : "gray.300"
+              lay.id === selectedLayoutId ? "orange.400" : outlineColor
             }
-            bg={lay.id === selectedLayoutId ? "orange.50" : "white"}
+            bg="#00000000"
             onClick={() => onSelect(lay.id)}
           >
             <p>
@@ -94,6 +100,8 @@ function LayoutGallery({ onSelect, selectedLayoutId, currentLayoutId }: Props) {
                 size="xs"
                 colorScheme="red"
                 onClick={(e) => deleteLayout(lay, e)}
+                color={buttonTextColor}
+                bgColor={buttonColor}
               >
                 Delete
               </Button>
@@ -102,6 +110,8 @@ function LayoutGallery({ onSelect, selectedLayoutId, currentLayoutId }: Props) {
                 size="xs"
                 colorScheme="yellow"
                 onClick={(e) => togglePublic(lay, e)}
+                color={buttonTextColor}
+                bgColor={buttonColor}
               >
                 Make Private
               </Button>
@@ -123,9 +133,9 @@ function LayoutGallery({ onSelect, selectedLayoutId, currentLayoutId }: Props) {
             borderRadius="md"
             cursor="pointer"
             borderColor={
-              lay.id === selectedLayoutId ? "orange.400" : "gray.300"
+              lay.id === selectedLayoutId ? "orange.400" : outlineColor
             }
-            bg={lay.id === selectedLayoutId ? "orange.50" : "white"}
+            bg="#00000000"
             onClick={() => onSelect(lay.id)}
           >
             <p>
@@ -139,6 +149,8 @@ function LayoutGallery({ onSelect, selectedLayoutId, currentLayoutId }: Props) {
                 size="xs"
                 colorScheme="red"
                 onClick={(e) => deleteLayout(lay, e)}
+                color={buttonTextColor}
+                bgColor={buttonColor}
               >
                 Delete
               </Button>
@@ -147,6 +159,8 @@ function LayoutGallery({ onSelect, selectedLayoutId, currentLayoutId }: Props) {
                 size="xs"
                 colorScheme="green"
                 onClick={(e) => togglePublic(lay, e)}
+                color={buttonTextColor}
+                bgColor={buttonColor}
               >
                 Make Public
               </Button>

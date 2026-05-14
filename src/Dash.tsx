@@ -341,6 +341,7 @@ export default function Dashboard () {
             onSelect={setSelectedLayoutId}
             selectedLayoutId={selectedLayoutId}
             currentLayoutId={dashboard.layout.id}
+            backgroundColor={localBgColor}
           />
         </Box>
 
