@@ -4,9 +4,11 @@ import type { WidgetSettings } from "../../types/LayoutTypes";
 export default function Search({
   widgetId,
   settings,
+  textColor,
 }: {
   widgetId: number;
   settings: WidgetSettings | null;
+  textColor: string;
 }) {
   //Set search query state
   const [query, setQuery] = useState("");
@@ -21,7 +23,15 @@ export default function Search({
   };
 
   return (
-    <div style={{ display: "flex", alignItems: "center", height: "100%", padding: "0 12px", gap: "8px" }}>
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        height: "100%",
+        padding: "0 12px",
+        gap: "8px",
+      }}
+    >
       <input
         value={query}
         onChange={(e) => setQuery(e.target.value)}
@@ -33,11 +43,23 @@ export default function Search({
           border: "none",
           outline: "none",
           fontSize: "1rem",
-          color: "inherit",
+          color: textColor,
         }}
         autoComplete="off"
       />
-      <button onClick={handleSearch}>Go</button>
+      <button
+        onClick={handleSearch}
+        style={{
+          background: "transparent",
+          //border: `1px solid ${textColor}`,
+          color: textColor,
+          borderRadius: "6px",
+          padding: "4px 10px",
+          cursor: "pointer",
+        }}
+      >
+        Go
+      </button>
     </div>
   );
 }

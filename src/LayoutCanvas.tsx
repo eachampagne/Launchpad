@@ -28,7 +28,7 @@ const LayoutCanvas = function({layout, editable=false, widgetColor = "#FFFFFF", 
 
   const handleDelete = async (elementId: number) => {
   try {
-    await axios.delete(`/layout/${elementId}`);
+    await axios.delete(`/layout/element/${elementId}`);
     if (onLayoutChange) {
       onLayoutChange(); //refresh parent dashboard
     }
