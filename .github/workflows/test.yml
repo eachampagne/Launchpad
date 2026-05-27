@@ -36,7 +36,13 @@ jobs:
       GOOGLE_AUTH_REDIRECT_URL: ${{ secrets.GOOGLE_AUTH_REDIRECT_URL || 'test' }}
       TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID || 'test' }}
       TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN || 'test' }}
-      GH_AUTH_TOKEN: ${{ secrets.GH_AUTH_TOKEN || 'test' }}
+      GH_AUTH_TOKEN: ${{ secrets.GH_AUTH_TOKEN }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY || 'test' }}
+      SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID || 'test' }}
+      SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET || 'test' }}
+      SPOTIFY_LOGIN_REDIRECT_URL: ${{ secrets.SPOTIFY_LOGIN_REDIRECT_URL || 'test' }}
+      DEMO_ACCOUNT_ID: ${{ vars.DEMO_ACCOUNT_ID }}
+      PORT: ${{ vars.PORT }}
 
     steps:
       - name: Checkout Code
