@@ -8,7 +8,7 @@ github.get('/changelog', async (req, res) => {
 
   try {
     // tested in Postman
-    const queryString = '{ repository(owner:"Operation-Yuzu", name:"Launchpad") { pullRequests(last: 10) { edges { node { number merged mergedAt title} } } } }';
+    const queryString = '{ repository(owner:"eachampagne", name:"Launchpad") { pullRequests(last: 10) { edges { node { number merged mergedAt title} } } } }';
 
     const changelogData = await axios.post('https://api.github.com/graphql', {
       query: queryString

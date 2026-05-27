@@ -8,5 +8,6 @@ test('has GitHub changelog', async ({ page }) => {
 
   const changelogEntryCount = await page.getByTestId("changelog-entry").count();
 
-  expect(changelogEntryCount).toBeGreaterThan(0);
+  expect(changelogEntryCount).toBeGreaterThan(0); // can't assert that it's exactly 10 because server filters out non-merged PRs
+  // note that this doesn't account for the repository simply not having any PRs (such as when changing to the fork, or if somehow there are 10 open PRs)
 });
