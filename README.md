@@ -48,3 +48,10 @@ TODO
 Make sure the server is running when you run the tests!
 
 I don't know if ultimately we need to switch to the deployed URL or how this will work with GitHub Actions.
+
+### Using GitHub Actions
+
+The `Tests` workflow (which runs the Playwright test suite) is triggered on pushes. Workflows must be activated and repository variables and secrets must be created in the forked repository for these tests to run properly.
+
+Note: Originally the workflow was triggered by pull requests to main, but because pull requests from forked repositories are unable to access secrets from either the fork or the target branch, the test always failed.
+
