@@ -1,9 +1,7 @@
 # .github/workflows/tests.yml
 name: Tests
 on:
-  pull_request:
-    branches:
-      - main
+  push
 
 jobs:
   unit-tests:
