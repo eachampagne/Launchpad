@@ -164,7 +164,9 @@ dashboard.post('/', async (req, res) => {
         data: {
           ownerId,
           public: false,
-          gridSize: "medium"
+          columns: 19,
+          rows: 12,
+          gridSize: 60
         }
       })
     } else {
@@ -173,6 +175,8 @@ dashboard.post('/', async (req, res) => {
         data: {
           ownerId,
           public: false,
+          columns: defaultLayout.columns,
+          rows: defaultLayout.rows,
           gridSize: defaultLayout.gridSize
         }
       });
@@ -332,6 +336,8 @@ dashboard.post('/:dashboardId/layout/:layoutId', async (req, res) => {
         ownerId: userId,
         public: false,
         gridSize: sourceLayout.gridSize,
+        columns: sourceLayout.columns,
+        rows: sourceLayout.rows,
         layoutElements: {
           create: sourceLayout.layoutElements.map(el => ({
             widgetId: el.widgetId,

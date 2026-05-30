@@ -99,10 +99,12 @@ layout.post('/private', async (req, res) => {
     return res.sendStatus(401); // Not authenticated
   }
 
-  const { gridSize, layoutElements }: {
-  gridSize: string;
-  layoutElements: LayoutElementInput[];
-} = req.body;
+  const { gridSize, columns, rows, layoutElements }: {
+    gridSize: number,
+    columns: number,
+    rows: number,
+    layoutElements: LayoutElementInput[],
+  } = req.body;
 
   try {
     const newLayout = await prisma.layout.create({
@@ -110,6 +112,8 @@ layout.post('/private', async (req, res) => {
         ownerId: req.user.id,
         public: false,
         gridSize,
+        columns,
+        rows,
 
         layoutElements: {
           create: layoutElements.map(el => ({
@@ -160,7 +164,9 @@ layout.post('/:layoutId/copy', async (req, res) => {
       data: {
         ownerId: userId,
         public: false,
-        gridSize: sourceLayout.gridSize
+        columns: sourceLayout.columns,
+        rows: sourceLayout.rows,
+        gridSize: sourceLayout.gridSize,
       }
     });
     //duplicate layout elements

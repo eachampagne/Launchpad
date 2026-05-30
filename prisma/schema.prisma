@@ -73,13 +73,15 @@ model Theme {
 }
 
 model Layout {
-  id             Int             @id @default(autoincrement())
-  usedBy         Dashboard?
-  owner          User            @relation(fields: [ownerId], references: [id])
-  ownerId        Int
-  public         Boolean         @default(false)
-  gridSize       String
-  layoutElements LayoutElement[]
+  id              Int             @id @default(autoincrement())
+  usedBy          Dashboard?
+  owner           User            @relation(fields: [ownerId], references: [id])
+  ownerId         Int
+  public          Boolean         @default(false)
+  rows            Int
+  columns         Int
+  gridSize        Int
+  layoutElements  LayoutElement[]
 }
 
 model LayoutElement {

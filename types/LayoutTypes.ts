@@ -14,7 +14,9 @@ export type WidgetSettings = {
 
 export type Layout = {
   id: number;
-  gridSize: string;
+  columns: number;
+  rows: number;
+  gridSize: number;
   public: boolean;
   layoutElements: LayoutElement[];
 };
