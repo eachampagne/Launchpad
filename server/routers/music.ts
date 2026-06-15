@@ -1,5 +1,5 @@
 import express from 'express';
-import request from 'request';
+import axios from 'axios';
 import { prisma } from '../database/prisma.js';
 
 const spotify = express.Router();
@@ -34,29 +34,35 @@ spotify.get('/login', (req, res) => {
   res.redirect('https://accounts.spotify.com/authorize/?' + auth_query_parameters.toString());
 });
 
-spotify.get('/callback', (req, res) => {
+spotify.get('/callback', async (req, res) => {
   const code = req.query.code;
 
-  const authOptions = {
-    url: 'https://accounts.spotify.com/api/token',
-    form: {
-      code: code,
-      redirect_uri: spotify_redirect!,
-      grant_type: 'authorization_code',
-    },
-    headers: {
-      'Authorization': 'Basic ' + Buffer.from(spotify_client_id + ':' + spotify_client_secret).toString('base64'),
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    json: true,
+  const body = {
+    code: code,
+    redirect_uri: spotify_redirect!,
+    grant_type: 'authorization_code',
   };
 
-  request.post(authOptions, function (error: any, response: any, body: any) {
-    if (!error && response.statusCode === 200) {
-      access_token = body.access_token;
-      res.redirect('/');
+  const config = {
+    headers: {
+      'Authorization': 'Basic ' + Buffer.from(spotify_client_id + ':' + spotify_client_secret).toString('base64'),
+      'Content-Type': 'application/x-www-form-urlencoded'
     }
-  });
+  };
+
+  try {
+    const spotifyResponse = await axios.post('https://accounts.spotify.com/api/token', body, config);
+    if (spotifyResponse.status === 200) {
+      access_token = spotifyResponse.data.access_token;
+      res.redirect('/');
+    } else {
+      console.error('Unexpected status code from Spotify API:', spotifyResponse.status);
+      res.sendStatus(500);
+    }
+  } catch (error) {
+    console.error('Problem accessing the Spotify API:', error);
+    res.sendStatus(500);
+  }
 });
 
 spotify.get('/token', (req, res) => {
